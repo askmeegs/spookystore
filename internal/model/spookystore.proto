@@ -1,0 +1,32 @@
+# API Specification for the SpookyStore app 
+
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+
+# A User corresponds to one Google user. Includes information on past transactions. 
+message User {
+    string ID = 1;
+    string Email = 2;
+    string DisplayName = 3;
+    string PictureURL = 4;
+}
+
+service UserDirectory {
+    rpc AuthorizeGoogle(GoogleUser) returns (User) {}
+    rpc GetUser(UserRequest) returns (UserResponse) {}
+}
+
+
+# Get user by ID 
+message UserRequest {
+    string ID = 1;
+}
+
+# Return user by ID 
+message UserResponse {
+    bool Found = 1;
+    User User = 2;
+}
+

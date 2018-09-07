@@ -1,2 +1,5 @@
 # spookystore
-sample ecommerce application hosted on GKE
+sample fullstack web application hosted on GKE
+
+
+
