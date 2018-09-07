@@ -2,7 +2,7 @@
 
 USERS_EXECUTABLE ?= users
 IMAGE ?= bin/$(USERS_EXECUTABLE)
-REPO = m-okeefe/spookystore
+REPO = m-okeefe/spookystore-$(USERS_EXECUTABLE)
 TAG = 0.1
 
 build:
@@ -13,4 +13,3 @@ test:
 
 container:
 	docker run -t -w /go/src/github.com/m-okeefe/spookystore -v `pwd`:/go/src/github.com/m-okeefe/spookystore golang:1.11.0 make
-	docker build -t $(REPO):$(TAG) .
