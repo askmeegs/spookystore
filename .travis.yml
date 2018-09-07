@@ -5,6 +5,5 @@ services:
   - docker
 script:
   - make
-  - make test
 notifications:
   email: false
