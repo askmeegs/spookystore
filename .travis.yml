@@ -1,0 +1,10 @@
+language: go
+go:
+- 1.11.0
+services:
+  - docker
+script:
+  - make
+  - make test
+notifications:
+  email: false
