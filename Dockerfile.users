@@ -1,0 +1,15 @@
+FROM golang:1.11-alpine3.7 as build
+COPY . $GOPATH/src/github.com/m-okeefe/spookystore
+ARG REVISION_ID
+RUN go install -v \
+      -tags netgo \
+      -ldflags="-w -X github.com/m-okeefe/spookystore/version.version=$REVISION_ID" \
+      github.com/m-okeefe/spookystore/cmd/users
+
+FROM alpine
+RUN apk add --update ca-certificates && \
+      rm -rf /var/cache/apk/* /tmp/*
+
+COPY  --from=0 /go/bin/users ./users
+ENTRYPOINT ["./users"]
+EXPOSE 8001

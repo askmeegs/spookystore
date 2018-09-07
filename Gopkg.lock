@@ -61,6 +61,14 @@
   version = "v0.8.0"
 
 [[projects]]
+  digest = "1:d867dfa6751c8d7a435821ad3b736310c2ed68945d05b50fb9d23aee0540c8cc"
+  name = "github.com/sirupsen/logrus"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "3e01752db0189b9157070a0e1668a620f9a85da2"
+  version = "v1.0.6"
+
+[[projects]]
   digest = "1:464a3be290af8d1254461cfbf8fdcd16c602fc28946b2bb5fad48d38dbc67e2c"
   name = "go.opencensus.io"
   packages = [
@@ -81,6 +89,14 @@
   pruneopts = "UT"
   revision = "7b558058b7cc960667590e5413ef55157b06652e"
   version = "v0.15.0"
+
+[[projects]]
+  branch = "master"
+  digest = "1:3f3a05ae0b95893d90b9b3b5afdb79a9b3d96e4e36e099d841ae602e4aca0da8"
+  name = "golang.org/x/crypto"
+  packages = ["ssh/terminal"]
+  pruneopts = "UT"
+  revision = "0709b304e793a5edb4a2c0145f281ecdc20838a4"
 
 [[projects]]
   branch = "master"
@@ -123,9 +139,12 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:6eb2645d74b43d9c87b51947df39f7c668a4f422cd512053f7f6f75bfaad0197"
+  digest = "1:0ed1788dc3845fa86e9ade2183538e920adf76fb9f8760e69236fa2cb0d7c9d9"
   name = "golang.org/x/sys"
-  packages = ["unix"]
+  packages = [
+    "unix",
+    "windows",
+  ]
   pruneopts = "UT"
   revision = "917fdcba135dcbaccd57425db91723541b4427c8"
 
@@ -257,7 +276,9 @@
   input-imports = [
     "cloud.google.com/go/datastore",
     "cloud.google.com/go/trace",
+    "github.com/golang/protobuf/proto",
     "github.com/pkg/errors",
+    "github.com/sirupsen/logrus",
     "golang.org/x/net/context",
     "google.golang.org/grpc",
     "google.golang.org/grpc/grpclog",

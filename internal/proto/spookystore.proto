@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+message User {
+    string ID = 1;
+    string DisplayName = 2;
+    string Picture = 3;
+}
+
+service UserDirectory {
+    rpc AuthorizeGoogle(GoogleUser) returns (User) {}
+    rpc GetUser(UserRequest) returns (UserResponse) {}
+}
+
+
+message UserRequest {
+    string ID = 1;
+}
+
+message UserResponse {
+    bool Found = 1;
+    User User = 2;
+}
+
+message GoogleUser {
+    string ID = 1;
+    string DisplayName = 2;
+    string PictureURL = 3;
+    string Email = 4;
+}
+
