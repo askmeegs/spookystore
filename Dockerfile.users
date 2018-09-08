@@ -1,0 +1,12 @@
+FROM golang:1.11-alpine3.7 as build
+COPY . $GOPATH/src/github.com/m-okeefe/spookystore
+ARG REVISION_ID
+
+FROM alpine
+RUN apk add --update ca-certificates && \
+      rm -rf /var/cache/apk/* /tmp/*
+
+COPY bin/users ./users
+ENTRYPOINT ["./users"]
+EXPOSE 8001
+
