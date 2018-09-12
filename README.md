@@ -16,3 +16,16 @@ sample fullstack web application hosted on GKE
     --google-oauth2-config=/Users/mokeefe/spooky-oauth.json \
     --google-project-id=spookystore-18
 ``` 
+
+
+### K8s 
+
+
+```
+kubectl create secret generic google-service-account --from-file ./../admin/spooky-svc-account.json
+```
+
+
+```
+kubectl create secret generic oauth2 --from-file ./../admin/spooky-oauth.json
+```

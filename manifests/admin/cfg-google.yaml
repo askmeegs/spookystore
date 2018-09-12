@@ -1,6 +1,0 @@
-apiVersion: v1
-data:
-  project.id: spookystore-18
-kind: ConfigMap
-metadata:
-  name: google
