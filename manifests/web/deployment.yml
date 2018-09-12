@@ -41,12 +41,12 @@ spec:
               key: project.id
         - name: GOOGLE_APPLICATION_CREDENTIALS
           value: /etc/secrets/google/app-credentials.json
-        volumeMounts:
         - name: USER_SVC_ADDR
           valueFrom:
             configMapKeyRef:
               name: hosts
               key: userdirectory
+        volumeMounts:
         - name: oauth-secrets
           mountPath: /etc/secrets/oauth
           readOnly: true
