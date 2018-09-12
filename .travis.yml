@@ -6,6 +6,5 @@ services:
 script:
   - make users
   - make web
-  - make test
 notifications:
   email: false
