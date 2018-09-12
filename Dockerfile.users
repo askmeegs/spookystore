@@ -1,11 +1,12 @@
-FROM golang:1.11-alpine3.7 as build
-COPY . $GOPATH/src/github.com/m-okeefe/spookystore
-ARG REVISION_ID
-RUN go build -o $GOPATH/src/github.com/m-okeefe/spookystore/bin/users $GOPATH/src/github.com/m-okeefe/spookystore/cmd/users
 
 FROM alpine
 RUN apk add --update ca-certificates && \
       rm -rf /var/cache/apk/* /tmp/*
+
+FROM golang:1.11-alpine3.7 as build
+COPY . $GOPATH/src/github.com/m-okeefe/spookystore
+ARG REVISION_ID
+RUN go build -o $GOPATH/src/github.com/m-okeefe/spookystore/bin/users $GOPATH/src/github.com/m-okeefe/spookystore/cmd/users
 
 COPY $GOPATH/src/github.com/m-okeefe/spookystore/bin/users ./users
 ENTRYPOINT ["./users"]
