@@ -4,6 +4,8 @@ go:
 services:
   - docker
 script:
-  - make
+  - make users
+  - make web
+  - make test
 notifications:
   email: false

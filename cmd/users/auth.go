@@ -19,10 +19,12 @@ import (
 	"strconv"
 	"time"
 
+	"errors"
+
+	pb "github.com/m-okeefe/spookystore/internal/proto"
+
 	"cloud.google.com/go/datastore"
-	"cloud.google.com/go/trace"
-	pb "github.com/m-okeefe/spookystore/internal/"
-	"github.com/pkg/errors"
+
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 )
@@ -40,15 +42,15 @@ type account struct {
 }
 
 func (u *userDirectory) AuthorizeGoogle(ctx context.Context, goog *pb.GoogleUser) (*pb.User, error) {
-	span := trace.FromContext(ctx).NewChild("usersvc/AuthorizeGoogle")
-	defer span.Finish()
+	// span := trace.FromContext(ctx).NewChild("usersvc/AuthorizeGoogle")
+	// defer span.Finish()
 
 	log := log.WithFields(logrus.Fields{
 		"op":        "AuthorizeGoogle",
 		"google.id": goog.GetID()})
 	log.Debug("received request")
 
-	cs := span.NewChild("datastore/query/account/by_googleid")
+	//cs := span.NewChild("datastore/query/account/by_googleid")
 	q := datastore.NewQuery("Account").Filter("GoogleID =", goog.ID).Limit(1)
 	var v []account
 	if _, err := u.ds.GetAll(ctx, q, &v); err != nil {
@@ -59,7 +61,7 @@ func (u *userDirectory) AuthorizeGoogle(ctx context.Context, goog *pb.GoogleUser
 
 	var id string
 	if len(v) == 0 {
-		cs = span.NewChild("datastore/put/account")
+		//cs = span.NewChild("datastore/put/account")
 		// create new account
 		k, err := u.ds.Put(ctx, datastore.IncompleteKey("Account", nil), &account{
 			Email:       goog.Email,
@@ -73,7 +75,7 @@ func (u *userDirectory) AuthorizeGoogle(ctx context.Context, goog *pb.GoogleUser
 		}
 		id = fmt.Sprintf("%d", k.ID)
 		log.WithField("id", id).Info("created new user account")
-		cs.Finish()
+		//cs.Finish()
 	} else {
 		// return existing account
 		id = fmt.Sprintf("%d", v[0].K.ID)
@@ -91,8 +93,8 @@ func (u *userDirectory) AuthorizeGoogle(ctx context.Context, goog *pb.GoogleUser
 }
 
 func (u *userDirectory) GetUser(ctx context.Context, req *pb.UserRequest) (*pb.UserResponse, error) {
-	span := trace.FromContext(ctx).NewChild("usersvc/GetUser")
-	defer span.Finish()
+	// span := trace.FromContext(ctx).NewChild("usersvc/GetUser")
+	// defer span.Finish()
 
 	log := log.WithFields(logrus.Fields{
 		"op": "GetUser",
@@ -108,8 +110,8 @@ func (u *userDirectory) GetUser(ctx context.Context, req *pb.UserRequest) (*pb.U
 		return nil, errors.New("cannot parse ID")
 	}
 
-	cs := span.NewChild("datastore/query/account/by_id")
-	defer cs.Finish()
+	//cs := span.NewChild("datastore/query/account/by_id")
+	//defer cs.Finish()
 
 	var v account
 	err = u.ds.Get(ctx, datastore.IDKey("Account", id, nil), &v)

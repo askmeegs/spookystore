@@ -21,9 +21,8 @@ import (
 	"os"
 
 	"cloud.google.com/go/datastore"
-	"cloud.google.com/go/trace"
-	pb "github.com/m-okeefe/spookstore/internal/proto"
 	"github.com/m-okeefe/spookystore/cmd/version"
+	pb "github.com/m-okeefe/spookystore/internal/proto"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -67,15 +66,15 @@ func main() {
 	}
 	defer ds.Close()
 
-	tc, err := trace.NewClient(ctx, *projectID)
-	if err != nil {
-		log.Fatal(errors.Wrap(err, "failed to initialize tracing client"))
-	}
-	ts, err := trace.NewLimitedSampler(1.0, 10)
-	if err != nil {
-		log.Fatal(errors.Wrap(err, "failed to initialize sampling policy"))
-	}
-	tc.SetSamplingPolicy(ts)
+	// tc, err := trace.NewClient(ctx, *projectID)
+	// if err != nil {
+	// 	log.Fatal(errors.Wrap(err, "failed to initialize tracing client"))
+	// }
+	// ts, err := trace.NewLimitedSampler(1.0, 10)
+	// if err != nil {
+	// 	log.Fatal(errors.Wrap(err, "failed to initialize sampling policy"))
+	// }
+	// tc.SetSamplingPolicy(ts)
 
 	lis, err := net.Listen("tcp", *addr)
 	if err != nil {

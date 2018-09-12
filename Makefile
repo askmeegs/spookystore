@@ -1,13 +1,10 @@
-.PHONY: build container test
-
-USERS_BIN ?= bin/spookystore-users
-WEB_BIN ?= bin/$(WEB_EXEC)
+.PHONY: users web test
 
 users:
-	CGO_ENABLED=0 go build --ldflags '${EXTLDFLAGS}' -o ${IMAGE} github.com/m-okeefe/spookystore/cmd/users
+	CGO_ENABLED=0 go build --ldflags '${EXTLDFLAGS}' -o ./bin/users github.com/m-okeefe/spookystore/cmd/users
 
 web: 
-	CGO_ENABLED=0 go build --ldflags '${EXTLDFLAGS}' -o ${IMAGE} github.com/m-okeefe/spookystore/cmd/web
+	CGO_ENABLED=0 go build --ldflags '${EXTLDFLAGS}' -o ./bin/web github.com/m-okeefe/spookystore/cmd/web
 
 test:
 	CGO_ENABLED=0 go test --cover github.com/m-okeefe/spookystore

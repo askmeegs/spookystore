@@ -27,15 +27,13 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"errors"
 
-	"cloud.google.com/go/trace"
-	pb "github.com/ahmetb/coffeelog/coffeelog"
-	"github.com/ahmetb/coffeelog/version"
+	pb "github.com/m-okeefe/spookystore/internal/proto" 
+	"github.com/m-okeefe/spookystore/cmd/version"
 	"github.com/golang/protobuf/ptypes"
-	plus "github.com/google/google-api-go-client/plus/v1"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/securecookie"
-	"github.com/pkg/errors"
 	logrus "github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -48,7 +46,7 @@ type server struct {
 	userSvc     pb.UserDirectoryClient
 	roasterSvc  pb.RoasterDirectoryClient
 	activitySvc pb.ActivityDirectoryClient
-	tc          *trace.Client
+	//tc          *trace.Client
 }
 
 var (
@@ -102,10 +100,10 @@ func main() {
 		log.Fatal(errors.Wrap(err, "failed to parse config file"))
 	}
 
-	tc, err := trace.NewClient(context.Background(), *projectID)
-	if err != nil {
-		log.Fatal(errors.Wrap(err, "failed to initialize trace client"))
-	}
+	// tc, err := trace.NewClient(context.Background(), *projectID)
+	// if err != nil {
+	// 	log.Fatal(errors.Wrap(err, "failed to initialize trace client"))
+	// }
 	userSvcConn, err := grpc.Dial(*userDirectoryBackend,
 		grpc.WithInsecure(),
 		grpc.WithUnaryInterceptor(tc.GRPCClientInterceptor()))
@@ -126,14 +124,14 @@ func main() {
 		log.Info("closing connection to user directory")
 		coffeeSvcConn.Close()
 	}()
-	sp, err := trace.NewLimitedSampler(1.0, 5)
-	if err != nil {
-		log.Fatal(errors.Wrap(err, "failed to create sampling policy"))
-	}
-	tc.SetSamplingPolicy(sp)
+	// sp, err := trace.NewLimitedSampler(1.0, 5)
+	// if err != nil {
+	// 	log.Fatal(errors.Wrap(err, "failed to create sampling policy"))
+	// }
+	// tc.SetSamplingPolicy(sp)
 
 	s := &server{
-		tc:          tc,
+		//tc:          tc,
 		cfg:         authConf,
 		userSvc:     pb.NewUserDirectoryClient(userSvcConn),
 	}
@@ -156,12 +154,12 @@ func main() {
 type httpErrorWriter func(http.ResponseWriter, error)
 
 func (s *server) getUser(ctx context.Context, id string) (*pb.UserResponse, error) {
-	span := trace.FromContext(ctx).NewChild("get_user")
-	defer span.Finish()
-	span.SetLabel("user/id", id)
+	// span := trace.FromContext(ctx).NewChild("get_user")
+	// defer span.Finish()
+	// span.SetLabel("user/id", id)
 
-	cs := span.NewChild("rpc.Sent/GetUser")
-	defer cs.Finish()
+	// cs := span.NewChild("rpc.Sent/GetUser")
+	// defer cs.Finish()
 	userResp, err := s.userSvc.GetUser(ctx, &pb.UserRequest{ID: id})
 	return userResp, err
 }
@@ -236,11 +234,11 @@ func (s *server) logout(w http.ResponseWriter, r *http.Request) {
 
 func (s *server) oauth2Callback(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	span := trace.FromContext(ctx)
-	if state := r.URL.Query().Get("state"); state != "todo_rand_state" {
-		badRequest(w, errors.New("wrong oauth2 state"))
-		return
-	}
+	//span := trace.FromContext(ctx)
+	// if state := r.URL.Query().Get("state"); state != "todo_rand_state" {
+	// 	badRequest(w, errors.New("wrong oauth2 state"))
+	// 	return
+	// }
 
 	code := r.URL.Query().Get("code")
 	if code == "" {
@@ -248,29 +246,18 @@ func (s *server) oauth2Callback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cs := span.NewChild("oauth2/exchange_token")
+	//cs := span.NewChild("oauth2/exchange_token")
 	tok, err := s.cfg.Exchange(ctx, code)
 	if err != nil {
 		serverError(w, errors.Wrap(err, "oauth2 token exchange failed"))
 		return
 	}
-	cs.Finish()
+	//cs.Finish()
 
-	cs = span.NewChild("gplus/get/me")
-	svc, err := plus.New(oauth2.NewClient(ctx, s.cfg.TokenSource(ctx, tok)))
-	if err != nil {
-		serverError(w, errors.Wrap(err, "failed to construct g+ client"))
-		return
-	}
-	me, err := plus.NewPeopleService(svc).Get("me").Do()
-	if err != nil {
-		serverError(w, errors.Wrap(err, "failed to query user g+ profile"))
-		return
-	}
-	cs.Finish()
+
 	log.WithField("google.id", me.Id).Debug("retrieved google user")
 
-	cs = span.NewChild("authorize_google")
+	//cs = span.NewChild("authorize_google")
 	user, err := s.userSvc.AuthorizeGoogle(ctx,
 		&pb.GoogleUser{
 			ID:          me.Id,
@@ -306,10 +293,10 @@ func (s *server) oauth2Callback(w http.ResponseWriter, r *http.Request) {
 
 func (s *server) userProfile(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	span := trace.FromContext(ctx)
+	//span := trace.FromContext(ctx)
 
 	userID := mux.Vars(r)["id"]
-	span.SetLabel("user/id", userID)
+//	span.SetLabel("user/id", userID)
 
 	me, ef, err := s.authUser(ctx, r)
 	if err != nil {
@@ -326,15 +313,15 @@ func (s *server) userProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cs := span.NewChild("get_activities")
-	cs.SetLabel("user/id", userID)
+	//cs := span.NewChild("get_activities")
+	//cs.SetLabel("user/id", userID)
 	ar, err := s.activitySvc.GetUserActivities(ctx,
 		&pb.UserActivitiesRequest{UserID: userID})
 	if err != nil {
 		serverError(w, errors.Wrap(err, "failed to query activities"))
 		return
 	}
-	cs.Finish()
+	//cs.Finish()
 
 	tmpl := template.Must(template.ParseFiles(
 		filepath.Join("static", "template", "layout.html"),
