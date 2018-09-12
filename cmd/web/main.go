@@ -16,7 +16,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"html/template"
@@ -24,36 +23,33 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strconv"
-	"strings"
 	"time"
-	"errors"
 
-	pb "github.com/m-okeefe/spookystore/internal/proto" 
-	"github.com/m-okeefe/spookystore/cmd/version"
-	"github.com/golang/protobuf/ptypes"
+	"cloud.google.com/go/trace"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/securecookie"
+	"github.com/m-okeefe/spookystore/cmd/version"
+	pb "github.com/m-okeefe/spookystore/internal/proto"
+	"github.com/pkg/errors"
 	logrus "github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
+	plus "google.golang.org/api/plus/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/grpclog"
 )
 
 type server struct {
-	cfg         *oauth2.Config
-	userSvc     pb.UserDirectoryClient
-	roasterSvc  pb.RoasterDirectoryClient
-	activitySvc pb.ActivityDirectoryClient
-	//tc          *trace.Client
+	cfg     *oauth2.Config
+	userSvc pb.UserDirectoryClient
+	tc      *trace.Client
 }
 
 var (
-	projectID              = flag.String("google-project-id", "", "google cloud project id")
-	addr                   = flag.String("addr", ":8000", "[host]:port to listen")
-	oauthConfig            = flag.String("google-oauth2-config", "", "path to oauth2 config json")
-	userDirectoryBackend   = flag.String("user-directory-addr", "", "address of user directory backend")
+	projectID            = flag.String("google-project-id", "", "google cloud project id")
+	addr                 = flag.String("addr", ":8000", "[host]:port to listen")
+	oauthConfig          = flag.String("google-oauth2-config", "", "path to oauth2 config json")
+	userDirectoryBackend = flag.String("user-directory-addr", "", "address of user directory backend")
 
 	hashKey  = []byte("very-secret")      // TODO extract to env
 	blockKey = []byte("a-lot-secret-key") // TODO extract to env
@@ -100,10 +96,10 @@ func main() {
 		log.Fatal(errors.Wrap(err, "failed to parse config file"))
 	}
 
-	// tc, err := trace.NewClient(context.Background(), *projectID)
-	// if err != nil {
-	// 	log.Fatal(errors.Wrap(err, "failed to initialize trace client"))
-	// }
+	tc, err := trace.NewClient(context.Background(), *projectID)
+	if err != nil {
+		log.Fatal(errors.Wrap(err, "failed to initialize trace client"))
+	}
 	userSvcConn, err := grpc.Dial(*userDirectoryBackend,
 		grpc.WithInsecure(),
 		grpc.WithUnaryInterceptor(tc.GRPCClientInterceptor()))
@@ -114,26 +110,16 @@ func main() {
 		log.Info("closing connection to user directory")
 		userSvcConn.Close()
 	}()
-	coffeeSvcConn, err := grpc.Dial(*coffeeDirectoryBackend,
-		grpc.WithInsecure(),
-		grpc.WithUnaryInterceptor(tc.GRPCClientInterceptor()))
+	sp, err := trace.NewLimitedSampler(1.0, 5)
 	if err != nil {
-		log.Fatal(errors.Wrap(err, "cannot connect coffee service"))
+		log.Fatal(errors.Wrap(err, "failed to create sampling policy"))
 	}
-	defer func() {
-		log.Info("closing connection to user directory")
-		coffeeSvcConn.Close()
-	}()
-	// sp, err := trace.NewLimitedSampler(1.0, 5)
-	// if err != nil {
-	// 	log.Fatal(errors.Wrap(err, "failed to create sampling policy"))
-	// }
-	// tc.SetSamplingPolicy(sp)
+	tc.SetSamplingPolicy(sp)
 
 	s := &server{
-		//tc:          tc,
-		cfg:         authConf,
-		userSvc:     pb.NewUserDirectoryClient(userSvcConn),
+		tc:      tc,
+		cfg:     authConf,
+		userSvc: pb.NewUserDirectoryClient(userSvcConn),
 	}
 
 	// set up server
@@ -143,23 +129,24 @@ func main() {
 	r.Handle("/login", s.traceHandler(logHandler(s.login))).Methods(http.MethodGet)
 	r.Handle("/logout", s.traceHandler(logHandler(s.logout))).Methods(http.MethodGet)
 	r.Handle("/oauth2callback", s.traceHandler(logHandler(s.oauth2Callback))).Methods(http.MethodGet)
+	r.Handle("/u/{id:[0-9]+}", s.traceHandler(logHandler(s.userProfile))).Methods(http.MethodGet)
 	srv := http.Server{
 		Addr:    *addr, // TODO make configurable
 		Handler: r}
 	log.WithFields(logrus.Fields{"addr": *addr,
-		"userdirectory":   *userDirectoryBackend)
+		"userdirectory": *userDirectoryBackend}).Info("starting to listen on http")
 	log.Fatal(errors.Wrap(srv.ListenAndServe(), "failed to listen/serve"))
 }
 
 type httpErrorWriter func(http.ResponseWriter, error)
 
 func (s *server) getUser(ctx context.Context, id string) (*pb.UserResponse, error) {
-	// span := trace.FromContext(ctx).NewChild("get_user")
-	// defer span.Finish()
-	// span.SetLabel("user/id", id)
+	span := trace.FromContext(ctx).NewChild("get_user")
+	defer span.Finish()
+	span.SetLabel("user/id", id)
 
-	// cs := span.NewChild("rpc.Sent/GetUser")
-	// defer cs.Finish()
+	cs := span.NewChild("rpc.Sent/GetUser")
+	defer cs.Finish()
 	userResp, err := s.userSvc.GetUser(ctx, &pb.UserRequest{ID: id})
 	return userResp, err
 }
@@ -202,11 +189,7 @@ func (s *server) home(w http.ResponseWriter, r *http.Request) {
 		filepath.Join("static", "template", "home.html")))
 
 	if err := tmpl.Execute(w, map[string]interface{}{
-		"me":              user,
-		"drinks":          drinks,
-		"methods":         methodsList,
-		"authenticated":   user != nil,
-		"originCountries": originCountries}); err != nil {
+		"me": user}); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -234,11 +217,11 @@ func (s *server) logout(w http.ResponseWriter, r *http.Request) {
 
 func (s *server) oauth2Callback(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	//span := trace.FromContext(ctx)
-	// if state := r.URL.Query().Get("state"); state != "todo_rand_state" {
-	// 	badRequest(w, errors.New("wrong oauth2 state"))
-	// 	return
-	// }
+	span := trace.FromContext(ctx)
+	if state := r.URL.Query().Get("state"); state != "todo_rand_state" {
+		badRequest(w, errors.New("wrong oauth2 state"))
+		return
+	}
 
 	code := r.URL.Query().Get("code")
 	if code == "" {
@@ -246,18 +229,29 @@ func (s *server) oauth2Callback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//cs := span.NewChild("oauth2/exchange_token")
+	cs := span.NewChild("oauth2/exchange_token")
 	tok, err := s.cfg.Exchange(ctx, code)
 	if err != nil {
 		serverError(w, errors.Wrap(err, "oauth2 token exchange failed"))
 		return
 	}
-	//cs.Finish()
+	cs.Finish()
 
-
+	cs = span.NewChild("gplus/get/me")
+	svc, err := plus.New(oauth2.NewClient(ctx, s.cfg.TokenSource(ctx, tok)))
+	if err != nil {
+		serverError(w, errors.Wrap(err, "failed to construct g+ client"))
+		return
+	}
+	me, err := plus.NewPeopleService(svc).Get("me").Do()
+	if err != nil {
+		serverError(w, errors.Wrap(err, "failed to query user g+ profile"))
+		return
+	}
+	cs.Finish()
 	log.WithField("google.id", me.Id).Debug("retrieved google user")
 
-	//cs = span.NewChild("authorize_google")
+	cs = span.NewChild("authorize_google")
 	user, err := s.userSvc.AuthorizeGoogle(ctx,
 		&pb.GoogleUser{
 			ID:          me.Id,
@@ -293,10 +287,10 @@ func (s *server) oauth2Callback(w http.ResponseWriter, r *http.Request) {
 
 func (s *server) userProfile(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	//span := trace.FromContext(ctx)
+	span := trace.FromContext(ctx)
 
 	userID := mux.Vars(r)["id"]
-//	span.SetLabel("user/id", userID)
+	span.SetLabel("user/id", userID)
 
 	me, ef, err := s.authUser(ctx, r)
 	if err != nil {
@@ -313,25 +307,12 @@ func (s *server) userProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//cs := span.NewChild("get_activities")
-	//cs.SetLabel("user/id", userID)
-	ar, err := s.activitySvc.GetUserActivities(ctx,
-		&pb.UserActivitiesRequest{UserID: userID})
-	if err != nil {
-		serverError(w, errors.Wrap(err, "failed to query activities"))
-		return
-	}
-	//cs.Finish()
-
 	tmpl := template.Must(template.ParseFiles(
 		filepath.Join("static", "template", "layout.html"),
 		filepath.Join("static", "template", "profile.html")))
 	if err := tmpl.Execute(w, map[string]interface{}{
-		"me":         me,
-		"user":       userResp.GetUser(),
-		"activities": ar.GetActivities(),
-		"methods":    methodIcons,
-		"drinks":     drinks}); err != nil {
+		"me":   me,
+		"user": userResp.GetUser()}); err != nil {
 		log.Fatal(err)
 	}
 }
