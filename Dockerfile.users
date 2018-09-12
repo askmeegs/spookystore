@@ -6,9 +6,8 @@ RUN apk add --update ca-certificates && \
 FROM golang:1.11-alpine3.7 as build
 COPY . $GOPATH/src/github.com/m-okeefe/spookystore
 ARG REVISION_ID
-RUN go build -o $GOPATH/src/github.com/m-okeefe/spookystore/bin/users $GOPATH/src/github.com/m-okeefe/spookystore/cmd/users
-
-COPY $GOPATH/src/github.com/m-okeefe/spookystore/bin/users ./users
-ENTRYPOINT ["./users"]
+WORKDIR $GOPATH/src/github.com/m-okeefe/spookystore
+RUN go build -o ./bin/users ./cmd/users
+ENTRYPOINT ["./bin/users"]
 EXPOSE 8001
 
