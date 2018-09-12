@@ -6,6 +6,8 @@ FROM alpine
 RUN apk add --update ca-certificates && \
       rm -rf /var/cache/apk/* /tmp/*
 
+RUN make web
+
 COPY bin/web ./web
 ENTRYPOINT ["./web"]
 EXPOSE 8001

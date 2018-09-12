@@ -15,16 +15,16 @@ spec:
           secretName: oauth2
           items:
           - key: client-secret.json
-            path: client-secret.json
+            path: secret/spooky-oauth.json
       - name: google-cloud-secrets
         secret:
           secretName: google-service-account
           items:
           - key: app_default_credentials.json
-            path: app-credentials.json
+            path: secret/spooky-svc-account.json
       containers:
       - name: web
-        image: WEB_IMAGE_REF
+        image: gcr.io/spookystore-18/github-m-okeefe-spookystore-web:latest
         imagePullPolicy: IfNotPresent # minikube-only
         args:
         - "-addr=:8000"
@@ -41,11 +41,6 @@ spec:
               key: project.id
         - name: GOOGLE_APPLICATION_CREDENTIALS
           value: /etc/secrets/google/app-credentials.json
-        - name: USER_SVC_ADDR
-          valueFrom:
-            configMapKeyRef:
-              name: hosts
-              key: userdirectory
         volumeMounts:
         - name: oauth-secrets
           mountPath: /etc/secrets/oauth

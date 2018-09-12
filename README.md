@@ -9,7 +9,6 @@ sample fullstack web application hosted on GKE
 
 ```
 ./bin/users --addr=:8001 --google-project-id=spookystore-18
-
 ```
 
 ```
