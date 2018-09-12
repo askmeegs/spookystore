@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{template "title" .}}</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link href="https://fonts.googleapis.com/css?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/css/materialize.min.css">
+</head>
+<body>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/js/materialize.min.js"></script>
+  <nav>
+    <div class="nav-wrapper">
+      <a href="/" class="brand-logo left">Spooky Store</a>
+      <ul class="right valign-wrapper">
+        {{if .me}}
+          <li><a href="/logout">Logout</a></li>
+          <li><a href="/u/{{.me.ID}}"><div class="valign-wrapper"><img src="{{.me.Picture}}" alt="" class="circle responsive-img"/></div></a></li>
+        {{else}}
+          <li><a href="/login">Login</a></li>
+        {{end}}
+      </ul>
+    </div>
+  </nav>
+
+  {{template "body" .}}
+</body>
+</html>
