@@ -1,4 +1,4 @@
-// Copyright 2018 Google Inc.
+// Copyright 2017 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,11 +21,11 @@ import (
 	"os"
 
 	"cloud.google.com/go/datastore"
-	"github.com/sirupsen/logrus"
 	"cloud.google.com/go/trace"
+	"github.com/m-okeefe/spookystore/cmd/version"
 	pb "github.com/m-okeefe/spookystore/internal/proto"
-	"github.com/m-okeefe/spookystore/version"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/grpclog"
 )

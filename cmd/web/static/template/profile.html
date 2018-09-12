@@ -1,0 +1,25 @@
+{{define "title"}}
+    {{- .user.DisplayName}}'s Profile
+{{- end}}
+
+{{define "body"}}
+<div class="container">
+    <br/>
+    <div class="row">
+        <div class="col s12 m8 offset-m2 l6 offset-l3">
+            <div class="row valign-wrapper">
+                <div class="col s2">
+                    <img src="{{.user.Picture}}" alt="" class="circle responsive-img"
+                        style="max-height:60px;">
+                </div>
+                <div class="col s10">
+                    <span class="black-text">
+                    </br><b>{{.user.DisplayName}}</b>'s past purchases will go here! 
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{- end}}
