@@ -6,7 +6,7 @@ FROM alpine
 RUN apk add --update ca-certificates && \
       rm -rf /var/cache/apk/* /tmp/*
 
-RUN make users
+RUN CGO_ENABLED=0 go build --ldflags '${EXTLDFLAGS}' -o $GOPATH/src/github.com/m-okeefe/spookystore/bin/web $GOPATH/src/github.com/m-okeefe/spookystore/cmd/web
 
 COPY bin/users ./users
 ENTRYPOINT ["./users"]
