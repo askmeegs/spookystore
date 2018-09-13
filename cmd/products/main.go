@@ -37,8 +37,9 @@ var (
 )
 
 type productsDirectory struct {
-	ds  *datastore.Client
-	ctx context.Context
+	ds         *datastore.Client
+	ctx        context.Context
+	productIds []int64
 }
 
 type Product struct {
@@ -118,4 +119,17 @@ func (p *productsDirectory) TestProduct() {
 	}
 
 	log.WithField("my product", prod).Info("successfully read product")
+
+	// Add to products map (this is used to generate list of links for product pages)
+	p.productIds = append(p.productIds, conv)
+
+	// TODO - write endpoint to serve that list to generate the homepage (card for every product) + product page for every product
+
+	// ie. when someone clicks on a productl link in the homepage, the resulting webpage should be a dynamically-rendered template
+	/*
+		- whose URL is the product ID
+		- contents are the result of ds.Get(ID) -- image, etc.
+	*/
+
+	// TODO - figure out images + Cloud Storage.
 }
