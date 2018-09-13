@@ -1,0 +1,10 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: web-ingress
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: "web2-ip"
+spec:
+  backend:
+    serviceName: web-local
+    servicePort: 8000
