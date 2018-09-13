@@ -17,6 +17,13 @@ sample fullstack web application hosted on GKE
     --google-project-id=spookystore-18
 ``` 
 
+```
+# products directory 
+
+go run main.go --addr=:8003 --google-project-id=spookystore-18
+
+```
+
 
 ### K8s 
 
