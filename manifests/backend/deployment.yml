@@ -18,7 +18,7 @@ spec:
             path: app-credentials.json
       containers:
       - name: backend
-        image: gcr.io/spookystore-18/github-m-okeefe-spookystore:f18c222e913c2b0ac4475c8a824f9d50ff38793c
+        image: gcr.io/spookystore-18/github-m-okeefe-spookystore:4317ebf102687dfcf39ffe0dd193456dfca93361
         args:
         - "-addr=:8001"
         - "-google-project-id=$(GOOGLE_PROJECT_ID)"

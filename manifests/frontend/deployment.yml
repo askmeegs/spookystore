@@ -24,7 +24,7 @@ spec:
             path: app-credentials.json
       containers:
       - name: frontend
-        image: gcr.io/spookystore-18/github-m-okeefe-spookystore-web:f18c222e913c2b0ac4475c8a824f9d50ff38793c
+        image: gcr.io/spookystore-18/github-m-okeefe-spookystore-web:4317ebf102687dfcf39ffe0dd193456dfca93361
         imagePullPolicy: IfNotPresent # minikube-only
         args:
         - "-addr=:8000"
