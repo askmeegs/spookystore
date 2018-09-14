@@ -130,6 +130,9 @@ func main() {
 	r.Handle("/logout", s.traceHandler(logHandler(s.logout))).Methods(http.MethodGet)
 	r.Handle("/oauth2callback", s.traceHandler(logHandler(s.oauth2Callback))).Methods(http.MethodGet)
 	r.Handle("/u/{id:[0-9]+}", s.traceHandler(logHandler(s.userProfile))).Methods(http.MethodGet)
+
+	r.Handle("/checkout", s.traceHandler(logHandler(s.checkout))).Methods(http.MethodGet)
+	r.Handle("/addproduct", s.traceHandler(logHandler(s.addProduct))).Methods(http.MethodGet)
 	srv := http.Server{
 		Addr:    *addr, // TODO make configurable
 		Handler: r}
@@ -183,13 +186,19 @@ func (s *server) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	products, err := s.spookySvc.GetAllProducts(ctx, &pb.GetAllProductsRequest{})
+	if err != nil {
+		serverError(w, errors.Wrap(err, "failed to get all products"))
+		return
+	}
+
 	log.WithField("logged_in", user != nil).Debug("serving home page")
 	tmpl := template.Must(template.ParseFiles(
 		filepath.Join("static", "template", "layout.html"),
 		filepath.Join("static", "template", "home.html")))
 
 	if err := tmpl.Execute(w, map[string]interface{}{
-		"me": user}); err != nil {
+		"me": user, "products": products}); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -285,6 +294,79 @@ func (s *server) oauth2Callback(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusFound)
 }
 
+func (s *server) checkout(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	span := trace.FromContext(ctx)
+
+	userID := mux.Vars(r)["id"]
+	span.SetLabel("user/id", userID)
+
+	me, ef, err := s.authUser(ctx, r)
+	if err != nil {
+		ef(w, err)
+		return
+	}
+
+	userResp, err := s.getUser(ctx, userID)
+	if err != nil {
+		serverError(w, errors.Wrap(err, "failed to look up the user"))
+		return
+	} else if !userResp.GetFound() {
+		errorCode(w, http.StatusNotFound, "not found", errors.New("user not found"))
+		return
+	}
+
+	cart, err := s.spookySvc.GetCart(ctx, &pb.UserRequest{ID: userID})
+	if err != nil {
+		serverError(w, errors.Wrap(err, "failed to get cart"))
+		return
+	} else if !userResp.GetFound() {
+		errorCode(w, http.StatusNotFound, "not found", errors.New("cart not found"))
+		return
+	}
+
+	tmpl := template.Must(template.ParseFiles(
+		filepath.Join("static", "template", "layout.html"),
+		filepath.Join("static", "template", "checkout.html")))
+	if err := tmpl.Execute(w, map[string]interface{}{
+		"me":   me,
+		"user": userResp.GetUser(),
+		"cart": cart,
+	}); err != nil {
+		log.Fatal(err)
+	}
+	w.Header().Set("Location", "/") //take me home
+	w.WriteHeader(http.StatusOK)
+}
+
+func (s *server) addProduct(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+	span := trace.FromContext(ctx)
+
+	userID := mux.Vars(r)["id"]
+	span.SetLabel("user/id", userID)
+
+	me, ef, err := s.authUser(ctx, r)
+	if err != nil {
+		ef(w, err)
+		return
+	}
+
+	id := ""
+	if id = r.URL.Query().Get("id"); id == "" {
+		badRequest(w, errors.New("bad product ID"))
+		return
+	}
+
+	_, err = s.spookySvc.AddProductToCart(ctx, &pb.AddProductRequest{UserID: me.GetID(), ProductID: id})
+	if err != nil {
+		serverError(w, errors.Wrap(err, "failed to add product to cart"))
+	}
+	w.Header().Set("Location", "/")
+	w.WriteHeader(http.StatusOK)
+}
+
 func (s *server) userProfile(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	span := trace.FromContext(ctx)
@@ -312,9 +394,12 @@ func (s *server) userProfile(w http.ResponseWriter, r *http.Request) {
 		filepath.Join("static", "template", "profile.html")))
 	if err := tmpl.Execute(w, map[string]interface{}{
 		"me":   me,
-		"user": userResp.GetUser()}); err != nil {
+		"user": userResp.GetUser(),
+	}); err != nil {
 		log.Fatal(err)
 	}
+	w.Header().Set("Location", "/") //take me home
+	w.WriteHeader(http.StatusOK)
 }
 
 func errorCode(w http.ResponseWriter, code int, msg string, err error) {

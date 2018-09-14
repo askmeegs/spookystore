@@ -4,27 +4,29 @@
   
 
 <div class="content-grid mdl-grid">
-
-
-  <div class="mdl-cell">
-    <div class="demo-card-wide mdl-card mdl-shadow--2dp">
-        <div class="mdl-card__title">
-          <h2 class="mdl-card__title-text">coffee</h2>
+    {{range $i, $p := .products.Items}}
+    <div class="mdl-cell">
+        <div class="demo-card-wide mdl-card mdl-shadow--2dp">
+            <div class="mdl-card__title">
+              <h2 class="mdl-card__title-text">{{ $p.DisplayName}}</h2>
+            </div>
+            <div class="mdl-card__media">
+                <img src="{{ $p.PictureURL }}" width="220" height="140" border="0" alt="" style="padding:20px;">
+              </div>
+            <div class="mdl-card__supporting-text">
+              {{ $p.Description }}
+            </div>
+            <div class="mdl-card__actions mdl-card--border">
+              {{ $ p.Cost }}
+            </div>
+            <div class="mdl-card__menu">
+                <button class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored">
+                    <a href="/addproduct?id={{ $p.ID }}"></a><i class="material-icons">add</i></a>
+                  </button>
+            </div>
+         </div> 
         </div>
-        <div class="mdl-card__supporting-text">
-          a delicious product
-        </div>
-        <div class="mdl-card__actions mdl-card--border">
-        </div>
-        <div class="mdl-card__menu">
-            <button class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored">
-                <a href="hi"></a><i class="material-icons">add</i></a>
-              </button>
-        </div>
-     </div> 
-    </div>
+    {{end}}
 
-
-  
 </div>
 {{end}}
