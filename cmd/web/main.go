@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Based on https://github.com/ahmetb/coffeelog/tree/master/cmd/web
+
 package main
 
 import (
@@ -188,6 +190,7 @@ func (s *server) home(w http.ResponseWriter, r *http.Request) {
 
 	products, err := s.spookySvc.GetAllProducts(ctx, &pb.GetAllProductsRequest{})
 	if err != nil {
+		fmt.Println(err)
 		serverError(w, errors.Wrap(err, "failed to get all products"))
 		return
 	}

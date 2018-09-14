@@ -18,6 +18,7 @@ import (
 	"context"
 	"encoding/json"
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"net"
 	"os"
@@ -102,6 +103,7 @@ func main() {
 func addProducts(ctx context.Context, ds *datastore.Client) error {
 	file, e := ioutil.ReadFile("./inventory/products.json")
 	if e != nil {
+		fmt.Println(e)
 		return e
 	}
 	var i map[string]Product
@@ -115,8 +117,10 @@ func addProducts(ctx context.Context, ds *datastore.Client) error {
 		}
 		key := datastore.IncompleteKey("Product", nil)
 		if _, err := ds.Put(ctx, key, p); err != nil {
+			fmt.Println(err)
 			return err
 		}
 	}
+	fmt.Println("ADDED PRODUCTS TO DATASTORE")
 	return nil
 }

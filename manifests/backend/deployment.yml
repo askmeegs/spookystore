@@ -18,7 +18,7 @@ spec:
             path: app-credentials.json
       containers:
       - name: backend
-        image: gcr.io/spookystore-18/github-m-okeefe-spookystore-backend:latest
+        image: gcr.io/spookystore-18/github-m-okeefe-spookystore:f18c222e913c2b0ac4475c8a824f9d50ff38793c
         args:
         - "-addr=:8001"
         - "-google-project-id=$(GOOGLE_PROJECT_ID)"
@@ -43,7 +43,3 @@ spec:
             memory: 64Mi
           limits:
             memory: 256Mi
-        livenessProbe:
-          initialDelaySeconds: 10
-          tcpSocket:
-            port: 8001

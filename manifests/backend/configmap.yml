@@ -3,4 +3,4 @@ kind: ConfigMap
 metadata:
   name: hosts
 data:
-  frontend: backend.default:80
+  spookystore: backend.default:80
