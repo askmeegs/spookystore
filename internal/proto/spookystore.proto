@@ -5,9 +5,11 @@ import "google/protobuf/timestamp.proto";
 service SpookyStore {
     rpc AuthorizeGoogle(GoogleUser) returns (User) {}
     rpc GetUser(UserRequest) returns (UserResponse) {}
+    rpc GetAllProducts(GetAllProductsRequest) returns (GetAllProductsResponse) {}
+    rpc GetProduct(GetProductRequest) returns (Product) {}
     rpc AddProductToCart(AddProductRequest) returns (AddProductResponse) {}
-    rpc GetCart(UserRequest) returns (ProductList) {}
-    rpc Checkout(CheckoutRequest) returns (CheckoutResponse) {}
+    rpc GetCart(UserRequest) returns (GetCartResponse) {}
+    rpc Checkout(UserRequest) returns (CheckoutResponse) {}
 }
 
 // ------------ users ------------------------------------------------------------------------
@@ -25,7 +27,7 @@ message User {
     string ID = 1;
     string DisplayName = 2;
     string Picture = 3;
-    repeated Product Cart = 4; 
+    ProductList Cart = 4; 
     repeated Transaction Transactions = 5;  
 }
 
@@ -48,8 +50,20 @@ message Product {
 }
 
 message ProductList {
-    repeated Product Products = 1; 
+    repeated string ProductIDs = 1; 
 }
+
+message GetProductRequest {
+    string ID = 1;
+}
+
+message GetAllProductsRequest {
+}
+
+message GetAllProductsResponse {
+    ProductList Items = 1; 
+}
+
 
 
 message AddProductRequest {
@@ -72,12 +86,11 @@ message Transaction {
 
 // ---------- checkout ----------------------------------------------------------------------
 
-message CheckoutRequest {
-    string UserID = 1;
-    ProductList Items = 2; 
+message GetCartResponse {
+    ProductList Items = 1; 
+    float TotalCost = 2; 
 }
 
 message CheckoutResponse {
-    string ID = 1;
-    bool Success = 2; 
+    bool Success = 1; 
 }

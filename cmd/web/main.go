@@ -40,16 +40,16 @@ import (
 )
 
 type server struct {
-	cfg     *oauth2.Config
-	userSvc pb.UserDirectoryClient
-	tc      *trace.Client
+	cfg       *oauth2.Config
+	spookySvc pb.SpookyStoreClient
+	tc        *trace.Client
 }
 
 var (
-	projectID            = flag.String("google-project-id", "", "google cloud project id")
-	addr                 = flag.String("addr", ":8000", "[host]:port to listen")
-	oauthConfig          = flag.String("google-oauth2-config", "", "path to oauth2 config json")
-	userDirectoryBackend = flag.String("user-directory-addr", "", "address of user directory backend")
+	projectID          = flag.String("google-project-id", "", "google cloud project id")
+	addr               = flag.String("addr", ":8000", "[host]:port to listen")
+	oauthConfig        = flag.String("google-oauth2-config", "", "path to oauth2 config json")
+	spookyStoreBackend = flag.String("spooky-store-addr", "", "address of spookystore backend")
 
 	hashKey  = []byte("very-secret")      // TODO extract to env
 	blockKey = []byte("a-lot-secret-key") // TODO extract to env
@@ -80,8 +80,8 @@ func main() {
 	if *projectID == "" {
 		log.Fatal("google cloud project id flag not specified")
 	}
-	if *userDirectoryBackend == "" {
-		log.Fatal("user directory address flag not specified")
+	if *spookyStoreBackend == "" {
+		log.Fatal("spookystorebackend address flag not specified")
 	}
 	if *oauthConfig == "" {
 		log.Fatal("google oauth2 config flag not specified")
@@ -100,15 +100,15 @@ func main() {
 	if err != nil {
 		log.Fatal(errors.Wrap(err, "failed to initialize trace client"))
 	}
-	userSvcConn, err := grpc.Dial(*userDirectoryBackend,
+	spookySvcConn, err := grpc.Dial(*spookyStoreBackend,
 		grpc.WithInsecure(),
 		grpc.WithUnaryInterceptor(tc.GRPCClientInterceptor()))
 	if err != nil {
-		log.Fatal(errors.Wrap(err, "cannot connect user service"))
+		log.Fatal(errors.Wrap(err, "cannot connect to backend spookystore service"))
 	}
 	defer func() {
-		log.Info("closing connection to user directory")
-		userSvcConn.Close()
+		log.Info("closing connection to spookystore backend")
+		spookySvcConn.Close()
 	}()
 	sp, err := trace.NewLimitedSampler(1.0, 5)
 	if err != nil {
@@ -117,9 +117,9 @@ func main() {
 	tc.SetSamplingPolicy(sp)
 
 	s := &server{
-		tc:      tc,
-		cfg:     authConf,
-		userSvc: pb.NewUserDirectoryClient(userSvcConn),
+		tc:        tc,
+		cfg:       authConf,
+		spookySvc: pb.NewSpookyStoreClient(spookySvcConn),
 	}
 
 	// set up server
@@ -134,7 +134,7 @@ func main() {
 		Addr:    *addr, // TODO make configurable
 		Handler: r}
 	log.WithFields(logrus.Fields{"addr": *addr,
-		"userdirectory": *userDirectoryBackend}).Info("starting to listen on http")
+		"spookyStore": *spookyStoreBackend}).Info("starting to listen on http")
 	log.Fatal(errors.Wrap(srv.ListenAndServe(), "failed to listen/serve"))
 }
 
@@ -147,7 +147,7 @@ func (s *server) getUser(ctx context.Context, id string) (*pb.UserResponse, erro
 
 	cs := span.NewChild("rpc.Sent/GetUser")
 	defer cs.Finish()
-	userResp, err := s.userSvc.GetUser(ctx, &pb.UserRequest{ID: id})
+	userResp, err := s.spookySvc.GetUser(ctx, &pb.UserRequest{ID: id})
 	return userResp, err
 }
 
@@ -252,7 +252,7 @@ func (s *server) oauth2Callback(w http.ResponseWriter, r *http.Request) {
 	log.WithField("google.id", me.Id).Debug("retrieved google user")
 
 	cs = span.NewChild("authorize_google")
-	user, err := s.userSvc.AuthorizeGoogle(ctx,
+	user, err := s.spookySvc.AuthorizeGoogle(ctx,
 		&pb.GoogleUser{
 			ID:          me.Id,
 			Email:       me.Emails[0].Value,

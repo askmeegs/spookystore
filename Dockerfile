@@ -8,6 +8,7 @@ COPY . $GOPATH/src/github.com/m-okeefe/spookystore
 ARG REVISION_ID
 WORKDIR $GOPATH/src/github.com/m-okeefe/spookystore
 RUN go build -o ./bin/spookystore ./cmd/spookystore
+COPY ./cmd/sppokystore/inventory/products.json ./static
 ENTRYPOINT ["./bin/spookystore"]
 EXPOSE 8001
 

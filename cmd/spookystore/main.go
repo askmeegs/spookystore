@@ -16,7 +16,9 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
+	"io/ioutil"
 	"net"
 	"os"
 
@@ -64,6 +66,7 @@ func main() {
 		log.Fatal("google cloud project id is not set")
 	}
 
+	// Initialize server
 	ctx := context.Background()
 	ds, err := datastore.NewClient(ctx, *projectID)
 	if err != nil {
@@ -87,6 +90,33 @@ func main() {
 	}
 	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(tc.GRPCServerInterceptor()))
 	pb.RegisterSpookyStoreServer(grpcServer, &Server{ds})
+
+	// add products
+	addProducts(ctx, ds)
+
 	log.WithField("addr", *addr).Info("starting to listen on grpc")
 	log.Fatal(grpcServer.Serve(lis))
+}
+
+// add products from JSON file to Cloud Datastore
+func addProducts(ctx context.Context, ds *datastore.Client) error {
+	file, e := ioutil.ReadFile("./inventory/products.json")
+	if e != nil {
+		return e
+	}
+	var i map[string]Product
+	json.Unmarshal(file, &i)
+	for k, v := range i {
+		p := &pb.Product{
+			DisplayName: k,
+			Cost:        v.Cost,
+			PictureURL:  v.Image,
+			Description: v.Description,
+		}
+		key := datastore.IncompleteKey("Product", nil)
+		if _, err := ds.Put(ctx, key, p); err != nil {
+			return err
+		}
+	}
+	return nil
 }

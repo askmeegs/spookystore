@@ -15,25 +15,17 @@
 package main
 
 import (
-	"flag"
 	"fmt"
-	"os"
 	"strconv"
+	"time"
 
 	"cloud.google.com/go/datastore"
+	"cloud.google.com/go/trace"
 	"golang.org/x/net/context"
-	"google.golang.org/grpc/grpclog"
 
-	"github.com/m-okeefe/spookystore/cmd/version"
+	pb "github.com/m-okeefe/spookystore/internal/proto"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-)
-
-var (
-	projectID = flag.String("google-project-id", "", "google cloud project id")
-	addr      = flag.String("addr", ":8003", "[host]:port to listen")
-
-	log *logrus.Entry
 )
 
 type productsDirectory struct {
@@ -46,90 +38,88 @@ type Product struct {
 	K           *datastore.Key `datastore:"__key__"`
 	DisplayName string         `datastore:"DisplayName"`
 	Description string         `datastore:"Description"`
-	Cost        float64        `datastore:"Description"`
+	Cost        float32        `datastore:"Description"`
 	Image       string         `datastore:"Image"`
 }
 
-func test() {
-	flag.Parse()
-	host, err := os.Hostname()
+func (s *Server) GetAllProducts(ctx context.Context, req *pb.GetAllProductsRequest) (*pb.GetAllProductsResponse, error) {
+	span := trace.FromContext(ctx).NewChild("spookystoresvc/GetAllProducts")
+	defer span.Finish()
+
+	log := log.WithFields(logrus.Fields{
+		"op": "GetAllProducts"})
+	start := time.Now()
+	defer func() {
+		log.WithField("elapsed", time.Since(start).String()).Debug("completed request")
+	}()
+	log.Debug("received request")
+
+	cs := span.NewChild("datastore/query/products")
+	defer cs.Finish()
+
+	var keys []string
+	_, err := s.ds.GetAll(ctx, datastore.NewQuery("Product"), &keys)
 	if err != nil {
-		log.Fatal(errors.Wrap(err, "cannot get hostname"))
+		log.WithField("error", err).Error("failed to query the datastore")
+		return nil, errors.Wrap(err, "failed to getAll")
 	}
-	logrus.SetLevel(logrus.DebugLevel)
-	logrus.SetFormatter(&logrus.JSONFormatter{FieldMap: logrus.FieldMap{logrus.FieldKeyLevel: "severity"}})
-	log = logrus.WithFields(logrus.Fields{
-		"service": "userdirectory",
-		"host":    host,
-		"v":       version.Version(),
-	})
-	grpclog.SetLogger(log.WithField("facility", "grpc"))
-
-	if env := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS"); env == "" {
-		log.Fatal("GOOGLE_APPLICATION_CREDENTIALS environment variable is not set")
-	}
-
-	if *projectID == "" {
-		log.Fatal("google cloud project id is not set")
-	}
-
-	ctx := context.Background()
-
-	ds, err := datastore.NewClient(ctx, *projectID)
-	if err != nil {
-		log.Fatal(err)
-	}
-	p := &productsDirectory{
-		ds:  ds,
-		ctx: ctx,
-	}
-	p.TestProduct()
+	pl := &pb.ProductList{ProductIDs: keys}
+	return &pb.GetAllProductsResponse{Items: pl}, nil
 }
 
-func (p *productsDirectory) TestProduct() {
-
-	log.Info("Trying to insert new product...")
-	fmt.Printf("%#v", p)
-
-	// Write product
-	k, err := p.ds.Put(p.ctx, datastore.IncompleteKey("Product", nil), &Product{
-		DisplayName: "scented candle",
-		Description: "delightful candle. a mix of pumpkin spice, bonfire, and vanilla",
-		Image:       "someurl.com",
-		Cost:        9.99,
-	})
+func (s *Server) GetProduct(ctx context.Context, req *pb.GetProductRequest) (*pb.Product, error) {
+	var v Product
+	parsed, err := strconv.ParseInt(req.ID, 10, 64)
 	if err != nil {
-		log.WithField("error", err).Fatal("failed to save to datastore")
+		return &pb.Product{}, nil
 	}
-	id := fmt.Sprintf("%d", k.ID)
-	log.WithField("id", id).Info("successfully created new product")
 
-	// Read product
-	var prod Product
-	conv, err := strconv.ParseInt(id, 10, 64)
-	if err != nil {
-		log.Error(err)
-	}
-	err = p.ds.Get(p.ctx, datastore.IDKey("Product", conv, nil), &prod)
+	err = s.ds.Get(ctx, datastore.IDKey("Product", parsed, nil), &v)
 	if err == datastore.ErrNoSuchEntity {
 		log.Debug("product not found")
-		return
+		return &pb.Product{}, nil
 	} else if err != nil {
 		log.WithField("error", err).Error("failed to query the datastore")
+		return nil, errors.Wrap(err, "failed to query")
+	}
+	log.Debug("found product")
+	return &pb.Product{
+		ID:          fmt.Sprintf("%d", v.K.ID),
+		DisplayName: v.DisplayName,
+		PictureURL:  v.Image,
+		Cost:        v.Cost,
+		Description: v.Description,
+	}, nil
+}
+
+func (s *Server) AddProductToCart(ctx context.Context, req *pb.AddProductRequest) (*pb.AddProductResponse, error) {
+	// get user
+	userResp, err := s.GetUser(ctx, &pb.UserRequest{ID: req.UserID})
+	if err != nil {
+		return &pb.AddProductResponse{Success: false}, nil
 	}
 
-	log.WithField("my product", prod).Info("successfully read product")
+	// update card / product list with product id
+	user := userResp.User
+	if !stringInSlice(user.Cart.ProductIDs, req.ProductID) {
+		user.Cart.ProductIDs = append(user.Cart.ProductIDs, req.ProductID)
+	}
 
-	// Add to products map (this is used to generate list of links for product pages)
-	p.productIds = append(p.productIds, conv)
+	// put user
+	u := datastore.NameKey("Product", user.ID, nil)
+	if _, err := s.ds.Put(ctx, u, user); err != nil {
+		return &pb.AddProductResponse{Success: false}, nil
+	}
 
-	// TODO - write endpoint to serve that list to generate the homepage (card for every product) + product page for every product
+	log.Debugf("added product id=%s to cart, user=%d", req.ProductID, req.UserID)
+	return &pb.AddProductResponse{Success: true}, nil
+}
 
-	// ie. when someone clicks on a productl link in the homepage, the resulting webpage should be a dynamically-rendered template
-	/*
-		- whose URL is the product ID
-		- contents are the result of ds.Get(ID) -- image, etc.
-	*/
-
-	// TODO - figure out images + Cloud Storage.
+func stringInSlice(a []string, x string) bool {
+	for _, item := range a {
+		if x == item {
+			return true
+		}
+	}
+	return false
 }

@@ -112,7 +112,7 @@ type User struct {
 	ID                   string         `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
 	DisplayName          string         `protobuf:"bytes,2,opt,name=DisplayName,proto3" json:"DisplayName,omitempty"`
 	Picture              string         `protobuf:"bytes,3,opt,name=Picture,proto3" json:"Picture,omitempty"`
-	Cart                 []*Product     `protobuf:"bytes,4,rep,name=Cart,proto3" json:"Cart,omitempty"`
+	Cart                 *ProductList   `protobuf:"bytes,4,opt,name=Cart,proto3" json:"Cart,omitempty"`
 	Transactions         []*Transaction `protobuf:"bytes,5,rep,name=Transactions,proto3" json:"Transactions,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}       `json:"-"`
 	XXX_unrecognized     []byte         `json:"-"`
@@ -164,7 +164,7 @@ func (m *User) GetPicture() string {
 	return ""
 }
 
-func (m *User) GetCart() []*Product {
+func (m *User) GetCart() *ProductList {
 	if m != nil {
 		return m.Cart
 	}
@@ -311,10 +311,10 @@ func (m *Product) GetDescription() string {
 }
 
 type ProductList struct {
-	Products             []*Product `protobuf:"bytes,1,rep,name=Products,proto3" json:"Products,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}   `json:"-"`
-	XXX_unrecognized     []byte     `json:"-"`
-	XXX_sizecache        int32      `json:"-"`
+	ProductIDs           []string `protobuf:"bytes,1,rep,name=ProductIDs,proto3" json:"ProductIDs,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ProductList) Reset()         { *m = ProductList{} }
@@ -341,9 +341,115 @@ func (m *ProductList) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_ProductList proto.InternalMessageInfo
 
-func (m *ProductList) GetProducts() []*Product {
+func (m *ProductList) GetProductIDs() []string {
 	if m != nil {
-		return m.Products
+		return m.ProductIDs
+	}
+	return nil
+}
+
+type GetProductRequest struct {
+	ID                   string   `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *GetProductRequest) Reset()         { *m = GetProductRequest{} }
+func (m *GetProductRequest) String() string { return proto.CompactTextString(m) }
+func (*GetProductRequest) ProtoMessage()    {}
+func (*GetProductRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_213487394ea54d54, []int{6}
+}
+func (m *GetProductRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetProductRequest.Unmarshal(m, b)
+}
+func (m *GetProductRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetProductRequest.Marshal(b, m, deterministic)
+}
+func (m *GetProductRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetProductRequest.Merge(m, src)
+}
+func (m *GetProductRequest) XXX_Size() int {
+	return xxx_messageInfo_GetProductRequest.Size(m)
+}
+func (m *GetProductRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetProductRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetProductRequest proto.InternalMessageInfo
+
+func (m *GetProductRequest) GetID() string {
+	if m != nil {
+		return m.ID
+	}
+	return ""
+}
+
+type GetAllProductsRequest struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *GetAllProductsRequest) Reset()         { *m = GetAllProductsRequest{} }
+func (m *GetAllProductsRequest) String() string { return proto.CompactTextString(m) }
+func (*GetAllProductsRequest) ProtoMessage()    {}
+func (*GetAllProductsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_213487394ea54d54, []int{7}
+}
+func (m *GetAllProductsRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetAllProductsRequest.Unmarshal(m, b)
+}
+func (m *GetAllProductsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetAllProductsRequest.Marshal(b, m, deterministic)
+}
+func (m *GetAllProductsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetAllProductsRequest.Merge(m, src)
+}
+func (m *GetAllProductsRequest) XXX_Size() int {
+	return xxx_messageInfo_GetAllProductsRequest.Size(m)
+}
+func (m *GetAllProductsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetAllProductsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetAllProductsRequest proto.InternalMessageInfo
+
+type GetAllProductsResponse struct {
+	Items                *ProductList `protobuf:"bytes,1,opt,name=Items,proto3" json:"Items,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
+	XXX_unrecognized     []byte       `json:"-"`
+	XXX_sizecache        int32        `json:"-"`
+}
+
+func (m *GetAllProductsResponse) Reset()         { *m = GetAllProductsResponse{} }
+func (m *GetAllProductsResponse) String() string { return proto.CompactTextString(m) }
+func (*GetAllProductsResponse) ProtoMessage()    {}
+func (*GetAllProductsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_213487394ea54d54, []int{8}
+}
+func (m *GetAllProductsResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetAllProductsResponse.Unmarshal(m, b)
+}
+func (m *GetAllProductsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetAllProductsResponse.Marshal(b, m, deterministic)
+}
+func (m *GetAllProductsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetAllProductsResponse.Merge(m, src)
+}
+func (m *GetAllProductsResponse) XXX_Size() int {
+	return xxx_messageInfo_GetAllProductsResponse.Size(m)
+}
+func (m *GetAllProductsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetAllProductsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetAllProductsResponse proto.InternalMessageInfo
+
+func (m *GetAllProductsResponse) GetItems() *ProductList {
+	if m != nil {
+		return m.Items
 	}
 	return nil
 }
@@ -360,7 +466,7 @@ func (m *AddProductRequest) Reset()         { *m = AddProductRequest{} }
 func (m *AddProductRequest) String() string { return proto.CompactTextString(m) }
 func (*AddProductRequest) ProtoMessage()    {}
 func (*AddProductRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_213487394ea54d54, []int{6}
+	return fileDescriptor_213487394ea54d54, []int{9}
 }
 func (m *AddProductRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddProductRequest.Unmarshal(m, b)
@@ -405,7 +511,7 @@ func (m *AddProductResponse) Reset()         { *m = AddProductResponse{} }
 func (m *AddProductResponse) String() string { return proto.CompactTextString(m) }
 func (*AddProductResponse) ProtoMessage()    {}
 func (*AddProductResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_213487394ea54d54, []int{7}
+	return fileDescriptor_213487394ea54d54, []int{10}
 }
 func (m *AddProductResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddProductResponse.Unmarshal(m, b)
@@ -445,7 +551,7 @@ func (m *Transaction) Reset()         { *m = Transaction{} }
 func (m *Transaction) String() string { return proto.CompactTextString(m) }
 func (*Transaction) ProtoMessage()    {}
 func (*Transaction) Descriptor() ([]byte, []int) {
-	return fileDescriptor_213487394ea54d54, []int{8}
+	return fileDescriptor_213487394ea54d54, []int{11}
 }
 func (m *Transaction) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Transaction.Unmarshal(m, b)
@@ -486,55 +592,54 @@ func (m *Transaction) GetItems() *ProductList {
 	return nil
 }
 
-type CheckoutRequest struct {
-	UserID               string       `protobuf:"bytes,1,opt,name=UserID,proto3" json:"UserID,omitempty"`
-	Items                *ProductList `protobuf:"bytes,2,opt,name=Items,proto3" json:"Items,omitempty"`
+type GetCartResponse struct {
+	Items                *ProductList `protobuf:"bytes,1,opt,name=Items,proto3" json:"Items,omitempty"`
+	TotalCost            float32      `protobuf:"fixed32,2,opt,name=TotalCost,proto3" json:"TotalCost,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
 	XXX_unrecognized     []byte       `json:"-"`
 	XXX_sizecache        int32        `json:"-"`
 }
 
-func (m *CheckoutRequest) Reset()         { *m = CheckoutRequest{} }
-func (m *CheckoutRequest) String() string { return proto.CompactTextString(m) }
-func (*CheckoutRequest) ProtoMessage()    {}
-func (*CheckoutRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_213487394ea54d54, []int{9}
+func (m *GetCartResponse) Reset()         { *m = GetCartResponse{} }
+func (m *GetCartResponse) String() string { return proto.CompactTextString(m) }
+func (*GetCartResponse) ProtoMessage()    {}
+func (*GetCartResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_213487394ea54d54, []int{12}
 }
-func (m *CheckoutRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_CheckoutRequest.Unmarshal(m, b)
+func (m *GetCartResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetCartResponse.Unmarshal(m, b)
 }
-func (m *CheckoutRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_CheckoutRequest.Marshal(b, m, deterministic)
+func (m *GetCartResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetCartResponse.Marshal(b, m, deterministic)
 }
-func (m *CheckoutRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CheckoutRequest.Merge(m, src)
+func (m *GetCartResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetCartResponse.Merge(m, src)
 }
-func (m *CheckoutRequest) XXX_Size() int {
-	return xxx_messageInfo_CheckoutRequest.Size(m)
+func (m *GetCartResponse) XXX_Size() int {
+	return xxx_messageInfo_GetCartResponse.Size(m)
 }
-func (m *CheckoutRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_CheckoutRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_CheckoutRequest proto.InternalMessageInfo
-
-func (m *CheckoutRequest) GetUserID() string {
-	if m != nil {
-		return m.UserID
-	}
-	return ""
+func (m *GetCartResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetCartResponse.DiscardUnknown(m)
 }
 
-func (m *CheckoutRequest) GetItems() *ProductList {
+var xxx_messageInfo_GetCartResponse proto.InternalMessageInfo
+
+func (m *GetCartResponse) GetItems() *ProductList {
 	if m != nil {
 		return m.Items
 	}
 	return nil
 }
 
+func (m *GetCartResponse) GetTotalCost() float32 {
+	if m != nil {
+		return m.TotalCost
+	}
+	return 0
+}
+
 type CheckoutResponse struct {
-	ID                   string   `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
-	Success              bool     `protobuf:"varint,2,opt,name=Success,proto3" json:"Success,omitempty"`
+	Success              bool     `protobuf:"varint,1,opt,name=Success,proto3" json:"Success,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -544,7 +649,7 @@ func (m *CheckoutResponse) Reset()         { *m = CheckoutResponse{} }
 func (m *CheckoutResponse) String() string { return proto.CompactTextString(m) }
 func (*CheckoutResponse) ProtoMessage()    {}
 func (*CheckoutResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_213487394ea54d54, []int{10}
+	return fileDescriptor_213487394ea54d54, []int{13}
 }
 func (m *CheckoutResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CheckoutResponse.Unmarshal(m, b)
@@ -564,13 +669,6 @@ func (m *CheckoutResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_CheckoutResponse proto.InternalMessageInfo
 
-func (m *CheckoutResponse) GetID() string {
-	if m != nil {
-		return m.ID
-	}
-	return ""
-}
-
 func (m *CheckoutResponse) GetSuccess() bool {
 	if m != nil {
 		return m.Success
@@ -585,10 +683,13 @@ func init() {
 	proto.RegisterType((*GoogleUser)(nil), "GoogleUser")
 	proto.RegisterType((*Product)(nil), "Product")
 	proto.RegisterType((*ProductList)(nil), "ProductList")
+	proto.RegisterType((*GetProductRequest)(nil), "GetProductRequest")
+	proto.RegisterType((*GetAllProductsRequest)(nil), "GetAllProductsRequest")
+	proto.RegisterType((*GetAllProductsResponse)(nil), "GetAllProductsResponse")
 	proto.RegisterType((*AddProductRequest)(nil), "AddProductRequest")
 	proto.RegisterType((*AddProductResponse)(nil), "AddProductResponse")
 	proto.RegisterType((*Transaction)(nil), "Transaction")
-	proto.RegisterType((*CheckoutRequest)(nil), "CheckoutRequest")
+	proto.RegisterType((*GetCartResponse)(nil), "GetCartResponse")
 	proto.RegisterType((*CheckoutResponse)(nil), "CheckoutResponse")
 }
 
@@ -606,9 +707,11 @@ const _ = grpc.SupportPackageIsVersion4
 type SpookyStoreClient interface {
 	AuthorizeGoogle(ctx context.Context, in *GoogleUser, opts ...grpc.CallOption) (*User, error)
 	GetUser(ctx context.Context, in *UserRequest, opts ...grpc.CallOption) (*UserResponse, error)
+	GetAllProducts(ctx context.Context, in *GetAllProductsRequest, opts ...grpc.CallOption) (*GetAllProductsResponse, error)
+	GetProduct(ctx context.Context, in *GetProductRequest, opts ...grpc.CallOption) (*Product, error)
 	AddProductToCart(ctx context.Context, in *AddProductRequest, opts ...grpc.CallOption) (*AddProductResponse, error)
-	GetCart(ctx context.Context, in *UserRequest, opts ...grpc.CallOption) (*ProductList, error)
-	Checkout(ctx context.Context, in *CheckoutRequest, opts ...grpc.CallOption) (*CheckoutResponse, error)
+	GetCart(ctx context.Context, in *UserRequest, opts ...grpc.CallOption) (*GetCartResponse, error)
+	Checkout(ctx context.Context, in *UserRequest, opts ...grpc.CallOption) (*CheckoutResponse, error)
 }
 
 type spookyStoreClient struct {
@@ -637,6 +740,24 @@ func (c *spookyStoreClient) GetUser(ctx context.Context, in *UserRequest, opts .
 	return out, nil
 }
 
+func (c *spookyStoreClient) GetAllProducts(ctx context.Context, in *GetAllProductsRequest, opts ...grpc.CallOption) (*GetAllProductsResponse, error) {
+	out := new(GetAllProductsResponse)
+	err := c.cc.Invoke(ctx, "/SpookyStore/GetAllProducts", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *spookyStoreClient) GetProduct(ctx context.Context, in *GetProductRequest, opts ...grpc.CallOption) (*Product, error) {
+	out := new(Product)
+	err := c.cc.Invoke(ctx, "/SpookyStore/GetProduct", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *spookyStoreClient) AddProductToCart(ctx context.Context, in *AddProductRequest, opts ...grpc.CallOption) (*AddProductResponse, error) {
 	out := new(AddProductResponse)
 	err := c.cc.Invoke(ctx, "/SpookyStore/AddProductToCart", in, out, opts...)
@@ -646,8 +767,8 @@ func (c *spookyStoreClient) AddProductToCart(ctx context.Context, in *AddProduct
 	return out, nil
 }
 
-func (c *spookyStoreClient) GetCart(ctx context.Context, in *UserRequest, opts ...grpc.CallOption) (*ProductList, error) {
-	out := new(ProductList)
+func (c *spookyStoreClient) GetCart(ctx context.Context, in *UserRequest, opts ...grpc.CallOption) (*GetCartResponse, error) {
+	out := new(GetCartResponse)
 	err := c.cc.Invoke(ctx, "/SpookyStore/GetCart", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -655,7 +776,7 @@ func (c *spookyStoreClient) GetCart(ctx context.Context, in *UserRequest, opts .
 	return out, nil
 }
 
-func (c *spookyStoreClient) Checkout(ctx context.Context, in *CheckoutRequest, opts ...grpc.CallOption) (*CheckoutResponse, error) {
+func (c *spookyStoreClient) Checkout(ctx context.Context, in *UserRequest, opts ...grpc.CallOption) (*CheckoutResponse, error) {
 	out := new(CheckoutResponse)
 	err := c.cc.Invoke(ctx, "/SpookyStore/Checkout", in, out, opts...)
 	if err != nil {
@@ -668,9 +789,11 @@ func (c *spookyStoreClient) Checkout(ctx context.Context, in *CheckoutRequest, o
 type SpookyStoreServer interface {
 	AuthorizeGoogle(context.Context, *GoogleUser) (*User, error)
 	GetUser(context.Context, *UserRequest) (*UserResponse, error)
+	GetAllProducts(context.Context, *GetAllProductsRequest) (*GetAllProductsResponse, error)
+	GetProduct(context.Context, *GetProductRequest) (*Product, error)
 	AddProductToCart(context.Context, *AddProductRequest) (*AddProductResponse, error)
-	GetCart(context.Context, *UserRequest) (*ProductList, error)
-	Checkout(context.Context, *CheckoutRequest) (*CheckoutResponse, error)
+	GetCart(context.Context, *UserRequest) (*GetCartResponse, error)
+	Checkout(context.Context, *UserRequest) (*CheckoutResponse, error)
 }
 
 func RegisterSpookyStoreServer(s *grpc.Server, srv SpookyStoreServer) {
@@ -713,6 +836,42 @@ func _SpookyStore_GetUser_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SpookyStore_GetAllProducts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAllProductsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SpookyStoreServer).GetAllProducts(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/SpookyStore/GetAllProducts",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SpookyStoreServer).GetAllProducts(ctx, req.(*GetAllProductsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SpookyStore_GetProduct_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetProductRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SpookyStoreServer).GetProduct(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/SpookyStore/GetProduct",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SpookyStoreServer).GetProduct(ctx, req.(*GetProductRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _SpookyStore_AddProductToCart_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddProductRequest)
 	if err := dec(in); err != nil {
@@ -750,7 +909,7 @@ func _SpookyStore_GetCart_Handler(srv interface{}, ctx context.Context, dec func
 }
 
 func _SpookyStore_Checkout_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CheckoutRequest)
+	in := new(UserRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -762,7 +921,7 @@ func _SpookyStore_Checkout_Handler(srv interface{}, ctx context.Context, dec fun
 		FullMethod: "/SpookyStore/Checkout",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SpookyStoreServer).Checkout(ctx, req.(*CheckoutRequest))
+		return srv.(SpookyStoreServer).Checkout(ctx, req.(*UserRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -778,6 +937,14 @@ var _SpookyStore_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUser",
 			Handler:    _SpookyStore_GetUser_Handler,
+		},
+		{
+			MethodName: "GetAllProducts",
+			Handler:    _SpookyStore_GetAllProducts_Handler,
+		},
+		{
+			MethodName: "GetProduct",
+			Handler:    _SpookyStore_GetProduct_Handler,
 		},
 		{
 			MethodName: "AddProductToCart",
@@ -799,41 +966,45 @@ var _SpookyStore_serviceDesc = grpc.ServiceDesc{
 func init() { proto.RegisterFile("spookystore.proto", fileDescriptor_213487394ea54d54) }
 
 var fileDescriptor_213487394ea54d54 = []byte{
-	// 564 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x54, 0xcd, 0x6e, 0xd3, 0x40,
-	0x10, 0x8e, 0xdd, 0xa4, 0x49, 0xc6, 0x29, 0x4d, 0x06, 0x84, 0x8c, 0x55, 0x20, 0x5a, 0x21, 0x35,
-	0xa7, 0x2d, 0xa4, 0x57, 0x10, 0x54, 0x09, 0x54, 0x91, 0x0a, 0xaa, 0x9c, 0xf4, 0x01, 0x5c, 0x67,
-	0x69, 0xad, 0xc6, 0x59, 0xe3, 0x5d, 0x1f, 0xca, 0x95, 0x27, 0xe0, 0x15, 0x78, 0x4d, 0x2e, 0xc8,
-	0xe3, 0x75, 0xe2, 0x24, 0x42, 0x48, 0x48, 0xbd, 0xed, 0x7c, 0x33, 0x3b, 0x3f, 0xdf, 0xfc, 0x40,
-	0x4f, 0x25, 0x52, 0xde, 0xdd, 0x2b, 0x2d, 0x53, 0xc1, 0x93, 0x54, 0x6a, 0xe9, 0xbd, 0xbc, 0x91,
-	0xf2, 0x66, 0x21, 0x4e, 0x48, 0xba, 0xce, 0xbe, 0x9e, 0xe8, 0x28, 0x16, 0x4a, 0x07, 0x71, 0x52,
-	0x18, 0xb0, 0xe7, 0xe0, 0x5c, 0x29, 0x91, 0xfa, 0xe2, 0x5b, 0x26, 0x94, 0xc6, 0x47, 0x60, 0x4f,
-	0xc6, 0xae, 0xd5, 0xb7, 0x06, 0x6d, 0xdf, 0x9e, 0x8c, 0xd9, 0x7b, 0xe8, 0x14, 0x6a, 0x95, 0xc8,
-	0xa5, 0x12, 0xf8, 0x04, 0x1a, 0x9f, 0x64, 0xb6, 0x9c, 0x93, 0x49, 0xcb, 0x2f, 0x04, 0x7c, 0x06,
-	0xf5, 0xdc, 0xca, 0xb5, 0xfb, 0xd6, 0xc0, 0x19, 0x36, 0x38, 0x7d, 0x21, 0x88, 0xfd, 0xb2, 0x0a,
-	0xdd, 0xb6, 0x67, 0xec, 0x83, 0x33, 0x8e, 0x54, 0xb2, 0x08, 0xee, 0xbf, 0x04, 0xb1, 0xa0, 0xaf,
-	0x6d, 0xbf, 0x0a, 0xa1, 0x0b, 0xcd, 0xcb, 0x28, 0xd4, 0x59, 0x2a, 0xdc, 0x3d, 0xd2, 0x96, 0x22,
-	0x1e, 0x41, 0x7d, 0x14, 0xa4, 0xda, 0xad, 0xf7, 0xf7, 0x06, 0xce, 0xb0, 0xc5, 0x2f, 0x53, 0x39,
-	0xcf, 0x42, 0xed, 0x13, 0x8a, 0xaf, 0xa1, 0x33, 0x4b, 0x83, 0xa5, 0x0a, 0x42, 0x1d, 0xc9, 0xa5,
-	0x72, 0x1b, 0x64, 0xd5, 0xe1, 0x15, 0xd0, 0xdf, 0xb0, 0x60, 0x1a, 0xe0, 0x9c, 0x78, 0xfa, 0xcf,
-	0x4c, 0x5f, 0x00, 0x98, 0xd4, 0xae, 0xfc, 0x0b, 0x93, 0x6c, 0x05, 0xc9, 0x59, 0xfb, 0x18, 0x07,
-	0xd1, 0xc2, 0xad, 0x93, 0xaa, 0x10, 0xd8, 0x4f, 0x0b, 0x9a, 0x26, 0xf3, 0x07, 0x88, 0x89, 0x50,
-	0x1f, 0x49, 0xa5, 0x29, 0xa4, 0xed, 0xd3, 0x9b, 0xbc, 0x0a, 0x15, 0xa6, 0x51, 0x92, 0xd7, 0xed,
-	0x36, 0x8c, 0xd7, 0x35, 0xc4, 0x4e, 0xc1, 0x31, 0x29, 0x5d, 0x44, 0x4a, 0xe3, 0x2b, 0x68, 0x19,
-	0x51, 0xb9, 0xd6, 0x16, 0xd9, 0x2b, 0x0d, 0x9b, 0x40, 0xef, 0x6c, 0x3e, 0x2f, 0x71, 0x33, 0x49,
-	0x4f, 0x61, 0x3f, 0x67, 0x73, 0x55, 0x95, 0x91, 0xf0, 0x08, 0xda, 0xc6, 0x72, 0x32, 0x36, 0x75,
-	0xad, 0x01, 0xc6, 0x01, 0xab, 0xae, 0xcc, 0xd4, 0xb9, 0xd0, 0x9c, 0x66, 0x61, 0x28, 0x94, 0x32,
-	0x73, 0x57, 0x8a, 0xec, 0x87, 0x05, 0x4e, 0xa5, 0x95, 0x3b, 0x3c, 0x7e, 0x80, 0x83, 0x91, 0x8c,
-	0x93, 0x85, 0xd0, 0x62, 0x3e, 0x8b, 0x0c, 0x93, 0xce, 0xd0, 0xe3, 0xc5, 0x5e, 0xf0, 0x72, 0x2f,
-	0xf8, 0xac, 0xdc, 0x0b, 0x7f, 0xf3, 0x03, 0x32, 0x68, 0x4c, 0xb4, 0x88, 0x15, 0x51, 0x9c, 0x8f,
-	0x51, 0x85, 0x1f, 0xbf, 0x50, 0xb1, 0xcf, 0x70, 0x38, 0xba, 0x15, 0xe1, 0x9d, 0xcc, 0xfe, 0x59,
-	0xfe, 0xca, 0x9d, 0xfd, 0x77, 0x77, 0x6f, 0xa1, 0xbb, 0x76, 0x67, 0x28, 0xd8, 0x2e, 0xac, 0x42,
-	0x89, 0xbd, 0x41, 0xc9, 0xf0, 0xb7, 0x05, 0xce, 0x94, 0x0e, 0xc1, 0x34, 0x3f, 0x04, 0x78, 0x0c,
-	0x87, 0x67, 0x99, 0xbe, 0x95, 0x69, 0xf4, 0x5d, 0x14, 0x53, 0x8e, 0x0e, 0x5f, 0x8f, 0xbb, 0x57,
-	0xac, 0x2b, 0xab, 0xe1, 0x00, 0x9a, 0xe7, 0x42, 0xd3, 0x0a, 0x74, 0x78, 0xe5, 0x28, 0x78, 0x07,
-	0xbc, 0x7a, 0x03, 0x58, 0x0d, 0xdf, 0x41, 0x77, 0xdd, 0xa5, 0x99, 0xa4, 0xad, 0x43, 0xbe, 0x33,
-	0x03, 0xde, 0x63, 0xbe, 0xdb, 0x4c, 0x56, 0xc3, 0x63, 0x0a, 0x44, 0xbf, 0x36, 0x03, 0x6d, 0xb0,
-	0xc1, 0x6a, 0xf8, 0x06, 0x5a, 0x25, 0x11, 0xd8, 0xe5, 0x5b, 0x14, 0x7b, 0x3d, 0xbe, 0xcd, 0x12,
-	0xab, 0x5d, 0xef, 0x53, 0x47, 0x4f, 0xff, 0x04, 0x00, 0x00, 0xff, 0xff, 0x33, 0x69, 0xe5, 0x80,
-	0x0c, 0x05, 0x00, 0x00,
+	// 626 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x54, 0xdb, 0x6e, 0xd3, 0x40,
+	0x10, 0xb5, 0x73, 0x69, 0x9a, 0x71, 0x7a, 0xc9, 0x02, 0xad, 0xb1, 0xb8, 0x44, 0xcb, 0x03, 0x95,
+	0x68, 0xb7, 0xa8, 0xbc, 0x82, 0xa0, 0x4a, 0x20, 0x8a, 0x54, 0xa1, 0xca, 0x49, 0x3f, 0xc0, 0x75,
+	0x96, 0xd6, 0xaa, 0x9d, 0x35, 0xde, 0xf5, 0x43, 0x79, 0xe5, 0x0b, 0xf8, 0x09, 0x3e, 0x8f, 0x6f,
+	0x40, 0x1e, 0xaf, 0x63, 0xc7, 0x69, 0x25, 0x40, 0xe2, 0xcd, 0x73, 0x66, 0x76, 0x66, 0x7c, 0xe6,
+	0xcc, 0x40, 0x5f, 0xc6, 0x42, 0xdc, 0xdc, 0x4a, 0x25, 0x12, 0xce, 0xe2, 0x44, 0x28, 0xe1, 0x3c,
+	0xbf, 0x12, 0xe2, 0x2a, 0xe4, 0xc7, 0x68, 0x5d, 0xa6, 0x5f, 0x8e, 0x55, 0x10, 0x71, 0xa9, 0xbc,
+	0x28, 0xce, 0x03, 0xe8, 0x53, 0xb0, 0x2e, 0x24, 0x4f, 0x5c, 0xfe, 0x35, 0xe5, 0x52, 0x91, 0x6d,
+	0x68, 0x4c, 0x46, 0xb6, 0x39, 0x30, 0x0f, 0xba, 0x6e, 0x63, 0x32, 0xa2, 0xef, 0xa1, 0x97, 0xbb,
+	0x65, 0x2c, 0x16, 0x92, 0x93, 0x87, 0xd0, 0xfe, 0x24, 0xd2, 0xc5, 0x1c, 0x43, 0x36, 0xdd, 0xdc,
+	0x20, 0x8f, 0xa1, 0x95, 0x45, 0xd9, 0x8d, 0x81, 0x79, 0x60, 0x9d, 0xb4, 0x19, 0x3e, 0x41, 0x88,
+	0xfe, 0x34, 0x73, 0x5f, 0x3d, 0x33, 0x19, 0x80, 0x35, 0x0a, 0x64, 0x1c, 0x7a, 0xb7, 0x9f, 0xbd,
+	0x88, 0xe3, 0xd3, 0xae, 0x5b, 0x85, 0x88, 0x0d, 0x9d, 0xf3, 0xc0, 0x57, 0x69, 0xc2, 0xed, 0x26,
+	0x7a, 0x0b, 0x93, 0x0c, 0xa0, 0x35, 0xf4, 0x12, 0x65, 0xb7, 0xb0, 0x5e, 0x8f, 0x9d, 0x27, 0x62,
+	0x9e, 0xfa, 0xea, 0x2c, 0x90, 0xca, 0x45, 0x0f, 0x79, 0x0d, 0xbd, 0x59, 0xe2, 0x2d, 0xa4, 0xe7,
+	0xab, 0x40, 0x2c, 0xa4, 0xdd, 0x1e, 0x34, 0x31, 0xb2, 0x02, 0xba, 0x2b, 0x11, 0x54, 0x01, 0x8c,
+	0x91, 0xab, 0x7f, 0xec, 0xf6, 0x19, 0x80, 0x6e, 0xef, 0xc2, 0x3d, 0xd3, 0x0d, 0x57, 0x90, 0x8c,
+	0xb9, 0x8f, 0x91, 0x17, 0x84, 0xd8, 0x74, 0xd7, 0xcd, 0x0d, 0xfa, 0xc3, 0x84, 0x8e, 0xee, 0xfe,
+	0x3f, 0xd4, 0x24, 0xd0, 0x1a, 0x0a, 0x99, 0xf3, 0xd4, 0x70, 0xf1, 0x1b, 0xb3, 0x72, 0xe9, 0x27,
+	0x41, 0x9c, 0xfd, 0xb7, 0xdd, 0xd6, 0x59, 0x4b, 0x88, 0x1e, 0x81, 0x55, 0x21, 0x14, 0x8b, 0xe4,
+	0xe6, 0x64, 0x24, 0x6d, 0x73, 0xd0, 0xc4, 0x22, 0x4b, 0x84, 0xbe, 0x80, 0xfe, 0x98, 0x2b, 0x0d,
+	0xdc, 0xa7, 0xa3, 0x7d, 0x78, 0x34, 0xe6, 0xea, 0x34, 0x0c, 0x75, 0x9c, 0xd4, 0x81, 0xf4, 0x2d,
+	0xec, 0xd5, 0x1d, 0x5a, 0x6a, 0x14, 0xda, 0x13, 0xc5, 0x23, 0x89, 0x59, 0xea, 0x53, 0xce, 0x5d,
+	0x74, 0x02, 0xfd, 0xd3, 0xf9, 0xbc, 0x56, 0x7b, 0x0f, 0x36, 0xb2, 0x19, 0x2e, 0xeb, 0x6b, 0x8b,
+	0x3c, 0x81, 0xee, 0xb2, 0x6d, 0xcd, 0x66, 0x09, 0x50, 0x06, 0xa4, 0x9a, 0x4a, 0x37, 0x61, 0x43,
+	0x67, 0x9a, 0xfa, 0x3e, 0x97, 0x52, 0x2b, 0xbe, 0x30, 0xe9, 0x77, 0x13, 0xac, 0x8a, 0x80, 0xd6,
+	0xa6, 0xf7, 0x01, 0xb6, 0x86, 0x22, 0x8a, 0x43, 0xae, 0xf8, 0x7c, 0x16, 0xe8, 0xf9, 0x59, 0x27,
+	0x0e, 0xcb, 0x37, 0x92, 0x15, 0x1b, 0xc9, 0x66, 0xc5, 0x46, 0xba, 0xab, 0x0f, 0x4a, 0x02, 0x9a,
+	0xf7, 0x13, 0x30, 0x85, 0x9d, 0x31, 0x57, 0x99, 0xe4, 0xff, 0x86, 0xb7, 0x8c, 0x8a, 0x99, 0x50,
+	0x5e, 0x88, 0xea, 0x68, 0xa0, 0x3a, 0x4a, 0x80, 0x1e, 0xc2, 0xee, 0xf0, 0x9a, 0xfb, 0x37, 0x22,
+	0xfd, 0x03, 0x22, 0x4e, 0x7e, 0x35, 0xc0, 0x9a, 0xe2, 0xe1, 0x99, 0x66, 0x87, 0x87, 0xbc, 0x84,
+	0x9d, 0xd3, 0x54, 0x5d, 0x8b, 0x24, 0xf8, 0xc6, 0xf3, 0x8d, 0x22, 0x16, 0x2b, 0x57, 0xcb, 0xc9,
+	0xcf, 0x03, 0x35, 0xc8, 0x01, 0x74, 0xc6, 0x5c, 0xe1, 0xba, 0xf5, 0x58, 0xe5, 0x08, 0x39, 0x5b,
+	0xac, 0x7a, 0x73, 0xa8, 0x41, 0x86, 0xb0, 0xbd, 0x2a, 0x12, 0xb2, 0xc7, 0xee, 0x94, 0x93, 0xb3,
+	0xcf, 0xee, 0x56, 0x13, 0x35, 0xc8, 0x21, 0x40, 0xa9, 0x53, 0x42, 0xd8, 0x9a, 0x68, 0x9d, 0xcd,
+	0x82, 0x2a, 0x6a, 0x90, 0x77, 0xb0, 0x5b, 0xca, 0x61, 0x26, 0xf0, 0xa8, 0x10, 0xb6, 0x26, 0x36,
+	0xe7, 0x01, 0x5b, 0x57, 0x0d, 0x35, 0xc8, 0x2b, 0xfc, 0x37, 0x7c, 0xb5, 0xfa, 0x6f, 0xbb, 0xac,
+	0x36, 0x2f, 0x6a, 0x90, 0x23, 0xd8, 0x2c, 0xf8, 0xae, 0x45, 0xf7, 0x59, 0x7d, 0x10, 0xd4, 0xb8,
+	0xdc, 0x40, 0xe9, 0xbc, 0xf9, 0x1d, 0x00, 0x00, 0xff, 0xff, 0x2a, 0x87, 0x1f, 0x09, 0xef, 0x05,
+	0x00, 0x00,
 }

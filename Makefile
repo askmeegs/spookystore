@@ -1,6 +1,6 @@
 .PHONY: users web test
 
-users:
+build:
 	CGO_ENABLED=0 go build --ldflags '${EXTLDFLAGS}' -o ./bin/spookystore github.com/m-okeefe/spookystore/cmd/spookystore
 
 web: 

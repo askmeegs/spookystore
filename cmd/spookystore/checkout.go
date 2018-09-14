@@ -14,6 +14,17 @@
 
 package main
 
-func checkout() {
+import (
+	pb "github.com/m-okeefe/spookystore/internal/proto"
+	"golang.org/x/net/context"
+)
 
+// Lists all products in this user's cart w/ the total cost
+func (s *Server) GetCart(ctx context.Context, req *pb.UserRequest) (*pb.GetCartResponse, error) {
+	return &pb.GetCartResponse{}, nil
+}
+
+// Transforms the Cart items into a Transaction
+func (s *Server) Checkout(ctx context.Context, req *pb.UserRequest) (*pb.CheckoutResponse, error) {
+	return &pb.CheckoutResponse{}, nil
 }

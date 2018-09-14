@@ -31,11 +31,13 @@ import (
 )
 
 type account struct {
-	K           *datastore.Key `datastore:"__key__"`
-	DisplayName string         `datastore:"DisplayName"`
-	Email       string         `datastore:"Email"`
-	Picture     string         `datastore:"Picture"`
-	GoogleID    string         `datastore:"GoogleID"`
+	K            *datastore.Key    `datastore:"__key__"`
+	DisplayName  string            `datastore:"DisplayName"`
+	Email        string            `datastore:"Email"`
+	Picture      string            `datastore:"Picture"`
+	GoogleID     string            `datastore:"GoogleID"`
+	Cart         *pb.ProductList   `datastore:"Cart"`
+	Transactions []*pb.Transaction `datastore:"Transactions"`
 }
 
 func (s *Server) AuthorizeGoogle(ctx context.Context, goog *pb.GoogleUser) (*pb.User, error) {
@@ -89,7 +91,7 @@ func (s *Server) AuthorizeGoogle(ctx context.Context, goog *pb.GoogleUser) (*pb.
 	return user.GetUser(), nil
 }
 
-func (u *Server) GetUser(ctx context.Context, req *pb.UserRequest) (*pb.UserResponse, error) {
+func (s *Server) GetUser(ctx context.Context, req *pb.UserRequest) (*pb.UserResponse, error) {
 	span := trace.FromContext(ctx).NewChild("usersvc/GetUser")
 	defer span.Finish()
 
@@ -123,7 +125,10 @@ func (u *Server) GetUser(ctx context.Context, req *pb.UserRequest) (*pb.UserResp
 	return &pb.UserResponse{
 		Found: true,
 		User: &pb.User{
-			ID:          fmt.Sprintf("%d", v.K.ID),
-			DisplayName: v.DisplayName,
-			Picture:     v.Picture}}, nil
+			ID:           fmt.Sprintf("%d", v.K.ID),
+			DisplayName:  v.DisplayName,
+			Picture:      v.Picture,
+			Cart:         v.Cart,
+			Transactions: v.Transactions,
+		}}, nil
 }
