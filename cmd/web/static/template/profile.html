@@ -18,13 +18,13 @@
 
                     <ul class="demo-list-three mdl-list">
 
-                    {{range $i, $t := .user.Transactions}}
+                    {{range $i, $t := .Transactions}}
                     <li class="mdl-list__item mdl-list__item--three-line">
                             <span class="mdl-list__item-primary-content">
                               <i class="material-icons mdl-list__item-avatar">shopping_cart</i>
-                              <span>{{ $a.CompletedTime }}</span>
+                              <span>{{ $t.CompletedTime }}</span>
                               <span class="mdl-list__item-text-body">
-                                {{ $a.TotalCost }}
+                                {{ $t.TotalCost }}
                               </span>
                             </span>
                     </li>

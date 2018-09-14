@@ -298,10 +298,12 @@ func (s *server) oauth2Callback(w http.ResponseWriter, r *http.Request) {
 
 func (s *server) checkout(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	span := trace.FromContext(ctx)
 
-	userID := mux.Vars(r)["id"]
-	span.SetLabel("user/id", userID)
+	id := ""
+	if id = r.URL.Query().Get("id"); id == "" {
+		badRequest(w, errors.New("bad user ID"))
+		return
+	}
 
 	me, ef, err := s.authUser(ctx, r)
 	if err != nil {
@@ -309,7 +311,7 @@ func (s *server) checkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userResp, err := s.getUser(ctx, userID)
+	userResp, err := s.getUser(ctx, id)
 	if err != nil {
 		serverError(w, errors.Wrap(err, "failed to look up the user"))
 		return
@@ -318,7 +320,7 @@ func (s *server) checkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cart, err := s.spookySvc.GetCart(ctx, &pb.UserRequest{ID: userID})
+	cart, err := s.spookySvc.GetCart(ctx, &pb.UserRequest{ID: id})
 	if err != nil {
 		serverError(w, errors.Wrap(err, "failed to get cart"))
 		return
@@ -391,12 +393,15 @@ func (s *server) userProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	u := userResp.GetUser()
+
 	tmpl := template.Must(template.ParseFiles(
 		filepath.Join("static", "template", "layout.html"),
 		filepath.Join("static", "template", "profile.html")))
 	if err := tmpl.Execute(w, map[string]interface{}{
-		"me":   me,
-		"user": userResp.GetUser(),
+		"me":           me,
+		"user":         u,
+		"Transactions": u.GetTransactions(),
 	}); err != nil {
 		log.Fatal(err)
 	}
