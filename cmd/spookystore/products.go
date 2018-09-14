@@ -57,23 +57,12 @@ func (s *Server) GetAllProducts(ctx context.Context, req *pb.GetAllProductsReque
 	cs := span.NewChild("datastore/query/products")
 	defer cs.Finish()
 
-	var keys []string
-	_, err := s.ds.GetAll(ctx, datastore.NewQuery("Product"), &keys)
+	var result []*pb.Product
+	_, err := s.ds.GetAll(ctx, datastore.NewQuery("Product"), &result)
 	if err != nil {
 		log.WithField("error", err).Error("failed to query the datastore")
 		return nil, errors.Wrap(err, "failed to getAll")
 	}
-
-	result := []*pb.Product{}
-	// get product for each key
-	for _, k := range keys {
-		prod, err := s.GetProduct(ctx, &pb.GetProductRequest{ID: k})
-		if err != nil {
-			return &pb.GetAllProductsResponse{}, err
-		}
-		result = append(result, prod)
-	}
-
 	pl := &pb.ProductList{Items: result}
 	return &pb.GetAllProductsResponse{ProductList: pl}, nil
 }

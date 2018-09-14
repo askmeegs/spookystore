@@ -192,7 +192,6 @@ func (s *server) home(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println(err)
 		serverError(w, errors.Wrap(err, "failed to get all products"))
-		return
 	}
 
 	log.WithField("logged_in", user != nil).Debug("serving home page")
