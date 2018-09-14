@@ -188,7 +188,7 @@ func (s *server) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	products, err := s.spookySvc.GetAllProducts(ctx, &pb.GetAllProductsRequest{})
+	resp, err := s.spookySvc.GetAllProducts(ctx, &pb.GetAllProductsRequest{})
 	if err != nil {
 		fmt.Println(err)
 		serverError(w, errors.Wrap(err, "failed to get all products"))
@@ -200,7 +200,7 @@ func (s *server) home(w http.ResponseWriter, r *http.Request) {
 		filepath.Join("static", "template", "home.html")))
 
 	if err := tmpl.Execute(w, map[string]interface{}{
-		"me": user, "products": products}); err != nil {
+		"me": user, "products": resp.ProductList.GetItems()}); err != nil {
 		log.Fatal(err)
 	}
 }

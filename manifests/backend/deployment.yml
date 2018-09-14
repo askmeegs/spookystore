@@ -18,11 +18,11 @@ spec:
             path: app-credentials.json
       containers:
       - name: backend
-        image:  gcr.io/spookystore-18/github-m-okeefe-spookystore:2f3b1a3ade5a52aab3c3556564a44e62b5c76c06
+        image:  gcr.io/spookystore-18/github-m-okeefe-spookystore:latest
         args:
         - "-addr=:8001"
         - "-google-project-id=$(GOOGLE_PROJECT_ID)"
-        imagePullPolicy: IfNotPresent # minikube-only
+        imagePullPolicy: Always
         ports:
         - containerPort: 8001
         volumeMounts:
