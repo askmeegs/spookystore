@@ -36,7 +36,7 @@ type account struct {
 	Email        string            `datastore:"Email"`
 	Picture      string            `datastore:"Picture"`
 	GoogleID     string            `datastore:"GoogleID"`
-	Cart         *pb.ProductList   `datastore:"Cart"`
+	Cart         []string          `datastore:"Cart"`
 	Transactions []*pb.Transaction `datastore:"Transactions"`
 }
 

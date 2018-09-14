@@ -63,8 +63,19 @@ func (s *Server) GetAllProducts(ctx context.Context, req *pb.GetAllProductsReque
 		log.WithField("error", err).Error("failed to query the datastore")
 		return nil, errors.Wrap(err, "failed to getAll")
 	}
-	pl := &pb.ProductList{ProductIDs: keys}
-	return &pb.GetAllProductsResponse{Items: pl}, nil
+
+	result := []*pb.Product{}
+	// get product for each key
+	for _, k := range keys {
+		prod, err := s.GetProduct(ctx, &pb.GetProductRequest{ID: k})
+		if err != nil {
+			return &pb.GetAllProductsResponse{}, err
+		}
+		result = append(result, prod)
+	}
+
+	pl := &pb.ProductList{Items: result}
+	return &pb.GetAllProductsResponse{ProductList: pl}, nil
 }
 
 func (s *Server) GetProduct(ctx context.Context, req *pb.GetProductRequest) (*pb.Product, error) {
@@ -96,19 +107,19 @@ func (s *Server) AddProductToCart(ctx context.Context, req *pb.AddProductRequest
 	// get user
 	userResp, err := s.GetUser(ctx, &pb.UserRequest{ID: req.UserID})
 	if err != nil {
-		return &pb.AddProductResponse{Success: false}, nil
+		return &pb.AddProductResponse{Success: false}, err
 	}
 
 	// update card / product list with product id
 	user := userResp.User
-	if !stringInSlice(user.Cart.ProductIDs, req.ProductID) {
-		user.Cart.ProductIDs = append(user.Cart.ProductIDs, req.ProductID)
+	if !stringInSlice(user.Cart, req.ProductID) {
+		user.Cart = append(user.Cart, req.ProductID)
 	}
 
 	// put user
-	u := datastore.NameKey("Product", user.ID, nil)
+	u := datastore.NameKey("User", user.ID, nil)
 	if _, err := s.ds.Put(ctx, u, user); err != nil {
-		return &pb.AddProductResponse{Success: false}, nil
+		return &pb.AddProductResponse{Success: false}, err
 	}
 
 	log.Debugf("added product id=%s to cart, user=%d", req.ProductID, req.UserID)

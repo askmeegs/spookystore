@@ -27,7 +27,7 @@ message User {
     string ID = 1;
     string DisplayName = 2;
     string Picture = 3;
-    ProductList Cart = 4; 
+    repeated string Cart = 4; 
     repeated Transaction Transactions = 5;  
 }
 
@@ -50,7 +50,7 @@ message Product {
 }
 
 message ProductList {
-    repeated string ProductIDs = 1; 
+    repeated Product Items = 1; 
 }
 
 message GetProductRequest {
@@ -61,7 +61,7 @@ message GetAllProductsRequest {
 }
 
 message GetAllProductsResponse {
-    ProductList Items = 1; 
+    ProductList ProductList = 1; 
 }
 
 
@@ -82,6 +82,7 @@ message Transaction {
     string ID = 1; 
     google.protobuf.Timestamp CompletedTime = 2;
     ProductList Items = 3; 
+    float TotalCost = 4; 
 }
 
 // ---------- checkout ----------------------------------------------------------------------
