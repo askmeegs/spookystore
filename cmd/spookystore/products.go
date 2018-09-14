@@ -64,6 +64,8 @@ func (s *Server) GetAllProducts(ctx context.Context, req *pb.GetAllProductsReque
 		return nil, errors.Wrap(err, "failed to getAll")
 	}
 	pl := &pb.ProductList{Items: result}
+
+	fmt.Printf("\n\nPRODUCT EXAMPLE: %#v\n\n\n", result[0])
 	return &pb.GetAllProductsResponse{ProductList: pl}, nil
 }
 
