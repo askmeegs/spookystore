@@ -4,29 +4,53 @@
   <title>{{template "title" .}}</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link href="https://fonts.googleapis.com/css?family=Material+Icons" rel="stylesheet">
-   <!-- Compiled and minified CSS -->
-   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-   <!-- Compiled and minified JavaScript -->
-   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.deep_orange-indigo.min.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+
+  <style>
+      .demo-card-wide.mdl-card {
+        width: 400px;
+      }
+      .demo-card-wide > .mdl-card__title {
+        color: #fff;
+        height: 250px;
+        background: url('https://c1.staticflickr.com/4/3944/15494552181_14dec15946_b.jpg') center / cover;
+      }
+      .demo-card-wide > .mdl-card__menu {
+        color: #fff;
+      }
+      </style>
+      
 </head>
-<body>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+<body></body>
+<!-- Always shows a header, even in smaller screens. -->
+<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+    <header class="mdl-layout__header">
+      <div class="mdl-layout__header-row">
+        <!-- Title -->
+        <span class="mdl-layout-title">spooky store</span>
+        <!-- Add spacer, to align navigation to the right -->
+        <div class="mdl-layout-spacer"></div>
+        <!-- Navigation. We hide it in small screens. -->
+        <nav class="mdl-navigation mdl-layout--large-screen-only">
+            {{if .me}}
+            <a href="/checkout"></a><i class="material-icons">shopping_cart</i></a>
+            <a class="mdl-navigation__link" href="/logout">Logout</a>
+            <a href="/u/{{.me.ID}}"><div class="valign-wrapper"><img src="{{.me.Picture}}" alt="" class="circle responsive-img"/></div></a>
+          {{else}}
+          <a class="mdl-navigation__link" href="/login">Login</a>
+          {{end}}
+        </nav>
 
-  <nav>
-    <div class="nav-wrapper">
-      <a href="/" class="brand-logo left">Spooky Store</a>
-      <ul class="right valign-wrapper">
-        {{if .me}}
-          <li><a href="/logout">Logout</a></li>
-          <li><a href="/u/{{.me.ID}}"><div class="valign-wrapper"><img src="{{.me.Picture}}" alt="" class="circle responsive-img"/></div></a></li>
-        {{else}}
-          <li><a href="/login">Login</a></li>
-        {{end}}
-      </ul>
-    </div>
-  </nav>
 
-  {{template "body" .}}
-</body>
+
+      </div>
+    </header>
+    <main class="mdl-layout__content">
+      <div class="page-content"> {{template "body" .}}</div>
+    </main>
+  </div>
+</body> 
 </html>
+

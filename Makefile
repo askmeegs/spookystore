@@ -1,7 +1,7 @@
 .PHONY: users web test
 
 users:
-	CGO_ENABLED=0 go build --ldflags '${EXTLDFLAGS}' -o ./bin/users github.com/m-okeefe/spookystore/cmd/users
+	CGO_ENABLED=0 go build --ldflags '${EXTLDFLAGS}' -o ./bin/spookystore github.com/m-okeefe/spookystore/cmd/spookystore
 
 web: 
 	CGO_ENABLED=0 go build --ldflags '${EXTLDFLAGS}' -o ./bin/web github.com/m-okeefe/spookystore/cmd/web
