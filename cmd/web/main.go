@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Based on https://github.com/ahmetb/coffeelog/tree/master/cmd/web
+
 package main
 
 import (
@@ -40,16 +42,16 @@ import (
 )
 
 type server struct {
-	cfg     *oauth2.Config
-	userSvc pb.UserDirectoryClient
-	tc      *trace.Client
+	cfg       *oauth2.Config
+	spookySvc pb.SpookyStoreClient
+	tc        *trace.Client
 }
 
 var (
-	projectID            = flag.String("google-project-id", "", "google cloud project id")
-	addr                 = flag.String("addr", ":8000", "[host]:port to listen")
-	oauthConfig          = flag.String("google-oauth2-config", "", "path to oauth2 config json")
-	userDirectoryBackend = flag.String("user-directory-addr", "", "address of user directory backend")
+	projectID          = flag.String("google-project-id", "", "google cloud project id")
+	addr               = flag.String("addr", ":8000", "[host]:port to listen")
+	oauthConfig        = flag.String("google-oauth2-config", "", "path to oauth2 config json")
+	spookyStoreBackend = flag.String("spooky-store-addr", "", "address of spookystore backend")
 
 	hashKey  = []byte("very-secret")      // TODO extract to env
 	blockKey = []byte("a-lot-secret-key") // TODO extract to env
@@ -80,8 +82,8 @@ func main() {
 	if *projectID == "" {
 		log.Fatal("google cloud project id flag not specified")
 	}
-	if *userDirectoryBackend == "" {
-		log.Fatal("user directory address flag not specified")
+	if *spookyStoreBackend == "" {
+		log.Fatal("spookystorebackend address flag not specified")
 	}
 	if *oauthConfig == "" {
 		log.Fatal("google oauth2 config flag not specified")
@@ -100,15 +102,15 @@ func main() {
 	if err != nil {
 		log.Fatal(errors.Wrap(err, "failed to initialize trace client"))
 	}
-	userSvcConn, err := grpc.Dial(*userDirectoryBackend,
+	spookySvcConn, err := grpc.Dial(*spookyStoreBackend,
 		grpc.WithInsecure(),
 		grpc.WithUnaryInterceptor(tc.GRPCClientInterceptor()))
 	if err != nil {
-		log.Fatal(errors.Wrap(err, "cannot connect user service"))
+		log.Fatal(errors.Wrap(err, "cannot connect to backend spookystore service"))
 	}
 	defer func() {
-		log.Info("closing connection to user directory")
-		userSvcConn.Close()
+		log.Info("closing connection to spookystore backend")
+		spookySvcConn.Close()
 	}()
 	sp, err := trace.NewLimitedSampler(1.0, 5)
 	if err != nil {
@@ -117,9 +119,9 @@ func main() {
 	tc.SetSamplingPolicy(sp)
 
 	s := &server{
-		tc:      tc,
-		cfg:     authConf,
-		userSvc: pb.NewUserDirectoryClient(userSvcConn),
+		tc:        tc,
+		cfg:       authConf,
+		spookySvc: pb.NewSpookyStoreClient(spookySvcConn),
 	}
 
 	// set up server
@@ -130,11 +132,14 @@ func main() {
 	r.Handle("/logout", s.traceHandler(logHandler(s.logout))).Methods(http.MethodGet)
 	r.Handle("/oauth2callback", s.traceHandler(logHandler(s.oauth2Callback))).Methods(http.MethodGet)
 	r.Handle("/u/{id:[0-9]+}", s.traceHandler(logHandler(s.userProfile))).Methods(http.MethodGet)
+
+	r.Handle("/checkout", s.traceHandler(logHandler(s.checkout))).Methods(http.MethodGet)
+	r.Handle("/addproduct", s.traceHandler(logHandler(s.addProduct))).Methods(http.MethodGet)
 	srv := http.Server{
 		Addr:    *addr, // TODO make configurable
 		Handler: r}
 	log.WithFields(logrus.Fields{"addr": *addr,
-		"userdirectory": *userDirectoryBackend}).Info("starting to listen on http")
+		"spookyStore": *spookyStoreBackend}).Info("starting to listen on http")
 	log.Fatal(errors.Wrap(srv.ListenAndServe(), "failed to listen/serve"))
 }
 
@@ -147,7 +152,7 @@ func (s *server) getUser(ctx context.Context, id string) (*pb.UserResponse, erro
 
 	cs := span.NewChild("rpc.Sent/GetUser")
 	defer cs.Finish()
-	userResp, err := s.userSvc.GetUser(ctx, &pb.UserRequest{ID: id})
+	userResp, err := s.spookySvc.GetUser(ctx, &pb.UserRequest{ID: id})
 	return userResp, err
 }
 
@@ -183,13 +188,19 @@ func (s *server) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	resp, err := s.spookySvc.GetAllProducts(ctx, &pb.GetAllProductsRequest{})
+	if err != nil {
+		fmt.Println(err)
+		serverError(w, errors.Wrap(err, "failed to get all products"))
+	}
+
 	log.WithField("logged_in", user != nil).Debug("serving home page")
 	tmpl := template.Must(template.ParseFiles(
 		filepath.Join("static", "template", "layout.html"),
 		filepath.Join("static", "template", "home.html")))
 
 	if err := tmpl.Execute(w, map[string]interface{}{
-		"me": user}); err != nil {
+		"me": user, "products": resp.ProductList.GetItems()}); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -252,7 +263,7 @@ func (s *server) oauth2Callback(w http.ResponseWriter, r *http.Request) {
 	log.WithField("google.id", me.Id).Debug("retrieved google user")
 
 	cs = span.NewChild("authorize_google")
-	user, err := s.userSvc.AuthorizeGoogle(ctx,
+	user, err := s.spookySvc.AuthorizeGoogle(ctx,
 		&pb.GoogleUser{
 			ID:          me.Id,
 			Email:       me.Emails[0].Value,
@@ -285,6 +296,81 @@ func (s *server) oauth2Callback(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusFound)
 }
 
+func (s *server) checkout(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	id := ""
+	if id = r.URL.Query().Get("id"); id == "" {
+		badRequest(w, errors.New("bad user ID"))
+		return
+	}
+
+	me, ef, err := s.authUser(ctx, r)
+	if err != nil {
+		ef(w, err)
+		return
+	}
+
+	userResp, err := s.getUser(ctx, id)
+	if err != nil {
+		serverError(w, errors.Wrap(err, "failed to look up the user"))
+		return
+	} else if !userResp.GetFound() {
+		errorCode(w, http.StatusNotFound, "not found", errors.New("user not found"))
+		return
+	}
+
+	cart, err := s.spookySvc.GetCart(ctx, &pb.UserRequest{ID: id})
+	if err != nil {
+		serverError(w, errors.Wrap(err, "failed to get cart"))
+		return
+	} else if !userResp.GetFound() {
+		errorCode(w, http.StatusNotFound, "not found", errors.New("cart not found"))
+		return
+	}
+
+	tmpl := template.Must(template.ParseFiles(
+		filepath.Join("static", "template", "layout.html"),
+		filepath.Join("static", "template", "checkout.html")))
+	if err := tmpl.Execute(w, map[string]interface{}{
+		"me":   me,
+		"user": userResp.GetUser(),
+		"cart": cart,
+	}); err != nil {
+		log.Fatal(err)
+	}
+	w.Header().Set("Location", "/") //take me home
+	w.WriteHeader(http.StatusOK)
+}
+
+func (s *server) addProduct(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+	span := trace.FromContext(ctx)
+
+	userID := mux.Vars(r)["id"]
+	span.SetLabel("user/id", userID)
+
+	me, ef, err := s.authUser(ctx, r)
+	if err != nil {
+		ef(w, err)
+		return
+	}
+
+	id := ""
+	if id = r.URL.Query().Get("id"); id == "" {
+		badRequest(w, errors.New("bad product ID"))
+		return
+	}
+
+	_, err = s.spookySvc.AddProductToCart(ctx, &pb.AddProductRequest{UserID: me.GetID(), ProductID: id})
+	if err != nil {
+		serverError(w, errors.Wrap(err, "failed to add product to cart"))
+	}
+	w.Header().Set("Location", "/")
+	w.WriteHeader(http.StatusOK)
+}
+
 func (s *server) userProfile(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	span := trace.FromContext(ctx)
@@ -307,14 +393,20 @@ func (s *server) userProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	u := userResp.GetUser()
+
 	tmpl := template.Must(template.ParseFiles(
 		filepath.Join("static", "template", "layout.html"),
 		filepath.Join("static", "template", "profile.html")))
 	if err := tmpl.Execute(w, map[string]interface{}{
-		"me":   me,
-		"user": userResp.GetUser()}); err != nil {
+		"me":           me,
+		"user":         u,
+		"Transactions": u.GetTransactions(),
+	}); err != nil {
 		log.Fatal(err)
 	}
+	w.Header().Set("Location", "/") //take me home
+	w.WriteHeader(http.StatusOK)
 }
 
 func errorCode(w http.ResponseWriter, code int, msg string, err error) {

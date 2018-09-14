@@ -12,16 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 package version
 
-// Version value is provided at compile time by -ldflags
-var version string
+var version = "0.1"
 
 // Version returns a version string or n/a if not available.
 func Version() string {
-	if version == "" {
-		return "n/a"
-	}
 	return version
 }

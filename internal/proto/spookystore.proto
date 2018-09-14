@@ -1,9 +1,18 @@
 syntax = "proto3";
 
-service UserDirectory {
+import "google/protobuf/timestamp.proto";
+
+service SpookyStore {
     rpc AuthorizeGoogle(GoogleUser) returns (User) {}
     rpc GetUser(UserRequest) returns (UserResponse) {}
+    rpc GetAllProducts(GetAllProductsRequest) returns (GetAllProductsResponse) {}
+    rpc GetProduct(GetProductRequest) returns (Product) {}
+    rpc AddProductToCart(AddProductRequest) returns (AddProductResponse) {}
+    rpc GetCart(UserRequest) returns (GetCartResponse) {}
+    rpc Checkout(UserRequest) returns (CheckoutResponse) {}
 }
+
+// ------------ users ------------------------------------------------------------------------
 
 message UserRequest {
     string ID = 1;
@@ -18,6 +27,8 @@ message User {
     string ID = 1;
     string DisplayName = 2;
     string Picture = 3;
+    repeated string Cart = 4; 
+    repeated Transaction Transactions = 5;  
 }
 
 message GoogleUser {
@@ -27,3 +38,60 @@ message GoogleUser {
     string Email = 4;
 }
 
+
+// ---------- products ----------------------------------------------------------------------
+
+message Product {
+    string ID = 1;
+    string DisplayName = 2; 
+    string PictureURL = 3;
+    float Cost = 4; 
+    string Description = 5;
+}
+
+message ProductList {
+    repeated Product Items = 1; 
+}
+
+message GetProductRequest {
+    string ID = 1;
+}
+
+message GetAllProductsRequest {
+}
+
+message GetAllProductsResponse {
+    ProductList ProductList = 1; 
+}
+
+
+
+message AddProductRequest {
+    string UserID = 1;
+    string ProductID = 2; 
+}
+
+message AddProductResponse {
+    bool Success = 1;
+}
+
+
+// ---------- transactions ----------------------------------------------------------------------
+
+message Transaction {
+    string ID = 1; 
+    google.protobuf.Timestamp CompletedTime = 2;
+    ProductList Items = 3; 
+    float TotalCost = 4; 
+}
+
+// ---------- checkout ----------------------------------------------------------------------
+
+message GetCartResponse {
+    ProductList Items = 1; 
+    float TotalCost = 2; 
+}
+
+message CheckoutResponse {
+    bool Success = 1; 
+}

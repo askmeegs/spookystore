@@ -14,7 +14,23 @@
                 </div>
                 <div class="col s10">
                     <span class="black-text">
-                    </br><b>{{.user.DisplayName}}</b>'s past purchases will go here! 
+                    <h4></h4></br><b>{{.user.DisplayName}}</b>'s Transaction History</h4> 
+
+                    <ul class="demo-list-three mdl-list">
+
+                    {{range $i, $t := .Transactions}}
+                    <li class="mdl-list__item mdl-list__item--three-line">
+                            <span class="mdl-list__item-primary-content">
+                              <i class="material-icons mdl-list__item-avatar">shopping_cart</i>
+                              <span>{{ $t.CompletedTime }}</span>
+                              <span class="mdl-list__item-text-body">
+                                {{ $t.TotalCost }}
+                              </span>
+                            </span>
+                    </li>
+
+                    {{end}}
+                    </ul>
                     </span>
                 </div>
             </div>
