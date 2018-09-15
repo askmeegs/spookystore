@@ -18,8 +18,8 @@
               <p>${{printf "%.2f" $p.Cost}}</p>
             </div>
             <div class="mdl-card__menu">
-                {{if .me}}
-                <i type="button" class="material-icons" onclick="location.href='/addproduct/{{.me.ID}}/{{ $p.ID }}'">add</i>
+                {{if $.me}}
+                <i type="button" class="material-icons" onclick="location.href='/addproduct/{{$.me.ID}}/{{ $p.ID }}'">add</i>
                 {{end}}
             </div>
          </div> 
