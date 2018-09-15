@@ -188,6 +188,13 @@ func (s *server) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	fmt.Printf("\n\n\nRESULT OF AUTH USER: %#v\n", user)
+
+	if user == nil {
+		fmt.Printf("USER IS NIL")
+		serverError(w, errors.Wrap(err, "user is nil"))
+	}
+
 	resp, err := s.spookySvc.GetAllProducts(ctx, &pb.GetAllProductsRequest{})
 	if err != nil {
 		fmt.Println(err)
