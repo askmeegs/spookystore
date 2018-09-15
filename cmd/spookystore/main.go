@@ -91,7 +91,7 @@ func main() {
 		log.Fatal(err)
 	}
 	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(tc.GRPCServerInterceptor()))
-	pb.RegisterSpookyStoreServer(grpcServer, &Server{ds})
+	pb.RegisterSpookyStoreServer(grpcServer, &Server{ds, []string{}})
 
 	// add products
 	addProducts(ctx, ds)
@@ -112,21 +112,21 @@ func addProducts(ctx context.Context, ds *datastore.Client) ([]string, error) {
 	}
 	var i map[string]Product
 	json.Unmarshal(file, &i)
-	for k, v := range i {
-		q := datastore.NewQuery("Product").Filter("DisplayName ==", v.DisplayName)
+	for DispName, v := range i {
+		q := datastore.NewQuery("Product").Filter("DisplayName ==", DispName)
 		var result []*Product
 		k, err := ds.GetAll(ctx, q, &result)
 		if err != nil {
 			log.Errorf("Couldn't query: ", err)
 		}
 		if len(result) > 0 {
-			log.Debug("Not adding item=%s, already exists", v.DisplayName)
+			log.Debug("Not adding item=%s, already exists", DispName)
 			pKeys = append(pKeys, k[0].String())
 			continue
 		}
 		key := datastore.IncompleteKey("Product", nil)
 		p := &pb.Product{
-			DisplayName: v.DisplayName,
+			DisplayName: DispName,
 			Cost:        v.Cost,
 			PictureURL:  v.Image,
 			Description: v.Description,
