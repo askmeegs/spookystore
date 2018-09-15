@@ -73,7 +73,7 @@ func (s *Server) AuthorizeGoogle(ctx context.Context, goog *pb.User) (*pb.User, 
 			return nil, errors.New("failed to save")
 		}
 		id = fmt.Sprintf("%d", k.ID)
-		log.WithField("id", id).Info("created new user user")
+		log.WithField("id", id).Info("created new user")
 		cs.Finish()
 	} else {
 		// return existing user

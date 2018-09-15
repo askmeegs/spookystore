@@ -11,9 +11,11 @@
                     <p>${{printf "%.2f" $p.Cost}}</p>
             </div>
             <div class="mdl-card__actions mdl-card--border">
+              {{ if $.me }}
                     <button  class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored" onclick="httpGet('/addproduct/{{$.me.ID}}/{{ $p.ID }}'); markDone('{{ $p.ID }}')">
                         <i id="{{ $p.ID }}"  class="material-icons">add</i> 
                       </button>
+              {{end}}
             </div>
           </div>
     {{end}}

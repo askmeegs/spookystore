@@ -187,11 +187,6 @@ func (s *server) home(w http.ResponseWriter, r *http.Request) {
 		errF(w, err)
 		return
 	}
-
-	if user == nil {
-		serverError(w, errors.Wrap(err, "user is nil"))
-	}
-
 	resp, err := s.spookySvc.GetAllProducts(ctx, &pb.GetAllProductsRequest{})
 	if err != nil {
 		fmt.Println(err)
@@ -202,8 +197,6 @@ func (s *server) home(w http.ResponseWriter, r *http.Request) {
 	tmpl := template.Must(template.ParseFiles(
 		filepath.Join("static", "template", "layout.html"),
 		filepath.Join("static", "template", "home.html")))
-
-	fmt.Printf("\n\n\nUSER IS: %#v\n", user)
 
 	if err := tmpl.Execute(w, map[string]interface{}{
 		"me":       user,
