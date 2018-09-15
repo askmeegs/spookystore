@@ -188,10 +188,7 @@ func (s *server) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Printf("\n\n\nRESULT OF AUTH USER: %#v\n", user)
-
 	if user == nil {
-		fmt.Printf("USER IS NIL")
 		serverError(w, errors.Wrap(err, "user is nil"))
 	}
 
@@ -273,11 +270,11 @@ func (s *server) oauth2Callback(w http.ResponseWriter, r *http.Request) {
 
 	cs = span.NewChild("authorize_google")
 	user, err := s.spookySvc.AuthorizeGoogle(ctx,
-		&pb.GoogleUser{
+		&pb.User{
 			ID:          me.Id,
 			Email:       me.Emails[0].Value,
 			DisplayName: me.DisplayName,
-			PictureURL:  me.Image.Url,
+			Picture:     me.Image.Url,
 		})
 	if err != nil {
 		serverError(w, errors.Wrap(err, "failed to log in the user"))

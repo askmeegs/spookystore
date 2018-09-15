@@ -40,7 +40,7 @@ type user struct {
 	Transactions []*pb.Transaction `datastore:"Transactions"`
 }
 
-func (s *Server) AuthorizeGoogle(ctx context.Context, goog *pb.GoogleUser) (*pb.User, error) {
+func (s *Server) AuthorizeGoogle(ctx context.Context, goog *pb.User) (*pb.User, error) {
 	span := trace.FromContext(ctx).NewChild("usersvc/AuthorizeGoogle")
 	defer span.Finish()
 
@@ -65,7 +65,7 @@ func (s *Server) AuthorizeGoogle(ctx context.Context, goog *pb.GoogleUser) (*pb.
 		k, err := s.ds.Put(ctx, datastore.IncompleteKey("User", nil), &user{
 			Email:       goog.Email,
 			DisplayName: goog.DisplayName,
-			Picture:     goog.PictureURL,
+			Picture:     goog.Picture,
 			GoogleID:    goog.ID,
 		})
 		if err != nil {
