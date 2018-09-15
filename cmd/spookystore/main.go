@@ -121,7 +121,6 @@ func addProducts(ctx context.Context, ds *datastore.Client) ([]string, error) {
 			log.Errorf("Couldn't query: ", err)
 		}
 		if len(result) > 0 {
-			log.Debug("Not adding item=%s, already exists", DispName)
 			pKeys = append(pKeys, k[0].String())
 			continue
 		}
