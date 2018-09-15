@@ -13,7 +13,7 @@
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.onreadystatechange = function() { 
         if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-           //
+           console.log("added product to cart")
     }
     xmlHttp.open("GET", url, true); // true for asynchronous 
     xmlHttp.send(null);
@@ -23,6 +23,11 @@
   function markDone(iconID) {
     document.getElementById(iconID).innerHTML = 'check';
 }
+
+
+  function checkoutSuccess(name) {                                  
+    location.replace("http://spookystore.net/");  //go home 
+  }
   </script>
   <style>
     .overflow {

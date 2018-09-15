@@ -34,8 +34,8 @@
                     </span>
                     <div> 
                         <p>Total: {{ .cart.TotalCost }} </p>
-                            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-                            Place Order
+                            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="httpGet('/checkout/{{$.me.ID}}'); checkoutSuccess('{{ $.me.DisplayName }}')">
+                            place order
                             </button>
                     </div>
                 </div>
