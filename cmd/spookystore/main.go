@@ -109,13 +109,14 @@ func addProducts(ctx context.Context, ds *datastore.Client) error {
 	var i map[string]Product
 	json.Unmarshal(file, &i)
 	for k, v := range i {
+		key := datastore.IncompleteKey("Product", nil)
 		p := &pb.Product{
+			ID:          key.String(),
 			DisplayName: k,
 			Cost:        v.Cost,
 			PictureURL:  v.Image,
 			Description: v.Description,
 		}
-		key := datastore.IncompleteKey("Product", nil)
 		if _, err := ds.Put(ctx, key, p); err != nil {
 			fmt.Println(err)
 			return err
