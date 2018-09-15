@@ -1,26 +1,25 @@
-{{define "title"}}home{{end}}
+{{define "title"}}spookystore{{end}}
 
 {{define "body"}}
   
 
 <div class="content-grid mdl-grid">
+    {{$meid:=$.me.ID}}
     {{range $i, $p := .products}}
     <div class="mdl-cell">
         <div class="demo-card-wide mdl-card mdl-shadow--2dp">
             <div class="mdl-card__title">
               <h2 class="mdl-card__title-text">{{ $p.DisplayName}}</h2>
             </div>
-            <div class="mdl-card__media" class="fill">
-                <img src="{{ $p.PictureURL }}" alt="{{ $p.DisplayName}}">
+            <div class="mdl-card__media" class="overflow">
+                <img class="image-overflow" src="{{ $p.PictureURL }}" alt="{{ $p.DisplayName}}">
               </div>
             <div class="mdl-card__actions mdl-card--border">
               <p>{{ $p.Description }}</p>
               <p>${{printf "%.2f" $p.Cost}}</p>
             </div>
             <div class="mdl-card__menu">
-                <button class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored" type="button" onclick='document.getElementById("{{ $p.ID }}-button").innerHTML = "check"'>
-                    <a href="/addproduct?id={{ $p.ID }}"></a><i id="{{ $p.ID }}-button" class="material-icons">add</i></a>
-                  </button>
+            <i type="button" class="material-icons" onclick="location.href='/addproduct/{{ $meid }}/{{ $p.ID }}'">add</i>     
             </div>
          </div> 
         </div>

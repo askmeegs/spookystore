@@ -132,9 +132,8 @@ func main() {
 	r.Handle("/logout", s.traceHandler(logHandler(s.logout))).Methods(http.MethodGet)
 	r.Handle("/oauth2callback", s.traceHandler(logHandler(s.oauth2Callback))).Methods(http.MethodGet)
 	r.Handle("/u/{id:[0-9]+}", s.traceHandler(logHandler(s.userProfile))).Methods(http.MethodGet)
-
-	r.Handle("/checkout", s.traceHandler(logHandler(s.checkout))).Methods(http.MethodGet)
-	r.Handle("/addproduct", s.traceHandler(logHandler(s.addProduct))).Methods(http.MethodGet)
+	r.Handle("/checkout/u/{id:[0-9]+}", s.traceHandler(logHandler(s.checkout)))
+	r.Handle("/addproduct/{id:[0-9]+}/{pid:[0-9]+}", s.traceHandler(logHandler(s.addProduct)))
 	srv := http.Server{
 		Addr:    *addr, // TODO make configurable
 		Handler: r}
@@ -200,7 +199,9 @@ func (s *server) home(w http.ResponseWriter, r *http.Request) {
 		filepath.Join("static", "template", "home.html")))
 
 	if err := tmpl.Execute(w, map[string]interface{}{
-		"me": user, "products": resp.ProductList.GetItems()}); err != nil {
+		"me":       user,
+		"userID":   user.GetID(),
+		"products": resp.ProductList.GetItems()}); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -299,11 +300,7 @@ func (s *server) oauth2Callback(w http.ResponseWriter, r *http.Request) {
 func (s *server) checkout(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := ""
-	if id = r.URL.Query().Get("id"); id == "" {
-		badRequest(w, errors.New("bad user ID"))
-		return
-	}
+	id := mux.Vars(r)["id"]
 
 	me, ef, err := s.authUser(ctx, r)
 	if err != nil {
@@ -333,9 +330,10 @@ func (s *server) checkout(w http.ResponseWriter, r *http.Request) {
 		filepath.Join("static", "template", "layout.html"),
 		filepath.Join("static", "template", "checkout.html")))
 	if err := tmpl.Execute(w, map[string]interface{}{
-		"me":   me,
-		"user": userResp.GetUser(),
-		"cart": cart,
+		"me":        me,
+		"cart":      cart,
+		"user":      userResp.GetUser(),
+		"CartItems": cart.Items.GetItems(),
 	}); err != nil {
 		log.Fatal(err)
 	}
@@ -349,21 +347,16 @@ func (s *server) addProduct(w http.ResponseWriter, r *http.Request) {
 	span := trace.FromContext(ctx)
 
 	userID := mux.Vars(r)["id"]
+	productID := mux.Vars(r)["pid"]
 	span.SetLabel("user/id", userID)
 
-	me, ef, err := s.authUser(ctx, r)
+	_, ef, err := s.authUser(ctx, r)
 	if err != nil {
 		ef(w, err)
 		return
 	}
 
-	id := ""
-	if id = r.URL.Query().Get("id"); id == "" {
-		badRequest(w, errors.New("bad product ID"))
-		return
-	}
-
-	_, err = s.spookySvc.AddProductToCart(ctx, &pb.AddProductRequest{UserID: me.GetID(), ProductID: id})
+	_, err = s.spookySvc.AddProductToCart(ctx, &pb.AddProductRequest{UserID: userID, ProductID: productID})
 	if err != nil {
 		serverError(w, errors.Wrap(err, "failed to add product to cart"))
 	}

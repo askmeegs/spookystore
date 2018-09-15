@@ -22,6 +22,7 @@ import (
 	"io/ioutil"
 	"net"
 	"os"
+	"strings"
 
 	"cloud.google.com/go/datastore"
 	"cloud.google.com/go/trace"
@@ -41,7 +42,8 @@ var (
 )
 
 type Server struct {
-	ds *datastore.Client
+	ds          *datastore.Client
+	productKeys []string // TODO - improve how I do this
 }
 
 func main() {
@@ -90,7 +92,7 @@ func main() {
 		log.Fatal(err)
 	}
 	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(tc.GRPCServerInterceptor()))
-	pb.RegisterSpookyStoreServer(grpcServer, &Server{ds})
+	pb.RegisterSpookyStoreServer(grpcServer, &Server{ds, []string{}})
 
 	// add products
 	addProducts(ctx, ds)
@@ -99,28 +101,50 @@ func main() {
 	log.Fatal(grpcServer.Serve(lis))
 }
 
-// add products from JSON file to Cloud Datastore
-func addProducts(ctx context.Context, ds *datastore.Client) error {
+// add products from JSON file to Cloud Datastore. return list of productk eys
+func addProducts(ctx context.Context, ds *datastore.Client) ([]string, error) {
+	pKeys := []string{}
+
+	// add products only if not already present
 	file, e := ioutil.ReadFile("./inventory/products.json")
 	if e != nil {
 		fmt.Println(e)
-		return e
+		return nil, e
 	}
 	var i map[string]Product
 	json.Unmarshal(file, &i)
-	for k, v := range i {
+	for DispName, v := range i {
+		q := datastore.NewQuery("Product").Filter("DisplayName =", DispName)
+		var result []*Product
+		k, err := ds.GetAll(ctx, q, &result)
+		if err != nil {
+			log.Errorf("Couldn't query: ", err)
+		}
+		if len(result) > 0 {
+			pKeys = append(pKeys, k[0].String())
+			continue
+		}
+		key := datastore.IncompleteKey("Product", nil)
 		p := &pb.Product{
-			DisplayName: k,
+			DisplayName: DispName,
 			Cost:        v.Cost,
 			PictureURL:  v.Image,
 			Description: v.Description,
 		}
-		key := datastore.IncompleteKey("Product", nil)
-		if _, err := ds.Put(ctx, key, p); err != nil {
-			fmt.Println(err)
-			return err
+		newK, err := ds.Put(ctx, key, p)
+		if err != nil {
+			return nil, err
 		}
+		spl := strings.Split(newK.String(), ",")
+		if len(spl) < 2 {
+			return nil, fmt.Errorf("Bad ID: %s", newK.String())
+		}
+		p.ID = spl[1]
+		_, err = ds.Put(ctx, newK, p)
+		if err != nil {
+			return nil, err
+		}
+		pKeys = append(pKeys, newK.String())
 	}
-	fmt.Println("ADDED PRODUCTS TO DATASTORE")
-	return nil
+	return nil, nil
 }
