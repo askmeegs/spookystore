@@ -114,7 +114,7 @@ func addProducts(ctx context.Context, ds *datastore.Client) ([]string, error) {
 	var i map[string]Product
 	json.Unmarshal(file, &i)
 	for DispName, v := range i {
-		q := datastore.NewQuery("Product").Filter("DisplayName ==", DispName)
+		q := datastore.NewQuery("Product").Filter("DisplayName =", DispName)
 		var result []*Product
 		k, err := ds.GetAll(ctx, q, &result)
 		if err != nil {
