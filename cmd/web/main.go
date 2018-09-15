@@ -163,6 +163,7 @@ func (s *server) authUser(ctx context.Context, r *http.Request) (user *pb.User, 
 	defer span.Finish()
 
 	c, err := r.Cookie("user")
+	fmt.Println("FOUND COOKIE")
 	if err == http.ErrNoCookie {
 		return nil, nil, nil
 	}
