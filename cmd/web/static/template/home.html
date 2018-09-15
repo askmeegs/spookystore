@@ -19,7 +19,7 @@
             </div>
             <div class="mdl-card__menu">
                 <button class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored" type="button" onclick='document.getElementById("{{ $p.ID }}").innerHTML = "check"'>
-                    <i id="{{ $p.ID }}" class="material-icons"><a href='{{ printf "/addproduct?id=%s" $p.ID }}'></a>add</i></a>
+                    <i id="{{ $p.ID }}" class="material-icons"><a href='{{ printf "/addproduct/%s/%s" $.me.ID $p.ID }}'></a>add</a></i>
                   </button>
             </div>
          </div> 
