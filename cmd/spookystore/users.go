@@ -41,6 +41,7 @@ type user struct {
 }
 
 func (s *Server) AuthorizeGoogle(ctx context.Context, goog *pb.User) (*pb.User, error) {
+	fmt.Println("\n\n AUTHORIZE GOOGLE")
 	span := trace.FromContext(ctx).NewChild("usersvc/AuthorizeGoogle")
 	defer span.Finish()
 
@@ -92,6 +93,8 @@ func (s *Server) AuthorizeGoogle(ctx context.Context, goog *pb.User) (*pb.User, 
 }
 
 func (s *Server) GetUser(ctx context.Context, req *pb.UserRequest) (*pb.UserResponse, error) {
+	fmt.Println("\n\n GET USER")
+
 	span := trace.FromContext(ctx).NewChild("usersvc/GetUser")
 	defer span.Finish()
 
@@ -124,7 +127,7 @@ func (s *Server) GetUser(ctx context.Context, req *pb.UserRequest) (*pb.UserResp
 	return &pb.UserResponse{
 		Found: true,
 		User: &pb.User{
-			ID:           fmt.Sprintf("%d", v.K.ID),
+			ID:           fmt.Sprintf("%d", v.ID),
 			DisplayName:  v.DisplayName,
 			Picture:      v.Picture,
 			Cart:         v.Cart,
