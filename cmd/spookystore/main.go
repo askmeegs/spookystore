@@ -133,6 +133,7 @@ func addProducts(ctx context.Context, ds *datastore.Client) error {
 			return err
 		}
 		p.ID = k.String()
+		fmt.Println("")
 		if _, err = ds.Put(ctx, key, p); err != nil {
 			return err
 		}
