@@ -98,16 +98,23 @@ func (s *Server) AddProductToCart(ctx context.Context, req *pb.AddProductRequest
 	if err != nil {
 		return &pb.AddProductResponse{Success: false}, err
 	}
+	user := userResp.GetUser()
 
 	// update card / product list with product id
-	user := userResp.User
-	fmt.Printf("\n\n BEFORE, CART WAS: %#v", user.Cart)
-	user.Cart = append(user.Cart, req.ProductID)
-	fmt.Printf("AFTER, CART IS NOW %#v\n\n", user.Cart)
+	fmt.Printf("\n\n BEFORE, CART WAS: %#v", user.GetCart())
+	newCart := append(user.GetCart(), req.ProductID)
+	fmt.Printf("AFTER, CART IS NOW %#v\n\n", newCart)
+
+	updatedUser := &pb.User{
+		DisplayName:  user.GetDisplayName(),
+		Picture:      user.GetPicture(),
+		Transactions: user.GetTransactions(),
+		Cart:         newCart,
+	}
 
 	// put user
 	u := datastore.NameKey("User", user.ID, nil)
-	if _, err := s.ds.Put(ctx, u, user); err != nil {
+	if _, err := s.ds.Put(ctx, u, updatedUser); err != nil {
 		return &pb.AddProductResponse{Success: false}, err
 	}
 	return &pb.AddProductResponse{Success: true}, nil
