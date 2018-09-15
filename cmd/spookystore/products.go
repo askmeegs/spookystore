@@ -95,7 +95,7 @@ func (s *Server) GetProduct(ctx context.Context, req *pb.GetProductRequest) (*pb
 func (s *Server) AddProductToCart(ctx context.Context, req *pb.AddProductRequest) (*pb.AddProductResponse, error) {
 	// get user
 	userResp, err := s.GetUser(ctx, &pb.UserRequest{ID: req.UserID})
-	fmt.Printf("\n\n\nWHOLE USER RESP: %#v\n\n ", userResp)
+	fmt.Printf("\n\n\nWHOLE USER RESP: %#v\n\n ", userResp.User)
 	if err != nil {
 		return &pb.AddProductResponse{Success: false}, err
 	}
