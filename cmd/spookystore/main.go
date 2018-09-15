@@ -135,6 +135,11 @@ func addProducts(ctx context.Context, ds *datastore.Client) ([]string, error) {
 		if err != nil {
 			return nil, err
 		}
+		p.ID = newK.String()
+		_, err = ds.Put(ctx, newK, p)
+		if err != nil {
+			return nil, err
+		}
 		pKeys = append(pKeys, newK.String())
 	}
 	return nil, nil
