@@ -101,9 +101,7 @@ func (s *Server) AddProductToCart(ctx context.Context, req *pb.AddProductRequest
 
 	// update card / product list with product id
 	user := userResp.User
-	if !stringInSlice(user.Cart, req.ProductID) {
-		user.Cart = append(user.Cart, req.ProductID)
-	}
+	user.Cart = append(user.Cart, req.ProductID)
 
 	// put user
 	u := datastore.NameKey("User", user.ID, nil)

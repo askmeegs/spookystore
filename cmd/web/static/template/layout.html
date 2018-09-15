@@ -8,6 +8,21 @@
   <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.deep_orange-indigo.min.css" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+  <script>
+  function httpGet(url) {
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.onreadystatechange = function() { 
+        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+            console.log(xmlHttp.responseText);
+    }
+    xmlHttp.open("GET", url, true); // true for asynchronous 
+    xmlHttp.send(null);
+}
+
+  function markDone(buttonID) {
+    document.getElementById('buttonID').innerHTML = 'check_circle';
+}
+  </script>
   <style>
     .overflow {
     width: 450px;
@@ -40,7 +55,7 @@
         <!-- Navigation. We hide it in small screens. -->
         <nav class="mdl-navigation mdl-layout--large-screen-only">
             {{if .me}}
-            <i type="button" class="material-icons" onclick="location.href='/checkout/{{.me.ID}}'">shopping_cart</i>
+            <i type="button" class="material-icons" onclick="location.href='/cart/{{.me.ID}}'">shopping_cart</i>
 
             <a class="mdl-navigation__link" href="/logout">Logout</a>
             <a href="/u/{{.me.ID}}"><div class="valign-wrapper"><img src="{{.me.Picture}}" alt="" class="circle responsive-img"/></div></a>

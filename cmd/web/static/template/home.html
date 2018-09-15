@@ -19,7 +19,7 @@
             </div>
             <div class="mdl-card__menu">
                 {{if $.me}}
-                <i type="button" class="material-icons" onclick="location.href='/addproduct/{{$.me.ID}}/{{ $p.ID }}'">add</i>
+                <i type="button" id="{{ $p.ID }}" class="material-icons" onclick="httpGet('/addproduct/{{$.me.ID}}/{{ $p.ID }}'); markDone('{{ $p.ID }}')">add_circle</i>
                 {{end}}
             </div>
          </div> 

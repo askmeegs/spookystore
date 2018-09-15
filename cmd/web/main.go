@@ -132,6 +132,7 @@ func main() {
 	r.Handle("/logout", s.traceHandler(logHandler(s.logout))).Methods(http.MethodGet)
 	r.Handle("/oauth2callback", s.traceHandler(logHandler(s.oauth2Callback))).Methods(http.MethodGet)
 	r.Handle("/u/{id:[0-9]+}", s.traceHandler(logHandler(s.userProfile))).Methods(http.MethodGet)
+	r.Handle("/cart/u/{id:[0-9]+}", s.traceHandler(logHandler(s.cart)))
 	r.Handle("/checkout/u/{id:[0-9]+}", s.traceHandler(logHandler(s.checkout)))
 	r.Handle("/addproduct/{id:[0-9]+}/{pid:[0-9]+}", s.traceHandler(logHandler(s.addProduct)))
 	srv := http.Server{
@@ -298,6 +299,35 @@ func (s *server) oauth2Callback(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) checkout(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	id := mux.Vars(r)["id"]
+
+	_, ef, err := s.authUser(ctx, r)
+	if err != nil {
+		ef(w, err)
+		return
+	}
+
+	userResp, err := s.getUser(ctx, id)
+	if err != nil {
+		serverError(w, errors.Wrap(err, "checkout: failed to look up the user"))
+		return
+	} else if !userResp.GetFound() {
+		errorCode(w, http.StatusNotFound, "not found", errors.New("user not found"))
+		return
+	}
+
+	_, err = s.spookySvc.Checkout(ctx, &pb.UserRequest{ID: id})
+	if err != nil {
+		serverError(w, errors.Wrap(err, "checkout failed"))
+		return
+	}
+	w.Header().Set("Location", fmt.Sprintf("/u/%s", id))
+	w.WriteHeader(http.StatusFound)
+}
+
+func (s *server) cart(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	id := mux.Vars(r)["id"]
