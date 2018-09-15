@@ -13,14 +13,15 @@
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.onreadystatechange = function() { 
         if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-            console.log(xmlHttp.responseText);
+           //
     }
     xmlHttp.open("GET", url, true); // true for asynchronous 
     xmlHttp.send(null);
 }
 
-  function markDone(buttonID) {
-    document.getElementById(buttonID).innerHTML = 'check_circle';
+  // changes a button from "add" to "done" after adding to cart 
+  function markDone(iconID) {
+    document.getElementById(iconID).innerHTML = 'check';
 }
   </script>
   <style>

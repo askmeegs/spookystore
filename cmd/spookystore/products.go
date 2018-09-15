@@ -101,16 +101,9 @@ func (s *Server) AddProductToCart(ctx context.Context, req *pb.AddProductRequest
 
 	// update card / product list with product id
 	user := userResp.User
-	// TODO - why is cart overwritten every time?
-	if len(user.Cart) == 0 {
-		user.Cart = []string{req.ProductID}
-	} else {
-		tempCart := user.Cart
-		tempCart = append(tempCart, req.ProductID)
-		user.Cart = tempCart
-	}
-
-	fmt.Printf("ADDING TO CART, CART IS NOW %#v\n", user.Cart)
+	fmt.Printf("\n\n BEFORE, CART WAS: %#v", user.Cart)
+	user.Cart = append(user.Cart, req.ProductID)
+	fmt.Printf("AFTER, CART IS NOW %#v\n\n", user.Cart)
 
 	// put user
 	u := datastore.NameKey("User", user.ID, nil)
@@ -118,13 +111,4 @@ func (s *Server) AddProductToCart(ctx context.Context, req *pb.AddProductRequest
 		return &pb.AddProductResponse{Success: false}, err
 	}
 	return &pb.AddProductResponse{Success: true}, nil
-}
-
-func stringInSlice(a []string, x string) bool {
-	for _, item := range a {
-		if x == item {
-			return true
-		}
-	}
-	return false
 }

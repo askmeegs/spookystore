@@ -357,6 +357,8 @@ func (s *server) cart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	fmt.Println("\n\n\nGET CART, CART IS %#v", cart)
+
 	tmpl := template.Must(template.ParseFiles(
 		filepath.Join("static", "template", "layout.html"),
 		filepath.Join("static", "template", "cart.html")))
