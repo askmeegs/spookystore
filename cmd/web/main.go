@@ -331,7 +331,6 @@ func (s *server) checkout(w http.ResponseWriter, r *http.Request) {
 		filepath.Join("static", "template", "checkout.html")))
 	if err := tmpl.Execute(w, map[string]interface{}{
 		"me":        me,
-		"meid":      me.GetID(),
 		"cart":      cart,
 		"user":      userResp.GetUser(),
 		"CartItems": cart.Items.GetItems(),
