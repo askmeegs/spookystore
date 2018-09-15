@@ -4,6 +4,7 @@
   <title>{{template "title" .}}</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.deep_orange-indigo.min.css" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
@@ -41,7 +42,7 @@
             {{if .me}}
 
             <button class="mdl-button mdl-js-button mdl-button--icon">
-              <a href="/checkout?id={{.me.ID}}"></a><i class="material-icons">shopping_cart</i></a>
+              <a href="/checkout?id={{.me.ID}}"><i class="material-icons">shopping_cart</i></a>
             </button>
 
             <a class="mdl-navigation__link" href="/logout">Logout</a>

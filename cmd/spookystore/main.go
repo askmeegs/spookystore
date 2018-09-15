@@ -22,6 +22,7 @@ import (
 	"io/ioutil"
 	"net"
 	"os"
+	"strings"
 
 	"cloud.google.com/go/datastore"
 	"cloud.google.com/go/trace"
@@ -135,7 +136,11 @@ func addProducts(ctx context.Context, ds *datastore.Client) ([]string, error) {
 		if err != nil {
 			return nil, err
 		}
-		p.ID = newK.String()
+		spl := strings.Split(newK.String(), ",")
+		if len(spl) < 2 {
+			return nil, fmt.Errorf("Bad ID: %s", newK.String())
+		}
+		p.ID = spl[1]
 		_, err = ds.Put(ctx, newK, p)
 		if err != nil {
 			return nil, err
