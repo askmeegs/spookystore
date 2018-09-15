@@ -199,7 +199,7 @@ func (s *server) home(w http.ResponseWriter, r *http.Request) {
 		filepath.Join("static", "template", "home.html")))
 
 	if err := tmpl.Execute(w, map[string]interface{}{
-		"me": user, "products": resp.ProductList.GetItems()}); err != nil {
+		"userID": user.GetID, "products": resp.ProductList.GetItems()}); err != nil {
 		log.Fatal(err)
 	}
 }
