@@ -333,9 +333,9 @@ func (s *server) checkout(w http.ResponseWriter, r *http.Request) {
 		filepath.Join("static", "template", "layout.html"),
 		filepath.Join("static", "template", "checkout.html")))
 	if err := tmpl.Execute(w, map[string]interface{}{
-		"me":   me,
-		"user": userResp.GetUser(),
-		"cart": cart,
+		"me":        me,
+		"user":      userResp.GetUser(),
+		"CartItems": cart.Items.GetItems(),
 	}); err != nil {
 		log.Fatal(err)
 	}

@@ -33,8 +33,8 @@
         <!-- Navigation. We hide it in small screens. -->
         <nav class="mdl-navigation mdl-layout--large-screen-only">
             {{if .me}}
-            <button class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored" >
-                <a href="/checkout?id={{.me.ID}}"><i class="material-icons">shopping_cart</i></a>
+            <button >
+                <a href="/checkout?id={{.me.ID}}"></a><i class="material-icons">shopping_cart</i></a>
               </button>
             <a class="mdl-navigation__link" href="/logout">Logout</a>
             <a href="/u/{{.me.ID}}"><div class="valign-wrapper"><img src="{{.me.Picture}}" alt="" class="circle responsive-img"/></div></a>

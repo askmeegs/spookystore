@@ -101,6 +101,7 @@ func main() {
 
 // add products from JSON file to Cloud Datastore
 func addProducts(ctx context.Context, ds *datastore.Client) error {
+	// add products only if not already present
 	file, e := ioutil.ReadFile("./inventory/products.json")
 	if e != nil {
 		fmt.Println(e)
@@ -109,6 +110,16 @@ func addProducts(ctx context.Context, ds *datastore.Client) error {
 	var i map[string]Product
 	json.Unmarshal(file, &i)
 	for k, v := range i {
+		q := datastore.NewQuery("Product").Filter("DisplayName <=", k)
+		var result []*Product
+		_, err := ds.GetAll(ctx, q, &result)
+		if err != nil {
+			log.Errorf("Couldn't query: ", err)
+		}
+		if len(result) > 0 {
+			log.Debug("Not adding item=%s, already exists", k)
+			continue
+		}
 		key := datastore.IncompleteKey("Product", nil)
 		p := &pb.Product{
 			ID:          key.String(),
@@ -122,6 +133,5 @@ func addProducts(ctx context.Context, ds *datastore.Client) error {
 			return err
 		}
 	}
-	fmt.Println("ADDED PRODUCTS TO DATASTORE")
 	return nil
 }
