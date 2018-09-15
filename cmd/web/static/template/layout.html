@@ -39,7 +39,7 @@
         <!-- Navigation. We hide it in small screens. -->
         <nav class="mdl-navigation mdl-layout--large-screen-only">
             {{if .me}}
-            <button >
+            <button class="mdl-button mdl-js-button mdl-button--fab" type="button">
                 <a href="/checkout?id={{.me.ID}}"></a><i class="material-icons">shopping_cart</i></a>
               </button>
             <a class="mdl-navigation__link" href="/logout">Logout</a>

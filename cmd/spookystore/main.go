@@ -122,14 +122,18 @@ func addProducts(ctx context.Context, ds *datastore.Client) error {
 		}
 		key := datastore.IncompleteKey("Product", nil)
 		p := &pb.Product{
-			ID:          key.String(),
 			DisplayName: k,
 			Cost:        v.Cost,
 			PictureURL:  v.Image,
 			Description: v.Description,
 		}
-		if _, err := ds.Put(ctx, key, p); err != nil {
-			fmt.Println(err)
+		// TODO - should I generate my own IDs to avoid put?
+		k, err := ds.Put(ctx, key, p)
+		if err != nil {
+			return err
+		}
+		p.ID = k.String()
+		if _, err = ds.Put(ctx, key, p); err != nil {
 			return err
 		}
 	}
