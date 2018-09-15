@@ -101,15 +101,22 @@ func (s *Server) AddProductToCart(ctx context.Context, req *pb.AddProductRequest
 
 	// update card / product list with product id
 	user := userResp.User
-	user.Cart = append(user.Cart, req.ProductID)
+	// TODO - why is cart overwritten every time?
+	if len(user.Cart) == 0 {
+		user.Cart = []string{req.ProductID}
+	} else {
+		tempCart := user.Cart
+		tempCart = append(tempCart, req.ProductID)
+		user.Cart = tempCart
+	}
+
+	fmt.Printf("ADDING TO CART, CART IS NOW %#v\n", user.Cart)
 
 	// put user
 	u := datastore.NameKey("User", user.ID, nil)
 	if _, err := s.ds.Put(ctx, u, user); err != nil {
 		return &pb.AddProductResponse{Success: false}, err
 	}
-
-	log.Debugf("added product id=%s to cart, user=%d", req.ProductID, req.UserID)
 	return &pb.AddProductResponse{Success: true}, nil
 }
 
