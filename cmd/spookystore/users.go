@@ -35,7 +35,7 @@ type user struct {
 	DisplayName  string            `datastore:"DisplayName"`
 	Email        string            `datastore:"Email"`
 	Picture      string            `datastore:"Picture"`
-	GoogleID     string            `datastore:"GoogleID"`
+	ID           string            `datastore:"ID"`
 	Cart         []string          `datastore:"Cart"`
 	Transactions []*pb.Transaction `datastore:"Transactions"`
 }
@@ -49,8 +49,8 @@ func (s *Server) AuthorizeGoogle(ctx context.Context, goog *pb.User) (*pb.User, 
 		"google.id": goog.GetID()})
 	log.Debug("received request")
 
-	cs := span.NewChild("datastore/query/user/by_googleid")
-	q := datastore.NewQuery("User").Filter("GoogleID =", goog.ID).Limit(1)
+	cs := span.NewChild("datastore/query/user/by_ID")
+	q := datastore.NewQuery("User").Filter("ID =", goog.ID).Limit(1)
 	var v []user
 	if _, err := s.ds.GetAll(ctx, q, &v); err != nil {
 		log.WithField("error", err).Error("failed to query the datastore")
@@ -66,7 +66,7 @@ func (s *Server) AuthorizeGoogle(ctx context.Context, goog *pb.User) (*pb.User, 
 			Email:       goog.Email,
 			DisplayName: goog.DisplayName,
 			Picture:     goog.Picture,
-			GoogleID:    goog.ID,
+			ID:          goog.ID,
 		})
 		if err != nil {
 			log.WithField("error", err).Error("failed to save to datastore")
