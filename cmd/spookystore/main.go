@@ -41,7 +41,8 @@ var (
 )
 
 type Server struct {
-	ds *datastore.Client
+	ds          *datastore.Client
+	productKeys []string // TODO - improve how I do this
 }
 
 func main() {
@@ -99,44 +100,42 @@ func main() {
 	log.Fatal(grpcServer.Serve(lis))
 }
 
-// add products from JSON file to Cloud Datastore
-func addProducts(ctx context.Context, ds *datastore.Client) error {
+// add products from JSON file to Cloud Datastore. return list of productk eys
+func addProducts(ctx context.Context, ds *datastore.Client) ([]string, error) {
+	pKeys := []string{}
+
 	// add products only if not already present
 	file, e := ioutil.ReadFile("./inventory/products.json")
 	if e != nil {
 		fmt.Println(e)
-		return e
+		return nil, e
 	}
 	var i map[string]Product
 	json.Unmarshal(file, &i)
 	for k, v := range i {
-		q := datastore.NewQuery("Product").Filter("DisplayName <=", k)
+		q := datastore.NewQuery("Product").Filter("DisplayName ==", v.DisplayName)
 		var result []*Product
-		_, err := ds.GetAll(ctx, q, &result)
+		k, err := ds.GetAll(ctx, q, &result)
 		if err != nil {
 			log.Errorf("Couldn't query: ", err)
 		}
 		if len(result) > 0 {
-			log.Debug("Not adding item=%s, already exists", k)
+			log.Debug("Not adding item=%s, already exists", v.DisplayName)
+			pKeys = append(pKeys, k[0].String())
 			continue
 		}
 		key := datastore.IncompleteKey("Product", nil)
 		p := &pb.Product{
-			DisplayName: k,
+			DisplayName: v.DisplayName,
 			Cost:        v.Cost,
 			PictureURL:  v.Image,
 			Description: v.Description,
 		}
-		// TODO - should I generate my own IDs to avoid put?
-		k, err := ds.Put(ctx, key, p)
+		newK, err := ds.Put(ctx, key, p)
 		if err != nil {
-			return err
+			return nil, err
 		}
-		p.ID = k.String()
-		fmt.Println("")
-		if _, err = ds.Put(ctx, key, p); err != nil {
-			return err
-		}
+		pKeys = append(pKeys, newK.String())
 	}
-	return nil
+	return nil, nil
 }
