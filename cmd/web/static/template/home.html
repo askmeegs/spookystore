@@ -18,7 +18,7 @@
               <p>${{printf "%.2f" $p.Cost}}</p>
             </div>
             <div class="mdl-card__menu">
-                    <i type="button" class="material-icons" onclick="location.href='{{ printf &quot;/addproduct/%s/%s&quot; $.userID $p.ID }}';document.getElementById(&quot;{{ $p.ID }}&quot;).innerHTML = &quot;check&quot;"'>add</i>
+            <i type="button" class="material-icons" onclick="location.href='/addproduct/{{.me.ID}}/{{ $p.ID }}'">add</i>     
             </div>
          </div> 
         </div>
