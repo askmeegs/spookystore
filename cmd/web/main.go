@@ -132,8 +132,8 @@ func main() {
 	r.Handle("/logout", s.traceHandler(logHandler(s.logout))).Methods(http.MethodGet)
 	r.Handle("/oauth2callback", s.traceHandler(logHandler(s.oauth2Callback))).Methods(http.MethodGet)
 	r.Handle("/u/{id:[0-9]+}", s.traceHandler(logHandler(s.userProfile))).Methods(http.MethodGet)
-	r.Handle("/checkout?id={[0-9]+}", s.traceHandler(logHandler(s.checkout))).Methods(http.MethodGet)
-	r.Handle("/addproduct?id={[0-9]+}", s.traceHandler(logHandler(s.addProduct))).Methods(http.MethodGet)
+	r.PathPrefix("/checkout/").Handler(s.traceHandler(logHandler(s.checkout)))
+	r.PathPrefix("/addproduct/").Handler(s.traceHandler(logHandler(s.addProduct)))
 	srv := http.Server{
 		Addr:    *addr, // TODO make configurable
 		Handler: r}
