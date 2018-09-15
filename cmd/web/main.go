@@ -323,6 +323,7 @@ func (s *server) checkout(w http.ResponseWriter, r *http.Request) {
 		serverError(w, errors.Wrap(err, "checkout failed"))
 		return
 	}
+	// take user to their transactions page
 	w.Header().Set("Location", fmt.Sprintf("/u/%s", id))
 	w.WriteHeader(http.StatusFound)
 }
@@ -358,7 +359,7 @@ func (s *server) cart(w http.ResponseWriter, r *http.Request) {
 
 	tmpl := template.Must(template.ParseFiles(
 		filepath.Join("static", "template", "layout.html"),
-		filepath.Join("static", "template", "checkout.html")))
+		filepath.Join("static", "template", "cart.html")))
 	if err := tmpl.Execute(w, map[string]interface{}{
 		"me":        me,
 		"cart":      cart,

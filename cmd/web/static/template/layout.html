@@ -54,8 +54,11 @@
         <div class="mdl-layout-spacer"></div>
         <!-- Navigation. We hide it in small screens. -->
         <nav class="mdl-navigation mdl-layout--large-screen-only">
-            {{if .me}}
-            <i type="button" class="material-icons" onclick="location.href='/cart/{{.me.ID}}'">shopping_cart</i>
+            {{if .me}} 
+
+            <button class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored" onclick="location.href='/cart/u/{{.me.ID}}'">
+                <i class="material-icons">shopping_cart</i>
+              </button>
 
             <a class="mdl-navigation__link" href="/logout">Logout</a>
             <a href="/u/{{.me.ID}}"><div class="valign-wrapper"><img src="{{.me.Picture}}" alt="" class="circle responsive-img"/></div></a>
