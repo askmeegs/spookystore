@@ -121,7 +121,6 @@ func (s *Server) GetUser(ctx context.Context, req *pb.UserRequest) (*pb.UserResp
 		log.WithField("error", err).Error("failed to query the datastore")
 		return nil, errors.Wrap(err, "failed to query")
 	}
-	log.Debug("found user")
 	return &pb.UserResponse{
 		Found: true,
 		User: &pb.User{

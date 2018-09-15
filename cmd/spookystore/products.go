@@ -95,15 +95,14 @@ func (s *Server) GetProduct(ctx context.Context, req *pb.GetProductRequest) (*pb
 func (s *Server) AddProductToCart(ctx context.Context, req *pb.AddProductRequest) (*pb.AddProductResponse, error) {
 	// get user
 	userResp, err := s.GetUser(ctx, &pb.UserRequest{ID: req.UserID})
+	fmt.Printf("\n\n\nWHOLE USER RESP: %#v\n\n ", userResp)
 	if err != nil {
 		return &pb.AddProductResponse{Success: false}, err
 	}
 	user := userResp.GetUser()
 
 	// update card / product list with product id
-	fmt.Printf("\n\n BEFORE, CART WAS: %#v", user.GetCart())
 	newCart := append(user.GetCart(), req.ProductID)
-	fmt.Printf("AFTER, CART IS NOW %#v\n\n", newCart)
 
 	updatedUser := &pb.User{
 		DisplayName:  user.GetDisplayName(),
