@@ -317,6 +317,7 @@ func (s *server) checkout(w http.ResponseWriter, r *http.Request) {
 
 	_, err = s.spookySvc.Checkout(ctx, &pb.UserRequest{ID: id})
 	if err != nil {
+		fmt.Printf("\n\n\n FAILED TO CHECK OUT: %v", err)
 		serverError(w, errors.Wrap(err, "checkout failed"))
 		return
 	}
