@@ -31,14 +31,18 @@ import (
 )
 
 type user struct {
-	K            *datastore.Key    `datastore:"__key__"`
-	ID           string            `datastore:"ID"`
-	DisplayName  string            `datastore:"DisplayName"`
-	Email        string            `datastore:"Email"`
-	Picture      string            `datastore:"Picture"`
-	GoogleID     string            `datastore:"GoogleID"`
-	Cart         []string          `datastore:"Cart"`
-	Transactions []*pb.Transaction `datastore:"Transactions"`
+	K *datastore.Key `datastore:"__key__"`
+
+	GoogleID             string            `datastore:"__key__"`
+	ID                   string            `datastore:"ID"`
+	DisplayName          string            `datastore:"DisplayName"`
+	Picture              string            `datastore:"Picture"`
+	Cart                 []string          `datastore:"Cart"`
+	Transactions         []*pb.Transaction `datastore:"Transactions"`
+	Email                string            `datastore:"Email"`
+	XXX_NoUnkeyedLiteral struct{}          `datastore:"XXX_NoUnkeyedLiteral"`
+	XXX_unrecognized     []byte            `datastore:"XXX_unrecognized"`
+	XXX_sizecache        int32             `datastore:"XXX_sizecache"`
 }
 
 func (s *Server) AuthorizeGoogle(ctx context.Context, goog *pb.User) (*pb.User, error) {

@@ -3,45 +3,32 @@
 {{- end}}
 
 {{define "body"}}
-<div class="container">
-    <br/>
-    <div class="row">
-        <div class="col s12 m8 offset-m2 l6 offset-l3">
-            <div class="row valign-wrapper">
-                <div class="col s2">
-                    <img src="{{.user.Picture}}" alt="" class="circle responsive-img"
-                        style="max-height:60px;">
-                </div>
-                <div class="col s10">
-                    <span class="black-text">
-                    <h4>My Cart</h4> 
 
-                    <ul class="demo-list-three mdl-list">
 
+<div class="product-grid"></div>
+<div class="demo-card-wide mdl-card mdl-shadow--2dp">
+        <div class="mdl-card__title">
+          <h2 class="mdl-card__title-text">my cart</h2>
+        </div>
+        {{ if .CartItems }} 
+
+        <div class="mdl-card__supporting-text">
                     {{range $i, $t := .CartItems}}
-                    <li class="mdl-list__item mdl-list__item--three-line">
-                            <span class="mdl-list__item-primary-content">
-                              <i class="material-icons mdl-list__item-avatar">shopping_cart</i>
-                              <span>{{ $t.DisplayName }}</span>
+                              <span>{{ $t.DisplayName }} - ${{printf "%.2f" %t.Cost}} </span>
                               <span class="mdl-list__item-text-body">
                                 {{ $t.Cost }}
                               </span>
                             </span>
                     </li>
-
                     {{end}}
-                    </ul>
-                    </span>
-                    <div> 
-                        <p>Total: {{ .cart.TotalCost }} </p>
-                            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="httpGet('/checkout/u/{{$.me.ID}}'); checkoutSuccess('{{ $.me.DisplayName }}')">
-                            place order
-                            </button>
-                    </div>
-                </div>
-            </div>
+            {{end }}
         </div>
+        <div class="mdl-card__actions mdl-card--border">
+                <h6>Total: ${{printf "%.2f" .cart.TotalCost}}</h6>
+          <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
+            Place Order
+          </a>
+        </div>
+      </div>
     </div>
-</div>
-
 {{- end}}

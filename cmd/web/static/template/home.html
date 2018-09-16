@@ -1,22 +1,27 @@
 {{define "title"}}spookystore{{end}}
 
 {{define "body"}}
+<div class="product-grid">
     {{range $i, $p := .products}}
     <div class="mdl-card mdl-shadow--2dp demo-card-square">
-            <div class="mdl-card__title mdl-card__accent mdl-card--expand">
-              <h1 class="mdl-card__title-text">{{ $p.DisplayName}}</h1>
+            <div class="mdl-card__title mdl-card__accent mdl-card--expand" style=" background: url('{{$p.PictureURL}}') center / cover;">
             </div>
+
             <div class="mdl-card__supporting-text">
-                    <p>{{ $p.Description }}</p>
-                    <p>${{printf "%.2f" $p.Cost}}</p>
+                <h1 class="mdl-card__title-text">{{ $p.DisplayName}}</h1>
+
+                    <p >{{ $p.Description }}</p>
+                    <h6>${{printf "%.2f" $p.Cost}}</h6>
             </div>
-            <div class="mdl-card__actions mdl-card--border">
-              {{ if $.me }}
-                    <button  class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored" onclick="httpGet('/addproduct/{{$.me.ID}}/{{ $p.ID }}'); markDone('{{ $p.ID }}')">
-                        <i id="{{ $p.ID }}"  class="material-icons">add</i> 
-                      </button>
+
+            {{ if $.me }}
+            <div class="mdl-card__menu">
+                <button  class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored" onclick="httpGet('/addproduct/{{$.me.ID}}/{{ $p.ID }}'); markDone('{{ $p.ID }}')">
+                  <i id="{{ $p.ID }}"  class="material-icons">add</i> 
+                </button>
+              </div>
               {{end}}
-            </div>
           </div>
     {{end}}
+        </div>
 {{end}}
