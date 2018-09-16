@@ -62,18 +62,28 @@ func (s *Server) AuthorizeGoogle(ctx context.Context, goog *pb.User) (*pb.User, 
 	var id string
 	if len(v) == 0 {
 		cs = span.NewChild("datastore/put/user")
-		// create new user
-		k, err := s.ds.Put(ctx, datastore.IncompleteKey("User", nil), &user{
+
+		u := &user{
 			Email:       goog.Email,
 			DisplayName: goog.DisplayName,
 			GoogleID:    goog.GoogleID,
 			Picture:     goog.Picture,
-		})
+		}
+
+		// create new user
+		k, err := s.ds.Put(ctx, datastore.IncompleteKey("User", nil), u)
 		if err != nil {
 			log.WithField("error", err).Error("failed to save to datastore")
 			return nil, errors.New("failed to save")
 		}
 		id = fmt.Sprintf("%d", k.ID)
+		u.ID = id
+		_, err = s.ds.Put(ctx, datastore.IDKey("User", k.ID, nil), u)
+		if err != nil {
+			log.WithField("error", err).Error("failed to save with ID to datastore")
+			return nil, errors.New("failed to save with ID")
+		}
+
 		log.WithField("id", id).Info("created new user")
 		cs.Finish()
 	} else {
