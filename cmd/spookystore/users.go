@@ -62,6 +62,7 @@ func (s *Server) AuthorizeGoogle(ctx context.Context, goog *pb.User) (*pb.User, 
 	if len(v) == 0 {
 		cs = span.NewChild("datastore/put/user")
 		// create new user
+		fmt.Printf("\n\nPUTTING NEW USER WITH GOOGLEID=%s", goog.GoogleID)
 		k, err := s.ds.Put(ctx, datastore.IncompleteKey("User", nil), &user{
 			Email:       goog.Email,
 			DisplayName: goog.DisplayName,

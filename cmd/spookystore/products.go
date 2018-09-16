@@ -102,18 +102,11 @@ func (s *Server) AddProductToCart(ctx context.Context, req *pb.AddProductRequest
 	user := userResp.GetUser()
 
 	// update card / product list with product id
-	newCart := append(user.GetCart(), req.ProductID)
-
-	updatedUser := &pb.User{
-		DisplayName:  user.GetDisplayName(),
-		Picture:      user.GetPicture(),
-		Transactions: user.GetTransactions(),
-		Cart:         newCart,
-	}
+	user.Cart = append(user.GetCart(), req.ProductID)
 
 	// put user
 	u := datastore.NameKey("User", user.ID, nil)
-	if _, err := s.ds.Put(ctx, u, updatedUser); err != nil {
+	if _, err := s.ds.Put(ctx, u, user); err != nil {
 		return &pb.AddProductResponse{Success: false}, err
 	}
 	return &pb.AddProductResponse{Success: true}, nil
