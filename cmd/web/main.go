@@ -146,7 +146,6 @@ func main() {
 type httpErrorWriter func(http.ResponseWriter, error)
 
 func (s *server) getUser(ctx context.Context, id string) (*pb.UserResponse, error) {
-	fmt.Println("\n\n ENTERED GET USER")
 	span := trace.FromContext(ctx).NewChild("get_user")
 	defer span.Finish()
 	span.SetLabel("user/id", id)
@@ -158,16 +157,13 @@ func (s *server) getUser(ctx context.Context, id string) (*pb.UserResponse, erro
 }
 
 func (s *server) authUser(ctx context.Context, r *http.Request) (user *pb.User, errFunc httpErrorWriter, err error) {
-	fmt.Println("\n\n ENTERED AUTH USER")
 	span := trace.FromContext(ctx).NewChild("authorize_user")
 	defer span.Finish()
 
 	c, err := r.Cookie("user")
 	if err == http.ErrNoCookie {
-		fmt.Println("NO COOKIE")
 		return nil, nil, nil
 	}
-	fmt.Println("NO COOKIE")
 	var userID string
 	if err := sc.Decode("user", c.Value, &userID); err != nil {
 		return nil, badRequest, errors.Wrap(err, "failed to decode cookie")
@@ -357,8 +353,6 @@ func (s *server) cart(w http.ResponseWriter, r *http.Request) {
 		errorCode(w, http.StatusNotFound, "not found", errors.New("cart not found"))
 		return
 	}
-
-	fmt.Println("\n\n\nGET CART, CART IS %#v", cart)
 
 	tmpl := template.Must(template.ParseFiles(
 		filepath.Join("static", "template", "layout.html"),

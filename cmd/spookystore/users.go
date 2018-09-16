@@ -32,6 +32,7 @@ import (
 
 type user struct {
 	K            *datastore.Key    `datastore:"__key__"`
+	ID           string            `datastore:"ID"`
 	DisplayName  string            `datastore:"DisplayName"`
 	Email        string            `datastore:"Email"`
 	Picture      string            `datastore:"Picture"`
@@ -65,6 +66,7 @@ func (s *Server) AuthorizeGoogle(ctx context.Context, goog *pb.User) (*pb.User, 
 		k, err := s.ds.Put(ctx, datastore.IncompleteKey("User", nil), &user{
 			Email:       goog.Email,
 			DisplayName: goog.DisplayName,
+			GoogleID:    goog.GoogleID,
 			Picture:     goog.Picture,
 		})
 		if err != nil {
