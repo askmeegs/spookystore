@@ -16,6 +16,7 @@ package main
 
 import (
 	"fmt"
+	"strconv"
 
 	"cloud.google.com/go/datastore"
 
@@ -69,7 +70,8 @@ func (s *Server) Checkout(ctx context.Context, req *pb.UserRequest) (*pb.Checkou
 	user.Transactions = append(user.Transactions, t)
 
 	// update user
-	u := datastore.IDKey("User", user.ID, nil)
+	parsed, err := strconv.ParseInt(user.ID, 10, 64)
+	u := datastore.IDKey("User", parsed, nil)
 	if _, err := s.ds.Put(ctx, u, user); err != nil {
 		return &pb.CheckoutResponse{Success: false}, err
 	}
