@@ -95,7 +95,6 @@ func (s *Server) GetProduct(ctx context.Context, req *pb.GetProductRequest) (*pb
 func (s *Server) AddProductToCart(ctx context.Context, req *pb.AddProductRequest) (*pb.AddProductResponse, error) {
 	// get user
 	userResp, err := s.GetUser(ctx, &pb.UserRequest{ID: req.UserID})
-	fmt.Printf("\n\n\nWHOLE USER RESP: %#v\n\n ", userResp.User)
 	if err != nil {
 		return &pb.AddProductResponse{Success: false}, err
 	}
@@ -105,7 +104,8 @@ func (s *Server) AddProductToCart(ctx context.Context, req *pb.AddProductRequest
 	user.Cart = append(user.GetCart(), req.ProductID)
 
 	// put user
-	u := datastore.NameKey("User", user.ID, nil)
+	parsed, err := strconv.ParseInt(user.ID, 10, 64)
+	u := datastore.IDKey("User", parsed, nil)
 	if _, err := s.ds.Put(ctx, u, user); err != nil {
 		return &pb.AddProductResponse{Success: false}, err
 	}
