@@ -33,7 +33,7 @@ import (
 type user struct {
 	K *datastore.Key `datastore:"__key__"`
 
-	GoogleID             string            `datastore:"__key__"`
+	GoogleID             string            `datastore:"GoogleID"`
 	ID                   string            `datastore:"ID"`
 	DisplayName          string            `datastore:"DisplayName"`
 	Picture              string            `datastore:"Picture"`
@@ -48,6 +48,8 @@ type user struct {
 func (s *Server) AuthorizeGoogle(ctx context.Context, goog *pb.User) (*pb.User, error) {
 	span := trace.FromContext(ctx).NewChild("usersvc/AuthorizeGoogle")
 	defer span.Finish()
+
+	gid := goog.GetGoogleID()
 
 	log := log.WithFields(logrus.Fields{
 		"op":        "AuthorizeGoogle",
@@ -70,7 +72,7 @@ func (s *Server) AuthorizeGoogle(ctx context.Context, goog *pb.User) (*pb.User, 
 		u := &user{
 			Email:       goog.Email,
 			DisplayName: goog.DisplayName,
-			GoogleID:    goog.GoogleID,
+			GoogleID:    gid,
 			Picture:     goog.Picture,
 		}
 
