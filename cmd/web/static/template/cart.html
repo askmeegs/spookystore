@@ -14,7 +14,7 @@
 
         <div class="mdl-card__supporting-text">
                     {{range $i, $t := .CartItems}}
-                              <span>{{ $t.DisplayName }} - ${{printf "%.2f" %t.Cost}} </span>
+                              <span>{{ $t.DisplayName }} - ${{printf "%.2f" $t.Cost}} </span>
                               <span class="mdl-list__item-text-body">
                                 {{ $t.Cost }}
                               </span>
