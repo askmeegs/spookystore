@@ -4,18 +4,28 @@
 
 {{define "body"}}
 
-<div class="product-grid"></div>
+<div class="product-grid">
 <div class="demo-card-wide mdl-card mdl-shadow--2dp">
         <div class="mdl-card__title">
-          <h2 class="mdl-card__title-text">{.user.DisplayName}}</b>'s Transaction History</h2>
+          <h2 class="mdl-card__title-text">{{.user.DisplayName}}</b>'s Transaction History</h2>
         </div>
-
-        <div class="mdl-card__supporting-text">
-                {{range $i, $t := .Transactions}}
-                <p>{{ $t.CompletedTime }} - ${{printf "%.2f" $t.TotalCost}}</[span]>
-                    {{end}}
-
-        </div>
+            <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
+                    <thead>
+                      <tr>
+                        <th class="mdl-data-table__cell--non-numeric">Date</th>
+                        <th>Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                        {{range $i, $t := .Transactions}}
+                              <tr>
+                                <td class="mdl-data-table__cell--non-numeric">{{ $t.CompletedTime }} </td>
+                                <td>25</td>
+                                <td>${{printf "%.2f" $t.TotalCost}}</td>
+                              </tr>
+                      {{end}}
+                    </tbody>
+              </table>
       </div>
     </div>
 
