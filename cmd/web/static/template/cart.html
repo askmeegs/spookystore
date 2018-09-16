@@ -10,22 +10,15 @@
         <div class="mdl-card__title">
           <h2 class="mdl-card__title-text">my cart</h2>
         </div>
-        {{ if .CartItems }} 
-
+        {{range $i, $t := .CartItems}}
         <div class="mdl-card__supporting-text">
-                    {{range $i, $t := .CartItems}}
-                              <span>{{ $t.DisplayName }} - ${{printf "%.2f" $t.Cost}} </span>
-                              <span class="mdl-list__item-text-body">
-                                {{ $t.Cost }}
-                              </span>
-                            </span>
-                    </li>
-                    {{end}}
-            {{end }}
-        </div>
+              <h6>{{ $t.DisplayName }} - ${{printf "%.2f" $t.Cost}} </h6>
+           </div>
+        {{end }}
+
         <div class="mdl-card__actions mdl-card--border">
                 <h6>Total: ${{printf "%.2f" .cart.TotalCost}}</h6>
-          <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
+          <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" onclick="httpGet('/checkout/u/{{$.me.ID}}'); checkoutSuccess()">
             Place Order
           </a>
         </div>
