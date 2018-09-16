@@ -132,6 +132,7 @@ func main() {
 	r.Handle("/logout", s.traceHandler(logHandler(s.logout))).Methods(http.MethodGet)
 	r.Handle("/oauth2callback", s.traceHandler(logHandler(s.oauth2Callback))).Methods(http.MethodGet)
 	r.Handle("/u/{id:[0-9]+}", s.traceHandler(logHandler(s.userProfile))).Methods(http.MethodGet)
+	r.Handle("/cart/u/{id:[0-9]+}", s.traceHandler(logHandler(s.cart)))
 	r.Handle("/checkout/u/{id:[0-9]+}", s.traceHandler(logHandler(s.checkout)))
 	r.Handle("/addproduct/{id:[0-9]+}/{pid:[0-9]+}", s.traceHandler(logHandler(s.addProduct)))
 	srv := http.Server{
@@ -145,6 +146,7 @@ func main() {
 type httpErrorWriter func(http.ResponseWriter, error)
 
 func (s *server) getUser(ctx context.Context, id string) (*pb.UserResponse, error) {
+	fmt.Println("\n\n ENTERED GET USER")
 	span := trace.FromContext(ctx).NewChild("get_user")
 	defer span.Finish()
 	span.SetLabel("user/id", id)
@@ -156,14 +158,16 @@ func (s *server) getUser(ctx context.Context, id string) (*pb.UserResponse, erro
 }
 
 func (s *server) authUser(ctx context.Context, r *http.Request) (user *pb.User, errFunc httpErrorWriter, err error) {
+	fmt.Println("\n\n ENTERED AUTH USER")
 	span := trace.FromContext(ctx).NewChild("authorize_user")
 	defer span.Finish()
 
 	c, err := r.Cookie("user")
 	if err == http.ErrNoCookie {
+		fmt.Println("NO COOKIE")
 		return nil, nil, nil
 	}
-	log.Debug("auth cookie found")
+	fmt.Println("NO COOKIE")
 	var userID string
 	if err := sc.Decode("user", c.Value, &userID); err != nil {
 		return nil, badRequest, errors.Wrap(err, "failed to decode cookie")
@@ -186,7 +190,6 @@ func (s *server) home(w http.ResponseWriter, r *http.Request) {
 		errF(w, err)
 		return
 	}
-
 	resp, err := s.spookySvc.GetAllProducts(ctx, &pb.GetAllProductsRequest{})
 	if err != nil {
 		fmt.Println(err)
@@ -200,7 +203,6 @@ func (s *server) home(w http.ResponseWriter, r *http.Request) {
 
 	if err := tmpl.Execute(w, map[string]interface{}{
 		"me":       user,
-		"userID":   user.GetID(),
 		"products": resp.ProductList.GetItems()}); err != nil {
 		log.Fatal(err)
 	}
@@ -265,11 +267,11 @@ func (s *server) oauth2Callback(w http.ResponseWriter, r *http.Request) {
 
 	cs = span.NewChild("authorize_google")
 	user, err := s.spookySvc.AuthorizeGoogle(ctx,
-		&pb.GoogleUser{
+		&pb.User{
 			ID:          me.Id,
 			Email:       me.Emails[0].Value,
 			DisplayName: me.DisplayName,
-			PictureURL:  me.Image.Url,
+			Picture:     me.Image.Url,
 		})
 	if err != nil {
 		serverError(w, errors.Wrap(err, "failed to log in the user"))
@@ -302,6 +304,36 @@ func (s *server) checkout(w http.ResponseWriter, r *http.Request) {
 
 	id := mux.Vars(r)["id"]
 
+	_, ef, err := s.authUser(ctx, r)
+	if err != nil {
+		ef(w, err)
+		return
+	}
+
+	userResp, err := s.getUser(ctx, id)
+	if err != nil {
+		serverError(w, errors.Wrap(err, "checkout: failed to look up the user"))
+		return
+	} else if !userResp.GetFound() {
+		errorCode(w, http.StatusNotFound, "not found", errors.New("user not found"))
+		return
+	}
+
+	_, err = s.spookySvc.Checkout(ctx, &pb.UserRequest{ID: id})
+	if err != nil {
+		serverError(w, errors.Wrap(err, "checkout failed"))
+		return
+	}
+	// take user to their transactions page
+	w.Header().Set("Location", fmt.Sprintf("/u/%s", id))
+	w.WriteHeader(http.StatusFound)
+}
+
+func (s *server) cart(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	id := mux.Vars(r)["id"]
+
 	me, ef, err := s.authUser(ctx, r)
 	if err != nil {
 		ef(w, err)
@@ -326,9 +358,11 @@ func (s *server) checkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	fmt.Println("\n\n\nGET CART, CART IS %#v", cart)
+
 	tmpl := template.Must(template.ParseFiles(
 		filepath.Join("static", "template", "layout.html"),
-		filepath.Join("static", "template", "checkout.html")))
+		filepath.Join("static", "template", "cart.html")))
 	if err := tmpl.Execute(w, map[string]interface{}{
 		"me":        me,
 		"cart":      cart,

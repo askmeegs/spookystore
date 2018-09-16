@@ -3,7 +3,7 @@ syntax = "proto3";
 import "google/protobuf/timestamp.proto";
 
 service SpookyStore {
-    rpc AuthorizeGoogle(GoogleUser) returns (User) {}
+    rpc AuthorizeGoogle(User) returns (User) {}
     rpc GetUser(UserRequest) returns (UserResponse) {}
     rpc GetAllProducts(GetAllProductsRequest) returns (GetAllProductsResponse) {}
     rpc GetProduct(GetProductRequest) returns (Product) {}
@@ -24,20 +24,15 @@ message UserResponse {
 }
 
 message User {
-    string ID = 1;
-    string DisplayName = 2;
-    string Picture = 3;
-    repeated string Cart = 4; 
-    repeated Transaction Transactions = 5;  
-}
+    string GoogleID = 1;
+    string ID = 2; 
+    string DisplayName = 3;
+    string Picture = 4;
+    repeated string Cart = 5; 
+    repeated Transaction Transactions = 6;  
+    string Email = 7;
 
-message GoogleUser {
-    string ID = 1;
-    string DisplayName = 2;
-    string PictureURL = 3;
-    string Email = 4;
 }
-
 
 // ---------- products ----------------------------------------------------------------------
 

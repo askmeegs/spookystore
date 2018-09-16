@@ -95,31 +95,19 @@ func (s *Server) GetProduct(ctx context.Context, req *pb.GetProductRequest) (*pb
 func (s *Server) AddProductToCart(ctx context.Context, req *pb.AddProductRequest) (*pb.AddProductResponse, error) {
 	// get user
 	userResp, err := s.GetUser(ctx, &pb.UserRequest{ID: req.UserID})
+	fmt.Printf("\n\n\nWHOLE USER RESP: %#v\n\n ", userResp.User)
 	if err != nil {
 		return &pb.AddProductResponse{Success: false}, err
 	}
+	user := userResp.GetUser()
 
 	// update card / product list with product id
-	user := userResp.User
-	if !stringInSlice(user.Cart, req.ProductID) {
-		user.Cart = append(user.Cart, req.ProductID)
-	}
+	user.Cart = append(user.GetCart(), req.ProductID)
 
 	// put user
 	u := datastore.NameKey("User", user.ID, nil)
 	if _, err := s.ds.Put(ctx, u, user); err != nil {
 		return &pb.AddProductResponse{Success: false}, err
 	}
-
-	log.Debugf("added product id=%s to cart, user=%d", req.ProductID, req.UserID)
 	return &pb.AddProductResponse{Success: true}, nil
-}
-
-func stringInSlice(a []string, x string) bool {
-	for _, item := range a {
-		if x == item {
-			return true
-		}
-	}
-	return false
 }
