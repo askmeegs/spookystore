@@ -24,12 +24,14 @@ message UserResponse {
 }
 
 message User {
-    string ID = 1;
-    string DisplayName = 2;
-    string Picture = 3;
-    repeated string Cart = 4; 
-    repeated Transaction Transactions = 5;  
-    string Email = 6;
+    string GoogleID = 1;
+    string ID = 2; 
+    string DisplayName = 3;
+    string Picture = 4;
+    repeated string Cart = 5; 
+    repeated Transaction Transactions = 6;  
+    string Email = 7;
+
 }
 
 // ---------- products ----------------------------------------------------------------------

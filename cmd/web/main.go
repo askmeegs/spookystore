@@ -163,11 +163,11 @@ func (s *server) authUser(ctx context.Context, r *http.Request) (user *pb.User, 
 	defer span.Finish()
 
 	c, err := r.Cookie("user")
-	fmt.Println("FOUND COOKIE")
 	if err == http.ErrNoCookie {
+		fmt.Println("NO COOKIE")
 		return nil, nil, nil
 	}
-	log.Debug("auth cookie found")
+	fmt.Println("NO COOKIE")
 	var userID string
 	if err := sc.Decode("user", c.Value, &userID); err != nil {
 		return nil, badRequest, errors.Wrap(err, "failed to decode cookie")

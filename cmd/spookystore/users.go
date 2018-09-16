@@ -35,7 +35,7 @@ type user struct {
 	DisplayName  string            `datastore:"DisplayName"`
 	Email        string            `datastore:"Email"`
 	Picture      string            `datastore:"Picture"`
-	ID           string            `datastore:"ID"`
+	GoogleID     string            `datastore:"GoogleID"`
 	Cart         []string          `datastore:"Cart"`
 	Transactions []*pb.Transaction `datastore:"Transactions"`
 }
@@ -46,11 +46,11 @@ func (s *Server) AuthorizeGoogle(ctx context.Context, goog *pb.User) (*pb.User, 
 
 	log := log.WithFields(logrus.Fields{
 		"op":        "AuthorizeGoogle",
-		"google.id": goog.GetID()})
+		"google.id": goog.GetGoogleID()})
 	log.Debug("received request")
 
 	cs := span.NewChild("datastore/query/user/by_ID")
-	q := datastore.NewQuery("User").Filter("ID =", goog.ID).Limit(1)
+	q := datastore.NewQuery("User").Filter("GoogleID =", goog.GoogleID).Limit(1)
 	var v []user
 	if _, err := s.ds.GetAll(ctx, q, &v); err != nil {
 		log.WithField("error", err).Error("failed to query the datastore")
@@ -66,7 +66,7 @@ func (s *Server) AuthorizeGoogle(ctx context.Context, goog *pb.User) (*pb.User, 
 			Email:       goog.Email,
 			DisplayName: goog.DisplayName,
 			Picture:     goog.Picture,
-			ID:          goog.ID,
+			GoogleID:    goog.GoogleID,
 		})
 		if err != nil {
 			log.WithField("error", err).Error("failed to save to datastore")
@@ -88,6 +88,7 @@ func (s *Server) AuthorizeGoogle(ctx context.Context, goog *pb.User) (*pb.User, 
 	} else if !user.GetFound() {
 		return nil, errors.New("cannot find user that is just created")
 	}
+	fmt.Println("AUTHORIZED GOOGLE. GOOGLEID is %s and REGULAR ID is %s\n", user.GetUser().GetGoogleID(), id)
 	return user.GetUser(), nil
 }
 
@@ -124,7 +125,8 @@ func (s *Server) GetUser(ctx context.Context, req *pb.UserRequest) (*pb.UserResp
 	return &pb.UserResponse{
 		Found: true,
 		User: &pb.User{
-			ID:           v.ID,
+			ID:           fmt.Sprintf("%d", v.K.ID),
+			GoogleID:     v.GoogleID,
 			DisplayName:  v.DisplayName,
 			Picture:      v.Picture,
 			Cart:         v.Cart,
