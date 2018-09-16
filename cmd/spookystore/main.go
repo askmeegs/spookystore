@@ -128,7 +128,7 @@ func addProducts(ctx context.Context, ds *datastore.Client) ([]string, error) {
 		p := &pb.Product{
 			DisplayName: DispName,
 			Cost:        v.Cost,
-			PictureURL:  v.Image,
+			PictureURL:  v.PictureURL,
 			Description: v.Description,
 		}
 		newK, err := ds.Put(ctx, key, p)

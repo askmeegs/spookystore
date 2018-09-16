@@ -35,11 +35,15 @@ type productsDirectory struct {
 }
 
 type Product struct {
-	K           *datastore.Key `datastore:"__key__"`
-	DisplayName string         `datastore:"DisplayName"`
-	Description string         `datastore:"Description"`
-	Cost        float32        `datastore:"Description"`
-	Image       string         `datastore:"Image"`
+	K                    *datastore.Key `datastore:"__key__"`
+	ID                   string         `datastore:"ID"`
+	DisplayName          string         `datastore:"DisplayName"`
+	PictureURL           string         `datastore:"PictureURL"`
+	Cost                 float32        `datastore:"Cost"`
+	Description          string         `datastore:"Description"`
+	XXX_NoUnkeyedLiteral struct{}       `datastore:"XXX_NoUnkeyedLiteral"`
+	XXX_unrecognized     []byte         `datastore:"XXX_unrecognized"`
+	XXX_sizecache        int32          `datastore:"XXX_sizecache"`
 }
 
 func (s *Server) GetAllProducts(ctx context.Context, req *pb.GetAllProductsRequest) (*pb.GetAllProductsResponse, error) {
@@ -86,7 +90,7 @@ func (s *Server) GetProduct(ctx context.Context, req *pb.GetProductRequest) (*pb
 	return &pb.Product{
 		ID:          fmt.Sprintf("%d", v.K.ID),
 		DisplayName: v.DisplayName,
-		PictureURL:  v.Image,
+		PictureURL:  v.PictureURL,
 		Cost:        v.Cost,
 		Description: v.Description,
 	}, nil
