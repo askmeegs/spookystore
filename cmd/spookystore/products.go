@@ -47,7 +47,7 @@ type Product struct {
 }
 
 type TransactionCounter struct {
-	count int32 `datastore:"count"`
+	NumTransactions int32 `datastore:"NumTransactions"`
 }
 
 func (s *Server) GetNumTransactions(ctx context.Context, req *pb.GetNumTransactionsRequest) (*pb.NumTransactionsResponse, error) {
@@ -55,11 +55,11 @@ func (s *Server) GetNumTransactions(ctx context.Context, req *pb.GetNumTransacti
 	k := datastore.NameKey("TransactionCounter", "AllPurchases", nil)
 	err := s.ds.Get(ctx, k, &t)
 	if err != nil {
-		log.WithField("error", err).Error("failed to query the datastore")
+		log.WithField("error", err).Error("failed to get num transactions")
 		return nil, errors.Wrap(err, "failed to query")
 	}
 	return &pb.NumTransactionsResponse{
-		NumTransactions: t.count,
+		NumTransactions: t.NumTransactions,
 	}, nil
 }
 
