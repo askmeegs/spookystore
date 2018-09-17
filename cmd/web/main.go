@@ -198,6 +198,10 @@ func (s *server) home(w http.ResponseWriter, r *http.Request) {
 		filepath.Join("static", "template", "layout.html"),
 		filepath.Join("static", "template", "home.html")))
 
+	if user == nil {
+		log.Warning("USER IS NIL")
+	}
+
 	if err := tmpl.Execute(w, map[string]interface{}{
 		"me":       user,
 		"products": resp.ProductList.GetItems()}); err != nil {
