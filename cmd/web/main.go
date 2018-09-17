@@ -134,6 +134,7 @@ func main() {
 	r.Handle("/oauth2callback", s.traceHandler(logHandler(s.oauth2Callback))).Methods(http.MethodGet)
 	r.Handle("/u/{id:[0-9]+}", s.traceHandler(logHandler(s.userProfile))).Methods(http.MethodGet)
 	r.Handle("/cart/u/{id:[0-9]+}", s.traceHandler(logHandler(s.cart)))
+	r.Handle("/clearcart/u/{id:[0-9]+}", s.traceHandler(logHandler(s.clearCart)))
 	r.Handle("/checkout/u/{id:[0-9]+}", s.traceHandler(logHandler(s.checkout)))
 	r.Handle("/addproduct/{id:[0-9]+}/{pid:[0-9]+}", s.traceHandler(logHandler(s.addProduct)))
 	srv := http.Server{
@@ -331,6 +332,34 @@ func (s *server) checkout(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusFound)
 }
 
+func (s *server) clearCart(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	id := mux.Vars(r)["id"]
+
+	_, ef, err := s.authUser(ctx, r)
+	if err != nil {
+		ef(w, err)
+		return
+	}
+
+	userResp, err := s.getUser(ctx, id)
+	if err != nil {
+		serverError(w, errors.Wrap(err, "failed to look up the user"))
+		return
+	} else if !userResp.GetFound() {
+		errorCode(w, http.StatusNotFound, "not found", errors.New("user not found"))
+		return
+	}
+	_, err = s.spookySvc.ClearCart(ctx, &pb.UserRequest{ID: id})
+	if err != nil {
+		serverError(w, errors.Wrap(err, "failed to clear cart"))
+		return
+	}
+	w.Header().Set("Location", "/") //take me home
+	w.WriteHeader(http.StatusOK)
+}
+
 func (s *server) cart(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
@@ -354,9 +383,6 @@ func (s *server) cart(w http.ResponseWriter, r *http.Request) {
 	cart, err := s.spookySvc.GetCart(ctx, &pb.UserRequest{ID: id})
 	if err != nil {
 		serverError(w, errors.Wrap(err, "failed to get cart"))
-		return
-	} else if !userResp.GetFound() {
-		errorCode(w, http.StatusNotFound, "not found", errors.New("cart not found"))
 		return
 	}
 
@@ -412,7 +438,7 @@ func FormatTransactions(input []*pb.Transaction) ([]FormattedTransaction, error)
 		if err != nil {
 			return output, err
 		}
-		f := tt.Format("3 January 2018, 6:00PM PST")
+		f := tt.Format("Mon Jan 2 2006 15:04 MST")
 		temp := FormattedTransaction{
 			CompletedTime: f,
 			TotalCost:     t.GetTotalCost(),

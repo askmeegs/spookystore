@@ -2,96 +2,96 @@
 	"coffee beans": {
 		"description": "delicious coffee beans with hints of citrus and chocolate. medium roast.",
 		"cost": 9.50,
-		"image": "https://c1.staticflickr.com/4/3944/15494552181_14dec15946_b.jpg"
+		"PictureURL": "https://c1.staticflickr.com/4/3944/15494552181_14dec15946_b.jpg"
 	},
 	"candle": {
 		"description": "hand-poured soy candle. autumn leaves scent will fill your home.",
 		"cost": 12.00,
-		"image": "https://s-media-cache-ak0.pinimg.com/originals/cc/12/c2/cc12c2b8e24b077a18ccf469f55453e1.jpg"
+		"PictureURL": "https://s-media-cache-ak0.pinimg.com/originals/cc/12/c2/cc12c2b8e24b077a18ccf469f55453e1.jpg"
 	},
 	"firewood": {
 		"description": "high-quality beech wood. suitable for home burning.",
 		"cost": 4.25,
-		"image": "http://www.lovethispic.com/uploaded_images/28539-Firewood.png"
+		"PictureURL": "http://www.lovethispic.com/uploaded_PictureURLs/28539-Firewood.png"
 	},
 	"vegan caramels": {
 		"description": "1 dozen pumpkin spice caramels. you won't believe they're vegan.",
 		"cost": 5.00,
-		"image": "https://www.fifteenspatulas.com/wp-content/uploads/2012/09/PumpkinCaramels.jpg"
+		"PictureURL": "https://www.fifteenspatulas.com/wp-content/uploads/2012/09/PumpkinCaramels.jpg"
 	},
 	"pumpkin spice blend": {
 		"description": "pumpkin spice. 2oz (57 grams). try it in coffee, oatmeal, and pancakes!",
 		"cost": 5.50,
-		"image": "https://lh3.googleusercontent.com/-bkhqTiesvbU/UGOrdqc4h9I/AAAAAAAAIGY/UD_0fF6JBp0/s640/Pumpkin+Pie+Spice.jpg"
+		"PictureURL": "https://lh3.googleusercontent.com/-bkhqTiesvbU/UGOrdqc4h9I/AAAAAAAAIGY/UD_0fF6JBp0/s640/Pumpkin+Pie+Spice.jpg"
 	},
 	"ghost garland": {
 		"description": "decorate ghost garland. handmade.",
 		"cost": 3.70,
-		"image": "https://img.etsystatic.com/il/455a1d/1304462862/il_570xN.1304462862_r19h.jpg?version=1"
+		"PictureURL": "https://img.etsystatic.com/il/455a1d/1304462862/il_570xN.1304462862_r19h.jpg?version=1"
 	},
 	"blanket": {
 		"description": "wool blanket.",
 		"cost": 49.99,
-		"image": "https://ak1.ostkcdn.com//images/products/11897970/Pendleton-Yakima-Camp-Blanket-Mineral-Umber-Queen-e25bebfd-69be-4ba9-ae16-12b51da00143.jpg"
+		"PictureURL": "https://ak1.ostkcdn.com//PictureURLs/products/11897970/Pendleton-Yakima-Camp-Blanket-Mineral-Umber-Queen-e25bebfd-69be-4ba9-ae16-12b51da00143.jpg"
 	},
 	"ceramic mug": {
 		"description": "high-quality themed mug. 15oz. orange ceramic. dishwasher- and microwave-safe.",
 		"cost": 9.50,
-		"image": "https://i.etsystatic.com/13146896/c/3000/2382/0/0/il/ef5a22/1564497104/il_340x270.1564497104_ijsz.jpg"
+		"PictureURL": "https://i.etsystatic.com/13146896/c/3000/2382/0/0/il/ef5a22/1564497104/il_340x270.1564497104_ijsz.jpg"
 	},
 	"rain boots": {
 		"description": "these rubber rain boots are ready for anything. men's sizes.",
 		"cost": 71.00,
-		"image": "https://ak4.picdn.net/shutterstock/videos/4145284/thumb/7.jpg"
+		"PictureURL": "https://ak4.picdn.net/shutterstock/videos/4145284/thumb/7.jpg"
 	},
 	"pumpkin carving kit": {
 		"description": "useful for carving pumpkins!",
 		"cost": 10.00,
-		"image": "https://images.knifecenter.com/thumb/1500x1500/knifecenter/messerm/images/MMMCS3Sb.jpg"
+		"PictureURL": "https://PictureURLs.knifecenter.com/thumb/1500x1500/knifecenter/messerm/PictureURLs/MMMCS3Sb.jpg"
 	},
 	"mittens": {
 		"description": "never have cold fingers with these handmade white mittens.",
 		"cost": 23.00,
-		"image": "http://www.lovethispic.com/uploaded_images/217473-White-Wool-Mittens.jpg"
+		"PictureURL": "http://www.lovethispic.com/uploaded_PictureURLs/217473-White-Wool-Mittens.jpg"
 	},
 	"rake": {
 		"description": "sturdy rake for building epic leaf piles",
 		"cost": 16.75,
-		"image": "https://maxpull-tlu7l6lqiu.stackpathdns.com/wp-content/uploads/2017/04/leaf-rake-400x267.jpg"
+		"PictureURL": "https://maxpull-tlu7l6lqiu.stackpathdns.com/wp-content/uploads/2017/04/leaf-rake-400x267.jpg"
 	},
 	"halloween cookie cutters": {
 		"description": "metal cookie cutters with halloween shapes, set of 3.",
 		"cost": 0.99,
-		"image": "http://cdn.shopify.com/s/files/1/0472/7301/products/Cookie_Cutters_-_Halloween_Resin_with_Candy_Corn_600x.jpg?v=1489977667"
+		"PictureURL": "http://cdn.shopify.com/s/files/1/0472/7301/products/Cookie_Cutters_-_Halloween_Resin_with_Candy_Corn_600x.jpg?v=1489977667"
 	},
 	"reese's pumpkins": {
 		"description": "pumpkin-shaped peanut butter cups",
 		"cost": 3.49,
-		"image": "https://www.afrugalchick.com/wp-content/uploads/2014/10/reeses-pumpkins-snack-size.png"
+		"PictureURL": "https://www.afrugalchick.com/wp-content/uploads/2014/10/reeses-pumpkins-snack-size.png"
 	},
 	"mummy candles": {
 		"description": "they're watching you! set of 3.",
 		"cost": 11.30,
-		"image": "https://www.centercityrealestate.com/philadelphia-real-estate-blog/wp-content/uploads/2015/10/mummy-wrapped-jars.jpg"
+		"PictureURL": "https://www.centercityrealestate.com/philadelphia-real-estate-blog/wp-content/uploads/2015/10/mummy-wrapped-jars.jpg"
 	},
 	"cookie toppers": {
 		"description": "edible halloween cookie toppers. black and white. 24-pack",
 		"cost": 5.00,
-		"image": "https://www.designeatrepeat.com/wp-content/uploads/peanut-butter-cup-easy-halloween-cookies-1.jpg"
+		"PictureURL": "https://www.designeatrepeat.com/wp-content/uploads/peanut-butter-cup-easy-halloween-cookies-1.jpg"
 	},
 	"candy corn": {
 		"description": "satan's candy. don't trust",
 		"cost": 2.00,
-		"image": "https://media1.s-nbcnews.com/j/newscms/2018_35/1363327/candy-corn-today-main-1-180827_6a36b1bbf867a96369cfb32da750e548.fit-760w.jpg"
+		"PictureURL": "https://media1.s-nbcnews.com/j/newscms/2018_35/1363327/candy-corn-today-main-1-180827_6a36b1bbf867a96369cfb32da750e548.fit-760w.jpg"
 	},
 	"caramel apple kit": {
 		"description": "finally, a way to get your children to eat fruit! suitable for coating 12 apples.",
 		"cost": 6.99,
-		"image": "https://www.manhattanfruitier.com/image/cache/data/Taste-of-MF-Oct%20Caramel%20Apples-610x530.jpg"
+		"PictureURL": "https://www.manhattanfruitier.com/PictureURL/cache/data/Taste-of-MF-Oct%20Caramel%20Apples-610x530.jpg"
 	},
 	"cat ornaments": {
 		"description": "handmade felt ornaments. set of 3. colors may vary.",
 		"cost": 10.00,
-		"image": "https://cdn.shopify.com/s/files/1/1367/8913/products/Handmade-felt-cat-ornaments_1024x1024.jpg?v=1475519516"
+		"PictureURL": "https://cdn.shopify.com/s/files/1/1367/8913/products/Handmade-felt-cat-ornaments_1024x1024.jpg?v=1475519516"
 	}
 }

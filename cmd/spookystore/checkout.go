@@ -25,6 +25,23 @@ import (
 	"golang.org/x/net/context"
 )
 
+func (s *Server) ClearCart(ctx context.Context, req *pb.UserRequest) (*pb.ClearCartResponse, error) {
+	userResp, err := s.GetUser(ctx, &pb.UserRequest{ID: req.ID})
+	if err != nil {
+		return &pb.ClearCartResponse{Success: false}, err
+	}
+	user := userResp.GetUser()
+	user.Cart = []string{} //empty cart
+
+	// put user
+	parsed, err := strconv.ParseInt(user.ID, 10, 64)
+	u := datastore.IDKey("User", parsed, nil)
+	if _, err := s.ds.Put(ctx, u, user); err != nil {
+		return &pb.ClearCartResponse{Success: false}, err
+	}
+	return &pb.ClearCartResponse{Success: true}, nil
+}
+
 // Lists all products in this user's cart w/ the total cost
 func (s *Server) GetCart(ctx context.Context, req *pb.UserRequest) (*pb.GetCartResponse, error) {
 	userResp, err := s.GetUser(ctx, req)

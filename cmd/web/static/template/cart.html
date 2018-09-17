@@ -18,7 +18,7 @@
       </div>
       
         <div class="mdl-card__actions mdl-card--border">
-            <h4>Total: ${{printf "%.2f" .cart.TotalCost}}</h4>
+            <h5>Total: ${{printf "%.2f" .cart.TotalCost}}</h5>
           <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"onclick="httpGet('/checkout/u/{{$.me.ID}}'); checkoutSuccess()">
             Place Order
         </div>

@@ -77,21 +77,26 @@ body {
     <header class="mdl-layout__header">
       <div class="mdl-layout__header-row">
         <!-- Title -->
-        <a href="http://www.spookystore.net/" class="mdl-layout-title">spooky store</a>
+        <h1 class="mdl-layout-title">spooky store</h1>
         <!-- Add spacer, to align navigation to the right -->
         <div class="mdl-layout-spacer"></div>
         <!-- Navigation. We hide it in small screens. -->
         <nav class="mdl-navigation mdl-layout--large-screen-only">
             {{if .me}} 
 
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="location.href='/clearcart/u/{{.me.ID}}'">
+                Clear Cart
+              </button>
+
+
             <button class="mdl-button mdl-js-button mdl-js-ripple-effect" onclick="location.href='/cart/u/{{.me.ID}}'">
                 <i class="material-icons">shopping_cart</i>
               </button>
 
-            <a class="mdl-navigation__link" href="/logout"><strong>Logout</strong></a>
+            <a class="mdl-navigation__link" href="/logout">Logout</a>
             <a href="/u/{{.me.ID}}"><div class="valign-wrapper"><img src="{{.me.Picture}}" alt=""/></div></a>
           {{else}}
-          <a class="mdl-navigation__link" href="/login"><strong>Login</strong></a>
+          <a class="mdl-navigation__link" href="/login">Login</a>
           {{end}}
         </nav>
       </div>
