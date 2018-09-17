@@ -15,6 +15,9 @@
 package main
 
 import (
+	"fmt"
+	"strconv"
+
 	"cloud.google.com/go/datastore"
 
 	"github.com/golang/protobuf/ptypes"
@@ -48,6 +51,7 @@ func (s *Server) GetCart(ctx context.Context, req *pb.UserRequest) (*pb.GetCartR
 
 // Transforms the Cart items into a Transaction
 func (s *Server) Checkout(ctx context.Context, req *pb.UserRequest) (*pb.CheckoutResponse, error) {
+	fmt.Println("\n\n\n CHECKING OUT...")
 	userResp, err := s.GetUser(ctx, req)
 	if err != nil {
 		return &pb.CheckoutResponse{Success: false}, err
@@ -57,20 +61,20 @@ func (s *Server) Checkout(ctx context.Context, req *pb.UserRequest) (*pb.Checkou
 	if err != nil {
 		return &pb.CheckoutResponse{Success: false}, err
 	}
-
 	t := &pb.Transaction{
 		CompletedTime: ptypes.TimestampNow(),
 		Items:         cart.GetItems(),
 		TotalCost:     cart.GetTotalCost(),
 	}
-
+	fmt.Printf("Created transaction: %#v\n", t)
 	user.Transactions = append(user.Transactions, t)
 
 	// update user
-	u := datastore.NameKey("User", user.ID, nil)
+	parsed, err := strconv.ParseInt(user.ID, 10, 64)
+	u := datastore.IDKey("User", parsed, nil)
 	if _, err := s.ds.Put(ctx, u, user); err != nil {
 		return &pb.CheckoutResponse{Success: false}, err
 	}
-
+	fmt.Println("Transaction complete! \n\n\n")
 	return &pb.CheckoutResponse{Success: true}, nil
 }

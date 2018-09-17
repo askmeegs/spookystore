@@ -31,18 +31,25 @@ import (
 )
 
 type user struct {
-	K            *datastore.Key    `datastore:"__key__"`
-	DisplayName  string            `datastore:"DisplayName"`
-	Email        string            `datastore:"Email"`
-	Picture      string            `datastore:"Picture"`
-	GoogleID     string            `datastore:"GoogleID"`
-	Cart         []string          `datastore:"Cart"`
-	Transactions []*pb.Transaction `datastore:"Transactions"`
+	K *datastore.Key `datastore:"__key__"`
+
+	GoogleID             string            `datastore:"GoogleID"`
+	ID                   string            `datastore:"ID"`
+	DisplayName          string            `datastore:"DisplayName"`
+	Picture              string            `datastore:"Picture"`
+	Cart                 []string          `datastore:"Cart"`
+	Transactions         []*pb.Transaction `datastore:"Transactions"`
+	Email                string            `datastore:"Email"`
+	XXX_NoUnkeyedLiteral struct{}          `datastore:"XXX_NoUnkeyedLiteral"`
+	XXX_unrecognized     []byte            `datastore:"XXX_unrecognized"`
+	XXX_sizecache        int32             `datastore:"XXX_sizecache"`
 }
 
 func (s *Server) AuthorizeGoogle(ctx context.Context, goog *pb.User) (*pb.User, error) {
 	span := trace.FromContext(ctx).NewChild("usersvc/AuthorizeGoogle")
 	defer span.Finish()
+
+	gid := goog.GetGoogleID()
 
 	log := log.WithFields(logrus.Fields{
 		"op":        "AuthorizeGoogle",
@@ -61,19 +68,28 @@ func (s *Server) AuthorizeGoogle(ctx context.Context, goog *pb.User) (*pb.User, 
 	var id string
 	if len(v) == 0 {
 		cs = span.NewChild("datastore/put/user")
-		// create new user
-		fmt.Printf("\n\nPUTTING NEW USER WITH GOOGLEID=%s", goog.GoogleID)
-		k, err := s.ds.Put(ctx, datastore.IncompleteKey("User", nil), &user{
+
+		u := &user{
 			Email:       goog.Email,
 			DisplayName: goog.DisplayName,
+			GoogleID:    gid,
 			Picture:     goog.Picture,
-			GoogleID:    goog.GoogleID,
-		})
+		}
+
+		// create new user
+		k, err := s.ds.Put(ctx, datastore.IncompleteKey("User", nil), u)
 		if err != nil {
 			log.WithField("error", err).Error("failed to save to datastore")
 			return nil, errors.New("failed to save")
 		}
 		id = fmt.Sprintf("%d", k.ID)
+		u.ID = id
+		_, err = s.ds.Put(ctx, datastore.IDKey("User", k.ID, nil), u)
+		if err != nil {
+			log.WithField("error", err).Error("failed to save with ID to datastore")
+			return nil, errors.New("failed to save with ID")
+		}
+
 		log.WithField("id", id).Info("created new user")
 		cs.Finish()
 	} else {
@@ -123,10 +139,11 @@ func (s *Server) GetUser(ctx context.Context, req *pb.UserRequest) (*pb.UserResp
 		log.WithField("error", err).Error("failed to query the datastore")
 		return nil, errors.Wrap(err, "failed to query")
 	}
+
 	return &pb.UserResponse{
 		Found: true,
 		User: &pb.User{
-			ID:           fmt.Sprintf("%d", v.K.ID),
+			ID:           req.ID,
 			GoogleID:     v.GoogleID,
 			DisplayName:  v.DisplayName,
 			Picture:      v.Picture,
