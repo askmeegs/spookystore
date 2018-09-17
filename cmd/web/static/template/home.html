@@ -21,7 +21,7 @@ window.onload = function() {
             </div>
 
             <div class="mdl-card__supporting-text">
-                    <h6>{{ $p.DisplayName }}</h6>
+                    <h6><b>{{ $p.DisplayName }}</b></h6>
                     <p>{{ $p.Description }}</p>
                     <p>
                         ${{printf "%.2f" $p.Cost}} 
@@ -34,9 +34,8 @@ window.onload = function() {
     {{end}}
 </div>
     <div class="transaction-div"> 
-     <p >Thank you for visiting the Spooky Store! 
-        <p id="transactions"></p> 
-         <p> We are happy to serve all of your Autumn needs! Check back often for new products.</p>
+     <p >Thank you for visiting the Spooky Store! Since our founding in 2018, we have processed over <b>{{ .numTransactions }}</b>. 
+       We are happy to serve all of your Autumn needs! Check back often for new products.</p>
      </p>
     </div>
 {{end}}
