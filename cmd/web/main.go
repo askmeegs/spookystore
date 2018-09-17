@@ -136,7 +136,7 @@ func main() {
 	r.Handle("/cart/u/{id:[0-9]+}", s.traceHandler(logHandler(s.cart)))
 	r.Handle("/clearcart/u/{id:[0-9]+}", s.traceHandler(logHandler(s.clearCart)))
 	r.Handle("/checkout/u/{id:[0-9]+}", s.traceHandler(logHandler(s.checkout)))
-	r.Handle("/getcounter/", s.traceHandler(logHandler(s.getCounter)))
+	r.Handle("/getcounter", s.traceHandler(logHandler(s.getCounter)))
 	r.Handle("/addproduct/{id:[0-9]+}/{pid:[0-9]+}", s.traceHandler(logHandler(s.addProduct)))
 	srv := http.Server{
 		Addr:    *addr, // TODO make configurable

@@ -82,6 +82,10 @@ message Transaction {
     float TotalCost = 4; 
 }
 
+message TransactionCounter {
+    int32 count = 1; 
+}
+
 
 message GetNumTransactionsRequest {
 }

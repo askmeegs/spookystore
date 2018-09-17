@@ -47,8 +47,7 @@ type Product struct {
 }
 
 type TransactionCounter struct {
-	K     *datastore.Key `datastore:"__key__"`
-	count int32          `datastore:"count"`
+	count int32 `datastore:"count"`
 }
 
 func (s *Server) GetNumTransactions(ctx context.Context, req *pb.GetNumTransactionsRequest) (*pb.NumTransactionsResponse, error) {
