@@ -9,7 +9,9 @@ service SpookyStore {
     rpc GetProduct(GetProductRequest) returns (Product) {}
     rpc AddProductToCart(AddProductRequest) returns (AddProductResponse) {}
     rpc GetCart(UserRequest) returns (GetCartResponse) {}
+    rpc ClearCart(UserRequest) returns (ClearCartResponse) {}
     rpc Checkout(UserRequest) returns (CheckoutResponse) {}
+    rpc GetNumTransactions(GetNumTransactionsRequest) returns (NumTransactionsResponse) {}
 }
 
 // ------------ users ------------------------------------------------------------------------
@@ -80,11 +82,28 @@ message Transaction {
     float TotalCost = 4; 
 }
 
+message TransactionCounter {
+    int32 NumTransactions = 1; 
+}
+
+
+message GetNumTransactionsRequest {
+}
+
+message NumTransactionsResponse {
+    int32 NumTransactions = 1; 
+}
+
+
 // ---------- checkout ----------------------------------------------------------------------
 
 message GetCartResponse {
     ProductList Items = 1; 
     float TotalCost = 2; 
+}
+
+message ClearCartResponse {
+    bool Success = 1; 
 }
 
 message CheckoutResponse {

@@ -15,7 +15,6 @@
 package main
 
 import (
-	"fmt"
 	"strconv"
 
 	"cloud.google.com/go/datastore"
@@ -24,6 +23,23 @@ import (
 	pb "github.com/m-okeefe/spookystore/internal/proto"
 	"golang.org/x/net/context"
 )
+
+func (s *Server) ClearCart(ctx context.Context, req *pb.UserRequest) (*pb.ClearCartResponse, error) {
+	userResp, err := s.GetUser(ctx, &pb.UserRequest{ID: req.ID})
+	if err != nil {
+		return &pb.ClearCartResponse{Success: false}, err
+	}
+	user := userResp.GetUser()
+	user.Cart = []string{} //empty cart
+
+	// put user
+	parsed, err := strconv.ParseInt(user.ID, 10, 64)
+	u := datastore.IDKey("User", parsed, nil)
+	if _, err := s.ds.Put(ctx, u, user); err != nil {
+		return &pb.ClearCartResponse{Success: false}, err
+	}
+	return &pb.ClearCartResponse{Success: true}, nil
+}
 
 // Lists all products in this user's cart w/ the total cost
 func (s *Server) GetCart(ctx context.Context, req *pb.UserRequest) (*pb.GetCartResponse, error) {
@@ -51,7 +67,6 @@ func (s *Server) GetCart(ctx context.Context, req *pb.UserRequest) (*pb.GetCartR
 
 // Transforms the Cart items into a Transaction
 func (s *Server) Checkout(ctx context.Context, req *pb.UserRequest) (*pb.CheckoutResponse, error) {
-	fmt.Println("\n\n\n CHECKING OUT...")
 	userResp, err := s.GetUser(ctx, req)
 	if err != nil {
 		return &pb.CheckoutResponse{Success: false}, err
@@ -66,7 +81,6 @@ func (s *Server) Checkout(ctx context.Context, req *pb.UserRequest) (*pb.Checkou
 		Items:         cart.GetItems(),
 		TotalCost:     cart.GetTotalCost(),
 	}
-	fmt.Printf("Created transaction: %#v\n", t)
 	user.Transactions = append(user.Transactions, t)
 
 	// update user
@@ -75,6 +89,12 @@ func (s *Server) Checkout(ctx context.Context, req *pb.UserRequest) (*pb.Checkou
 	if _, err := s.ds.Put(ctx, u, user); err != nil {
 		return &pb.CheckoutResponse{Success: false}, err
 	}
-	fmt.Println("Transaction complete! \n\n\n")
+
+	// zero out their cart
+	_, err = s.ClearCart(ctx, req)
+	if err != nil {
+		return &pb.CheckoutResponse{Success: false}, err
+	}
 	return &pb.CheckoutResponse{Success: true}, nil
+
 }

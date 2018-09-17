@@ -28,6 +28,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/trace"
+	"github.com/golang/protobuf/ptypes"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/securecookie"
 	"github.com/m-okeefe/spookystore/cmd/version"
@@ -133,6 +134,7 @@ func main() {
 	r.Handle("/oauth2callback", s.traceHandler(logHandler(s.oauth2Callback))).Methods(http.MethodGet)
 	r.Handle("/u/{id:[0-9]+}", s.traceHandler(logHandler(s.userProfile))).Methods(http.MethodGet)
 	r.Handle("/cart/u/{id:[0-9]+}", s.traceHandler(logHandler(s.cart)))
+	r.Handle("/clearcart/u/{id:[0-9]+}", s.traceHandler(logHandler(s.clearCart)))
 	r.Handle("/checkout/u/{id:[0-9]+}", s.traceHandler(logHandler(s.checkout)))
 	r.Handle("/addproduct/{id:[0-9]+}/{pid:[0-9]+}", s.traceHandler(logHandler(s.addProduct)))
 	srv := http.Server{
@@ -192,14 +194,23 @@ func (s *server) home(w http.ResponseWriter, r *http.Request) {
 		serverError(w, errors.Wrap(err, "failed to get all products"))
 	}
 
+	tResp, _ := s.spookySvc.GetNumTransactions(ctx, &pb.GetNumTransactionsRequest{})
+	numTransactions := tResp.GetNumTransactions()
+	fmt.Printf("\n\nGOT NUM TRANSACTIONS? %#v", tResp)
+
 	log.WithField("logged_in", user != nil).Debug("serving home page")
 	tmpl := template.Must(template.ParseFiles(
 		filepath.Join("static", "template", "layout.html"),
 		filepath.Join("static", "template", "home.html")))
 
+	if user == nil {
+		log.Warning("USER IS NIL")
+	}
+
 	if err := tmpl.Execute(w, map[string]interface{}{
-		"me":       user,
-		"products": resp.ProductList.GetItems()}); err != nil {
+		"me":              user,
+		"numTransactions": numTransactions,
+		"products":        resp.ProductList.GetItems()}); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -261,9 +272,12 @@ func (s *server) oauth2Callback(w http.ResponseWriter, r *http.Request) {
 	cs.Finish()
 	log.WithField("google.id", me.Id).Debug("retrieved google user")
 
+	fmt.Printf("\n\nABOUT TO AUTHORIZE_GOOGLE, what are eMAILs? %#v, what is google id? %s\n\n", me.Emails[0], me.Id)
+
 	cs = span.NewChild("authorize_google")
 	user, err := s.spookySvc.AuthorizeGoogle(ctx,
 		&pb.User{
+			GoogleID:    me.Id,
 			ID:          me.Id,
 			Email:       me.Emails[0].Value,
 			DisplayName: me.DisplayName,
@@ -326,6 +340,34 @@ func (s *server) checkout(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusFound)
 }
 
+func (s *server) clearCart(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	id := mux.Vars(r)["id"]
+
+	_, ef, err := s.authUser(ctx, r)
+	if err != nil {
+		ef(w, err)
+		return
+	}
+
+	userResp, err := s.getUser(ctx, id)
+	if err != nil {
+		serverError(w, errors.Wrap(err, "failed to look up the user"))
+		return
+	} else if !userResp.GetFound() {
+		errorCode(w, http.StatusNotFound, "not found", errors.New("user not found"))
+		return
+	}
+	_, err = s.spookySvc.ClearCart(ctx, &pb.UserRequest{ID: id})
+	if err != nil {
+		serverError(w, errors.Wrap(err, "failed to clear cart"))
+		return
+	}
+	w.Header().Set("Location", "/") //take me home
+	w.WriteHeader(http.StatusOK)
+}
+
 func (s *server) cart(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
@@ -349,9 +391,6 @@ func (s *server) cart(w http.ResponseWriter, r *http.Request) {
 	cart, err := s.spookySvc.GetCart(ctx, &pb.UserRequest{ID: id})
 	if err != nil {
 		serverError(w, errors.Wrap(err, "failed to get cart"))
-		return
-	} else if !userResp.GetFound() {
-		errorCode(w, http.StatusNotFound, "not found", errors.New("cart not found"))
 		return
 	}
 
@@ -393,6 +432,31 @@ func (s *server) addProduct(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+type FormattedTransaction struct {
+	CompletedTime string
+	TotalCost     float32
+}
+
+func FormatTransactions(input []*pb.Transaction) ([]FormattedTransaction, error) {
+	output := []FormattedTransaction{}
+	for _, t := range input {
+
+		stamp := t.GetCompletedTime()
+		tt, err := ptypes.Timestamp(stamp)
+		if err != nil {
+			return output, err
+		}
+		f := tt.Format("2006-01-02 15:04:05 PM")
+		temp := FormattedTransaction{
+			CompletedTime: f,
+			TotalCost:     t.GetTotalCost(),
+		}
+
+		output = append(output, temp)
+	}
+	return output, nil
+}
+
 func (s *server) userProfile(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	span := trace.FromContext(ctx)
@@ -417,13 +481,19 @@ func (s *server) userProfile(w http.ResponseWriter, r *http.Request) {
 
 	u := userResp.GetUser()
 
+	fTransactions, err := FormatTransactions(u.Transactions)
+	if err != nil {
+		serverError(w, errors.Wrap(err, "failed to format transactions"))
+		return
+	}
+
 	tmpl := template.Must(template.ParseFiles(
 		filepath.Join("static", "template", "layout.html"),
 		filepath.Join("static", "template", "profile.html")))
 	if err := tmpl.Execute(w, map[string]interface{}{
 		"me":           me,
 		"user":         u,
-		"Transactions": u.GetTransactions(),
+		"Transactions": fTransactions,
 	}); err != nil {
 		log.Fatal(err)
 	}

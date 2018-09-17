@@ -1,32 +1,31 @@
 {{define "title"}}
-    {{- .user.DisplayName}}'s Profile
+    SpookyStore
 {{- end}}
 
 {{define "body"}}
 
-<div class="product-grid">
-<div class="demo-card-wide mdl-card mdl-shadow--2dp">
-        <div class="mdl-card__title">
-          <h2 class="mdl-card__title-text">{{.user.DisplayName}}</b>'s Transaction History</h2>
-        </div>
-            <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
-                    <thead>
-                      <tr>
-                        <th class="mdl-data-table__cell--non-numeric">Date</th>
-                        <th>Total</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                        {{range $i, $t := .Transactions}}
-                              <tr>
-                                <td class="mdl-data-table__cell--non-numeric">{{ $t.CompletedTime }} </td>
-                                <td>25</td>
-                                <td>${{printf "%.2f" $t.TotalCost}}</td>
-                              </tr>
-                      {{end}}
-                    </tbody>
-              </table>
-      </div>
+<div class="transaction-div">
+          <div class="mdl-card__title">
+            <h2 class="mdl-card__title-text">My Transaction History</h2>
+          </div>
+          {{ if .Transactions }}
+              <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
+                      <thead>
+                        <tr>
+                          <th class="mdl-data-table__cell--non-numeric"><h6>Date</h6></th>
+                          <th><h6>Amount</h6></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                          {{range $i, $t := .Transactions}}
+                                <tr>
+                                  <td class="mdl-data-table__cell--non-numeric"><p>{{ $t.CompletedTime }}</p></td>
+                                  <td><p><b>${{printf "%.2f" $t.TotalCost}}</b></p></td>
+                                </tr>
+                        {{end}}
+                      </tbody>
+                </table>
+          {{ end }}
     </div>
 
 {{- end}}

@@ -46,6 +46,23 @@ type Product struct {
 	XXX_sizecache        int32          `datastore:"XXX_sizecache"`
 }
 
+type TransactionCounter struct {
+	NumTransactions int32 `datastore:"NumTransactions"`
+}
+
+func (s *Server) GetNumTransactions(ctx context.Context, req *pb.GetNumTransactionsRequest) (*pb.NumTransactionsResponse, error) {
+	var t TransactionCounter
+	k := datastore.NameKey("TransactionCounter", "AllPurchases", nil)
+	err := s.ds.Get(ctx, k, &t)
+	if err != nil {
+		log.WithField("error", err).Error("failed to get num transactions")
+		return nil, errors.Wrap(err, "failed to query")
+	}
+	return &pb.NumTransactionsResponse{
+		NumTransactions: t.NumTransactions,
+	}, nil
+}
+
 func (s *Server) GetAllProducts(ctx context.Context, req *pb.GetAllProductsRequest) (*pb.GetAllProductsResponse, error) {
 	span := trace.FromContext(ctx).NewChild("spookystoresvc/GetAllProducts")
 	defer span.Finish()

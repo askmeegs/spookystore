@@ -46,6 +46,8 @@ type user struct {
 }
 
 func (s *Server) AuthorizeGoogle(ctx context.Context, goog *pb.User) (*pb.User, error) {
+	fmt.Println("\n\n\n ENTER AUTHORIZE GOOGLE")
+	fmt.Printf("OG request: %#v", goog)
 	span := trace.FromContext(ctx).NewChild("usersvc/AuthorizeGoogle")
 	defer span.Finish()
 
@@ -76,6 +78,7 @@ func (s *Server) AuthorizeGoogle(ctx context.Context, goog *pb.User) (*pb.User, 
 			Picture:     goog.Picture,
 		}
 
+		fmt.Printf("CREATING NEW USER WITH EMAIL: %s, DISPLAY NAME: %s", goog.Email, goog.DisplayName)
 		// create new user
 		k, err := s.ds.Put(ctx, datastore.IncompleteKey("User", nil), u)
 		if err != nil {
@@ -95,6 +98,7 @@ func (s *Server) AuthorizeGoogle(ctx context.Context, goog *pb.User) (*pb.User, 
 	} else {
 		// return existing user
 		id = fmt.Sprintf("%d", v[0].K.ID)
+		fmt.Printf("USER WITH ID: %s EXISTS", goog.GoogleID)
 		log.WithField("id", id).Debug("user exists")
 	}
 
@@ -105,7 +109,7 @@ func (s *Server) AuthorizeGoogle(ctx context.Context, goog *pb.User) (*pb.User, 
 	} else if !user.GetFound() {
 		return nil, errors.New("cannot find user that is just created")
 	}
-	fmt.Println("AUTHORIZED GOOGLE. GOOGLEID is %s and REGULAR ID is %s\n", user.GetUser().GetGoogleID(), id)
+	fmt.Printf("AUTHORIZED GOOGLE. GOOGLEID is %s, and REGULAR ID is %s\n", user.GetUser().GetGoogleID(), id)
 	return user.GetUser(), nil
 }
 

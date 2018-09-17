@@ -1,27 +1,38 @@
 {{define "title"}}
-    Checkout
+    Checkout - SpookyStore
 {{- end}}
 
 {{define "body"}}
 
 
-<div class="product-grid"></div>
-<div class="demo-card-wide mdl-card mdl-shadow--2dp">
-        <div class="mdl-card__title">
-          <h2 class="mdl-card__title-text">my cart</h2>
-        </div>
-        {{range $i, $t := .CartItems}}
-        <div class="mdl-card__supporting-text">
-              <h6>{{ $t.DisplayName }} - ${{printf "%.2f" $t.Cost}} </h6>
-           </div>
-        {{end }}
+<div class="transaction-div">
 
+
+    {{ $length := len .CartItems }} {{ if eq $length 0 }}
+      <h6>Your cart is empty! Browse <a href="/">our products</a> to add to your cart.</h6>
+    {{ end }} 
+
+
+    {{ $length := len .CartItems }} {{ if ge $length 1 }}
+    <div class="transaction-card mdl-card mdl-shadow--2dp">
+        <div class="mdl-card__title">
+          <h2 class="mdl-card__title-text">My Cart ({{ len .CartItems }})</h2>
+        </div>
+        <div class="mdl-card__supporting-text">
+
+        {{range $i, $t := .CartItems}}
+              <h6><b>{{ $t.DisplayName }}</b> - ${{printf "%.2f" $t.Cost}} </h6>
+        {{end }}
+      </div>
+      
         <div class="mdl-card__actions mdl-card--border">
-                <h6>Total: ${{printf "%.2f" .cart.TotalCost}}</h6>
-          <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" onclick="httpGet('/checkout/u/{{$.me.ID}}'); checkoutSuccess()">
+            <h5>Total: ${{printf "%.2f" .cart.TotalCost}}</h5>
+          <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"onclick="httpGet('/checkout/u/{{$.me.ID}}'); checkoutSuccess()">
             Place Order
-          </a>
         </div>
       </div>
     </div>
+    {{ end }}
+
+    
 {{- end}}
