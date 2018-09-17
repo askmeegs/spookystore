@@ -19,8 +19,8 @@
 		"cost": 5.00,
 		"image": "https://www.fifteenspatulas.com/wp-content/uploads/2012/09/PumpkinCaramels.jpg"
 	},
-	"pumpkin spice": {
-		"description": "pumpkin spice blend. 2oz (57 grams). try it in pie, coffee, oatmeal, and pancakes!",
+	"pumpkin spice blend": {
+		"description": "pumpkin spice. 2oz (57 grams). try it in coffee, oatmeal, and pancakes!",
 		"cost": 5.50,
 		"image": "https://lh3.googleusercontent.com/-bkhqTiesvbU/UGOrdqc4h9I/AAAAAAAAIGY/UD_0fF6JBp0/s640/Pumpkin+Pie+Spice.jpg"
 	},
@@ -53,5 +53,45 @@
 		"description": "never have cold fingers with these handmade white mittens.",
 		"cost": 23.00,
 		"image": "http://www.lovethispic.com/uploaded_images/217473-White-Wool-Mittens.jpg"
-    }
+	},
+	"rake": {
+		"description": "sturdy rake for building epic leaf piles",
+		"cost": 16.75,
+		"image": "https://maxpull-tlu7l6lqiu.stackpathdns.com/wp-content/uploads/2017/04/leaf-rake-400x267.jpg"
+	},
+	"halloween cookie cutters": {
+		"description": "metal cookie cutters with halloween shapes, set of 3.",
+		"cost": 0.99,
+		"image": "http://cdn.shopify.com/s/files/1/0472/7301/products/Cookie_Cutters_-_Halloween_Resin_with_Candy_Corn_600x.jpg?v=1489977667"
+	},
+	"reese's pumpkins": {
+		"description": "pumpkin-shaped peanut butter cups",
+		"cost": 3.49,
+		"image": "https://www.afrugalchick.com/wp-content/uploads/2014/10/reeses-pumpkins-snack-size.png"
+	},
+	"mummy candles": {
+		"description": "they're watching you! set of 3.",
+		"cost": 11.30,
+		"image": "https://www.centercityrealestate.com/philadelphia-real-estate-blog/wp-content/uploads/2015/10/mummy-wrapped-jars.jpg"
+	},
+	"cookie toppers": {
+		"description": "edible halloween cookie toppers. black and white. 24-pack",
+		"cost": 5.00,
+		"image": "https://www.designeatrepeat.com/wp-content/uploads/peanut-butter-cup-easy-halloween-cookies-1.jpg"
+	},
+	"candy corn": {
+		"description": "satan's candy. don't trust",
+		"cost": 2.00,
+		"image": "https://media1.s-nbcnews.com/j/newscms/2018_35/1363327/candy-corn-today-main-1-180827_6a36b1bbf867a96369cfb32da750e548.fit-760w.jpg"
+	},
+	"caramel apple kit": {
+		"description": "finally, a way to get your children to eat fruit! suitable for coating 12 apples.",
+		"cost": 6.99,
+		"image": "https://www.manhattanfruitier.com/image/cache/data/Taste-of-MF-Oct%20Caramel%20Apples-610x530.jpg"
+	},
+	"cat ornaments": {
+		"description": "handmade felt ornaments. set of 3. colors may vary.",
+		"cost": 10.00,
+		"image": "https://cdn.shopify.com/s/files/1/1367/8913/products/Handmade-felt-cat-ornaments_1024x1024.jpg?v=1475519516"
+	}
 }

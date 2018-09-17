@@ -24,8 +24,8 @@
     document.getElementById(iconID).innerHTML = 'check';
 }
   function checkoutSuccess(name) {       
-    console.log("checkout complete")                           
-   // location.replace("http://spookystore.net/");  //go home 
+    // Increment transaction counter
+      httpGet("https://us-central1-spookystore-18.cloudfunctions.net/count-transaction")                        
   }
   </script>
   <style>
@@ -69,7 +69,7 @@ body {
         <nav class="mdl-navigation mdl-layout--large-screen-only">
             {{if .me}} 
 
-            <button class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored" onclick="location.href='/cart/u/{{.me.ID}}'">
+            <button class="mdl-button mdl-js-button mdl-js-ripple-effect" onclick="location.href='/cart/u/{{.me.ID}}'">
                 <i class="material-icons">shopping_cart</i>
               </button>
 
@@ -79,9 +79,6 @@ body {
           <a class="mdl-navigation__link" href="/login">Login</a>
           {{end}}
         </nav>
-
-
-
       </div>
     </header>
     <main class="mdl-layout__content">

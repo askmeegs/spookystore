@@ -1,6 +1,20 @@
+
+<script>
+window.onload = function() {
+  updateTransactions();
+};
+
+ function updateTransactions() {
+    var resp = httpGet("https://us-central1-spookystore-18.cloudfunctions.net/count-transaction");
+    document.getElementById("transactions").innerHTML = resp; 
+    console.log("updated transactions counter")
+}
+</script>
 {{define "title"}}spookystore{{end}}
 
 {{define "body"}}
+  <div> 
+  </div> 
     {{range $i, $p := .products}}
     <div class="mdl-card mdl-shadow--2dp demo-card-square">
             <div class="mdl-card__title mdl-card__accent mdl-card--expand">
@@ -8,15 +22,15 @@
             </div>
             <div class="mdl-card__supporting-text">
                     <p>{{ $p.Description }}</p>
-                    <p>${{printf "%.2f" $p.Cost}}</p>
+                    <p>
+                        ${{printf "%.2f" $p.Cost}} 
+                        <button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" onclick="httpGet('/addproduct/{{$.me.ID}}/{{ $p.ID }}'); markDone('{{ $p.ID }}')"><i id="{{ $p.ID }}"  class="material-icons">add</i> </button>
+                    </p>
             </div>
-            <div class="mdl-card__actions mdl-card--border">
-              {{ if $.me }}
-                    <button  class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored" onclick="httpGet('/addproduct/{{$.me.ID}}/{{ $p.ID }}'); markDone('{{ $p.ID }}')">
-                        <i id="{{ $p.ID }}"  class="material-icons">add</i> 
-                      </button>
-              {{end}}
-            </div>
-          </div>
+         </div>
     {{end}}
+    <div> 
+      <h5>Thank you for visiting the Spooky Store!</h5>
+     <h5># of transactions across all users: <strong id="transactions"></strong></h5>
+    </div>
 {{end}}
