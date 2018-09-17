@@ -8,6 +8,7 @@
           <div class="mdl-card__title">
             <h2 class="mdl-card__title-text">My Transaction History</h2>
           </div>
+          {{ if .Transactions }}
               <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
                       <thead>
                         <tr>
@@ -24,6 +25,7 @@
                         {{end}}
                       </tbody>
                 </table>
+          {{ end }}
     </div>
 
 {{- end}}

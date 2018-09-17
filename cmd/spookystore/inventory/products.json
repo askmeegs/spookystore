@@ -1,6 +1,6 @@
 {
 	"coffee beans": {
-		"Description": "delicious coffee beans with hints of citrus and chocolate. medium roast.",
+		"Description": "delicious blend with hints of citrus and chocolate. medium roast.",
 		"Cost": 9.50,
 		"PictureURL": "https://c1.staticflickr.com/4/3944/15494552181_14dec15946_b.jpg"
 	},
@@ -25,12 +25,12 @@
 		"PictureURL": "https://lh3.googleusercontent.com/-bkhqTiesvbU/UGOrdqc4h9I/AAAAAAAAIGY/UD_0fF6JBp0/s640/Pumpkin+Pie+Spice.jpg"
 	},
 	"ghost garland": {
-		"Description": "decorate ghost garland. handmade.",
+		"Description": "decorative ghost garland. cute, not scary.",
 		"Cost": 3.70,
 		"PictureURL": "https://img.etsystatic.com/il/455a1d/1304462862/il_570xN.1304462862_r19h.jpg?version=1"
 	},
 	"blanket": {
-		"Description": "wool blanket.",
+		"Description": "wool blanket. works outside or inside. pretty warm",
 		"Cost": 49.99,
 		"PictureURL": "https://ak1.ostkcdn.com//images/products/11897970/Pendleton-Yakima-Camp-Blanket-Mineral-Umber-Queen-e25bebfd-69be-4ba9-ae16-12b51da00143.jpg"
 	},
@@ -90,7 +90,7 @@
 		"PictureURL": "https://www.manhattanfruitier.com/image/cache/data/Taste-of-MF-Oct%20Caramel%20Apples-610x530.jpg"
 	},
 	"cat ornaments": {
-		"Description": "handmade felt ornaments. set of 3. colors may vary.",
+		"Description": "felt ornaments in Cat shape. set of 3. colors may vary.",
 		"Cost": 10.00,
 		"PictureURL": "https://cdn.shopify.com/s/files/1/1367/8913/products/Handmade-felt-cat-ornaments_1024x1024.jpg?v=1475519516"
 	}

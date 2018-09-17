@@ -20,16 +20,6 @@
       xmlHttp.send(null);
   }
 
-  window.onload = function() {
-    updateTransactions();
-  };
-
- function updateTransactions() {
-    var resp = httpGet("https://us-central1-spookystore-18.cloudfunctions.net/count-transaction");
-    document.getElementById("transactions").innerHTML = resp; 
-    console.log("updated transactions counter");
-}
-
   // changes a button from "add" to "done" after adding to cart 
   function markDone(iconID) {
     document.getElementById(iconID).innerHTML = 'check';
