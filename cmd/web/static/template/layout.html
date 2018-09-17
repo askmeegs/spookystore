@@ -36,6 +36,7 @@
 }
   function checkoutSuccess(name) {       
     // Increment transaction counter
+    console.log("Calling function")
       httpGet("https://us-central1-spookystore-18.cloudfunctions.net/count-transaction");
       window.location = "/";              
   }
