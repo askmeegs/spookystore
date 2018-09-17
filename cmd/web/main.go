@@ -399,7 +399,7 @@ type FormattedTransaction struct {
 	TotalCost     float32
 }
 
-func FormatTransactions(input []*pb.Transaction) ([]FormattedTransaction, err) {
+func FormatTransactions(input []*pb.Transaction) ([]FormattedTransaction, error) {
 	output := []FormattedTransaction{}
 	for _, t := range input {
 
@@ -416,7 +416,7 @@ func FormatTransactions(input []*pb.Transaction) ([]FormattedTransaction, err) {
 
 		output = append(output, temp)
 	}
-	return nil, output
+	return output, nil
 }
 
 func (s *server) userProfile(w http.ResponseWriter, r *http.Request) {
