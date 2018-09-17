@@ -23,7 +23,9 @@ window.onload = function() {
                     <p>{{ $p.Description }}</p>
                     <p>
                         ${{printf "%.2f" $p.Cost}} 
+                        {{ if $.me}}
                         <button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" onclick="httpGet('/addproduct/{{$.me.ID}}/{{ $p.ID }}'); markDone('{{ $p.ID }}')"><i id="{{ $p.ID }}"  class="material-icons">add</i> </button>
+                        {{ end }}
                     </p>
             </div>
          </div>
