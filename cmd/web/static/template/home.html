@@ -10,7 +10,7 @@ window.onload = function() {
     console.log("updated transactions counter")
 }
 </script>
-{{define "title"}}spookystore{{end}}
+{{define "title"}}SpookyStore{{end}}
 
 {{define "body"}}
 <div class="product-grid">
@@ -21,7 +21,7 @@ window.onload = function() {
             </div>
 
             <div class="mdl-card__supporting-text">
-                    <h4>{{ $p.DisplayName }}</h4>
+                    <h6>{{ $p.DisplayName }}</h6>
                     <p>{{ $p.Description }}</p>
                     <p>
                         ${{printf "%.2f" $p.Cost}} 

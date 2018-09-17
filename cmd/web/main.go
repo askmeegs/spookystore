@@ -438,7 +438,7 @@ func FormatTransactions(input []*pb.Transaction) ([]FormattedTransaction, error)
 		if err != nil {
 			return output, err
 		}
-		f := tt.Format("Mon Jan 2 2006 15:04 MST")
+		f := tt.Format("12/31/2006 @ 2:30PM PDT")
 		temp := FormattedTransaction{
 			CompletedTime: f,
 			TotalCost:     t.GetTotalCost(),
