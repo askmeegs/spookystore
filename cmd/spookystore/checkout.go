@@ -15,7 +15,6 @@
 package main
 
 import (
-	"fmt"
 	"strconv"
 
 	"cloud.google.com/go/datastore"
@@ -68,7 +67,6 @@ func (s *Server) GetCart(ctx context.Context, req *pb.UserRequest) (*pb.GetCartR
 
 // Transforms the Cart items into a Transaction
 func (s *Server) Checkout(ctx context.Context, req *pb.UserRequest) (*pb.CheckoutResponse, error) {
-	fmt.Println("\n\n\n CHECKING OUT...")
 	userResp, err := s.GetUser(ctx, req)
 	if err != nil {
 		return &pb.CheckoutResponse{Success: false}, err
@@ -83,7 +81,6 @@ func (s *Server) Checkout(ctx context.Context, req *pb.UserRequest) (*pb.Checkou
 		Items:         cart.GetItems(),
 		TotalCost:     cart.GetTotalCost(),
 	}
-	fmt.Printf("Created transaction: %#v\n", t)
 	user.Transactions = append(user.Transactions, t)
 
 	// update user
@@ -92,6 +89,12 @@ func (s *Server) Checkout(ctx context.Context, req *pb.UserRequest) (*pb.Checkou
 	if _, err := s.ds.Put(ctx, u, user); err != nil {
 		return &pb.CheckoutResponse{Success: false}, err
 	}
-	fmt.Println("Transaction complete! \n\n\n")
+
+	// zero out their cart
+	_, err = s.ClearCart(ctx, req)
+	if err != nil {
+		return &pb.CheckoutResponse{Success: false}, err
+	}
 	return &pb.CheckoutResponse{Success: true}, nil
+
 }

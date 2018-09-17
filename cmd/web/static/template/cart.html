@@ -6,6 +6,14 @@
 
 
 <div class="transaction-div">
+
+
+    {{ $length := len .CartItems }} {{ if eq $length 0 }}
+      <h6>Your cart is empty! Browse <a href="www.spookystore.net">our products</a> to add to your cart.</h6>
+    {{ end }} 
+
+
+    {{ $length := len .CartItems }} {{ if ge $length 1 }}
     <div class="transaction-card mdl-card mdl-shadow--2dp">
         <div class="mdl-card__title">
           <h2 class="mdl-card__title-text">My Cart ({{ len .CartItems }})</h2>
@@ -24,4 +32,7 @@
         </div>
       </div>
     </div>
+    {{ end }}
+
+    
 {{- end}}
