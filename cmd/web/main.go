@@ -194,11 +194,7 @@ func (s *server) home(w http.ResponseWriter, r *http.Request) {
 		serverError(w, errors.Wrap(err, "failed to get all products"))
 	}
 
-	tResp, err := s.spookySvc.GetNumTransactions(ctx, &pb.GetNumTransactionsRequest{})
-	if err != nil {
-		serverError(w, errors.Wrap(err, "failed to get num transactions"))
-		return
-	}
+	tResp, _ := s.spookySvc.GetNumTransactions(ctx, &pb.GetNumTransactionsRequest{})
 	numTransactions := tResp.GetNumTransactions()
 
 	log.WithField("logged_in", user != nil).Debug("serving home page")
