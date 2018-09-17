@@ -28,6 +28,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/trace"
+	"github.com/golang/protobuf/ptypes"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/securecookie"
 	"github.com/m-okeefe/spookystore/cmd/version"
@@ -393,6 +394,31 @@ func (s *server) addProduct(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+type FormattedTransaction struct {
+	CompletedTime string
+	TotalCost     float32
+}
+
+func FormatTransactions(input []*pb.Transaction) ([]FormattedTransaction, err) {
+	output := []FormattedTransaction{}
+	for _, t := range input {
+
+		stamp := t.GetCompletedTime()
+		tt, err := ptypes.Timestamp(stamp)
+		if err != nil {
+			return output, err
+		}
+		f := tt.Format("3 January 2018, 6:00PM PST")
+		temp := FormattedTransaction{
+			CompletedTime: f,
+			TotalCost:     t.GetTotalCost(),
+		}
+
+		output = append(output, temp)
+	}
+	return nil, output
+}
+
 func (s *server) userProfile(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	span := trace.FromContext(ctx)
@@ -417,13 +443,19 @@ func (s *server) userProfile(w http.ResponseWriter, r *http.Request) {
 
 	u := userResp.GetUser()
 
+	fTransactions, err := FormatTransactions(u.Transactions)
+	if err != nil {
+		serverError(w, errors.Wrap(err, "failed to format transactions"))
+		return
+	}
+
 	tmpl := template.Must(template.ParseFiles(
 		filepath.Join("static", "template", "layout.html"),
 		filepath.Join("static", "template", "profile.html")))
 	if err := tmpl.Execute(w, map[string]interface{}{
 		"me":           me,
 		"user":         u,
-		"Transactions": u.GetTransactions(),
+		"Transactions": fTransactions,
 	}); err != nil {
 		log.Fatal(err)
 	}

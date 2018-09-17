@@ -57,6 +57,14 @@
   background: #ff9800;
 }
 
+.transaction-div {
+  padding: 25px 50px 75px 100px;
+}
+
+.transaction-card {
+  width: 650px;
+}
+
 body {
   background: #fafafa;
   position: relative;
@@ -69,7 +77,7 @@ body {
     <header class="mdl-layout__header">
       <div class="mdl-layout__header-row">
         <!-- Title -->
-        <span class="mdl-layout-title">spooky store</span>
+        <a href="http://www.spookystore.net/" class="mdl-layout-title">spooky store</a>
         <!-- Add spacer, to align navigation to the right -->
         <div class="mdl-layout-spacer"></div>
         <!-- Navigation. We hide it in small screens. -->
@@ -80,10 +88,10 @@ body {
                 <i class="material-icons">shopping_cart</i>
               </button>
 
-            <a class="mdl-navigation__link" href="/logout">Logout</a>
+            <a class="mdl-navigation__link" href="/logout"><strong>Logout</strong></a>
             <a href="/u/{{.me.ID}}"><div class="valign-wrapper"><img src="{{.me.Picture}}" alt=""/></div></a>
           {{else}}
-          <a class="mdl-navigation__link" href="/login">Login</a>
+          <a class="mdl-navigation__link" href="/login"><strong>Login</strong></a>
           {{end}}
         </nav>
       </div>
