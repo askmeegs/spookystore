@@ -4,19 +4,30 @@
   <title>{{template "title" .}}</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+  <link rel="shortcut icon" href="http://icons-for-free.com/icon/download-ghost_halloween_icon-316897.ico" />
   <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.deep_orange-blue.min.css" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
   <script>
-  function httpGet(url) {
-    var xmlHttp = new XMLHttpRequest();
-    xmlHttp.onreadystatechange = function() { 
-        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-           console.log("added product to cart")
-    }
-    xmlHttp.open("GET", url, true); // true for asynchronous 
-    xmlHttp.send(null);
+
+      function httpGet(url) {
+      var xmlHttp = new XMLHttpRequest();
+      xmlHttp.onreadystatechange = function() { 
+          if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+            console.log("added product to cart")
+      }
+      xmlHttp.open("GET", url, true); // true for asynchronous 
+      xmlHttp.send(null);
+  }
+
+  window.onload = function() {
+    updateTransactions();
+  };
+
+ function updateTransactions() {
+    var resp = httpGet("https://us-central1-spookystore-18.cloudfunctions.net/count-transaction");
+    document.getElementById("transactions").innerHTML = resp; 
+    console.log("updated transactions counter");
 }
 
   // changes a button from "add" to "done" after adding to cart 
@@ -27,6 +38,8 @@
     // Increment transaction counter
       httpGet("https://us-central1-spookystore-18.cloudfunctions.net/count-transaction")                        
   }
+
+
   </script>
   <style>
 
@@ -77,6 +90,10 @@ body {
     <header class="mdl-layout__header">
       <div class="mdl-layout__header-row">
         <!-- Title -->
+        <button class="mdl-button mdl-js-button mdl-button--icon" onclick="location.href='/'">
+            <i class="material-icons">store</i>
+          </button>
+        
         <h1 class="mdl-layout-title">spooky store</h1>
         <!-- Add spacer, to align navigation to the right -->
         <div class="mdl-layout-spacer"></div>
@@ -84,10 +101,9 @@ body {
         <nav class="mdl-navigation mdl-layout--large-screen-only">
             {{if .me}} 
 
-            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="location.href='/clearcart/u/{{.me.ID}}'">
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"  onclick="httpGet('/clearcart/u/{{.me.ID}}')">
                 Clear Cart
               </button>
-
 
             <button class="mdl-button mdl-js-button mdl-js-ripple-effect" onclick="location.href='/cart/u/{{.me.ID}}'">
                 <i class="material-icons">shopping_cart</i>

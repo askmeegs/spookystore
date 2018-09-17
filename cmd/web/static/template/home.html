@@ -17,9 +17,11 @@ window.onload = function() {
     {{range $i, $p := .products}}
     <div class="mdl-card mdl-shadow--2dp demo-card-square">
             <div class="mdl-card__title mdl-card__accent mdl-card--expand" style=" background: url('{{$p.PictureURL}}') center / cover;">
+                
             </div>
 
             <div class="mdl-card__supporting-text">
+                    <h4>{{ $p.Name }}</h4>
                     <p>{{ $p.Description }}</p>
                     <p>
                         ${{printf "%.2f" $p.Cost}} 
@@ -32,8 +34,8 @@ window.onload = function() {
     {{end}}
 </div>
     <div> 
-     <p>Thank you for visiting the Spooky Store! 
+     <h5>Thank you for visiting the Spooky Store! 
          Since our founding in 2018, we have processed <strong id="transactions"></strong> orders.
-          We are happy to serve all of your Autumn needs! Check back often for new products.</p>
+          We are happy to serve all of your Autumn needs! Check back often for new products.</h5>
     </div>
 {{end}}
