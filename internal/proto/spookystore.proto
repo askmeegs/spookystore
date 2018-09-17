@@ -83,7 +83,7 @@ message Transaction {
 }
 
 message TransactionCounter {
-    int32 count = 1; 
+    int32 NumTransactions = 1; 
 }
 
 
