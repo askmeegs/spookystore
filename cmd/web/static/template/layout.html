@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-  <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.deep_orange-indigo.min.css" />
+  <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.deep_orange-blue.min.css" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
   <script>
@@ -29,6 +29,13 @@
   }
   </script>
   <style>
+
+    .product-grid {
+      float: left; 
+      margin-left: 60px;
+
+    }
+
 .demo-card-square.mdl-card {
   width: 320px;
   height: 320px;
@@ -74,7 +81,7 @@ body {
               </button>
 
             <a class="mdl-navigation__link" href="/logout">Logout</a>
-            <a href="/u/{{.me.ID}}"><div class="valign-wrapper"><img src="{{.me.Picture}}" alt="" class="circle responsive-img"/></div></a>
+            <a href="/u/{{.me.ID}}"><div class="valign-wrapper"><img src="{{.me.Picture}}" alt=""/></div></a>
           {{else}}
           <a class="mdl-navigation__link" href="/login">Login</a>
           {{end}}
