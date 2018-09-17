@@ -91,7 +91,7 @@ body {
         <!-- Add spacer, to align navigation to the right -->
         <div class="mdl-layout-spacer"></div>
         <!-- Navigation. We hide it in small screens. -->
-        <nav class="mdl-navigation mdl-layout--large-screen-only">
+        <nav class="mdl-navigation">
             {{if .me}} 
 
             <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"  onclick="httpGet('/clearcart/u/{{.me.ID}}')">
