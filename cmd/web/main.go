@@ -136,6 +136,7 @@ func main() {
 	r.Handle("/cart/u/{id:[0-9]+}", s.traceHandler(logHandler(s.cart)))
 	r.Handle("/clearcart/u/{id:[0-9]+}", s.traceHandler(logHandler(s.clearCart)))
 	r.Handle("/checkout/u/{id:[0-9]+}", s.traceHandler(logHandler(s.checkout)))
+	r.Handle("/getcounter/", s.traceHandler(logHandler(s.getCounter)))
 	r.Handle("/addproduct/{id:[0-9]+}/{pid:[0-9]+}", s.traceHandler(logHandler(s.addProduct)))
 	srv := http.Server{
 		Addr:    *addr, // TODO make configurable
@@ -355,6 +356,27 @@ func (s *server) clearCart(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		serverError(w, errors.Wrap(err, "failed to clear cart"))
 		return
+	}
+	w.Header().Set("Location", "/") //take me home
+	w.WriteHeader(http.StatusOK)
+}
+
+func (s *server) getCounter(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	resp, err := s.spookySvc.GetNumTransactions(ctx, &pb.GetNumTransactionsRequest{})
+	if err != nil {
+		serverError(w, errors.Wrap(err, "failed to get num transactions"))
+		return
+	}
+	count := resp.GetNumTransactions()
+
+	tmpl := template.Must(template.ParseFiles(
+		filepath.Join("static", "template", "counter.html")))
+	if err := tmpl.Execute(w, map[string]interface{}{
+		"count": count,
+	}); err != nil {
+		log.Fatal(err)
 	}
 	w.Header().Set("Location", "/") //take me home
 	w.WriteHeader(http.StatusOK)
