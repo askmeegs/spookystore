@@ -202,7 +202,16 @@ func (s *Server) GetProduct(ctx context.Context, req *pb.GetProductRequest) (*pb
 	}, nil
 }
 
-// TODO - clean this up
+func findProductInCart(items []*pb.CartItem, id string) int {
+	for i, item := range items {
+		if item.GetID() == id {
+			return i
+		}
+	}
+	return -1
+}
+
+// Cart is a set
 func (s *Server) AddProductToCart(ctx context.Context, req *pb.AddProductRequest) (*pb.AddProductResponse, error) {
 	// get user
 	userResp, err := s.GetUser(ctx, &pb.UserRequest{ID: req.UserID})
@@ -212,47 +221,48 @@ func (s *Server) AddProductToCart(ctx context.Context, req *pb.AddProductRequest
 	user := userResp.GetUser()
 	if user.Cart == nil {
 		user.Cart = &pb.Cart{
-			Items:     map[string]*pb.CartItem{},
+			Items:     []*pb.CartItem{},
 			TotalCost: 0.0,
 		}
 	}
-	items := user.Cart.Items
 
-	if _, ok := items[req.ProductID]; ok {
-		temp := items[req.ProductID]
+	items := user.Cart.Items
+	var addToCost float32
+	addToCost = 0.0
+
+	// add to set
+	if i := findProductInCart(items, req.ProductID); i > 0 {
+		temp := items[i]
 		temp.Quantity = temp.Quantity + req.Quantity
-		items[req.ProductID] = temp
-		user.Cart.TotalCost += (temp.Cost * float32(req.Quantity))
+		addToCost = temp.Cost * float32(req.Quantity)
 	} else {
 		prod, err := s.GetProduct(ctx, &pb.GetProductRequest{ID: req.ProductID})
 		if err != nil {
 			return &pb.AddProductResponse{Success: false}, err
 		}
-		items[req.ProductID] = &pb.CartItem{
+		temp := &pb.CartItem{
 			ID:          req.ProductID,
 			DisplayName: prod.DisplayName,
 			Cost:        prod.Cost,
 			Quantity:    req.Quantity,
 		}
-		user.Cart.TotalCost += (prod.Cost * float32(req.Quantity))
+		addToCost = prod.Cost * float32(req.Quantity)
+		items = append(items, temp)
 	}
 
+	// update user with cart
 	user.Cart.Items = items
-	fmt.Println("\n\n GETTING READY TO WRITE USER: %#v", user)
+	user.Cart.TotalCost += addToCost
 
 	// put user
 	parsed, err := strconv.ParseInt(req.UserID, 10, 64)
 	if err != nil {
-		fmt.Printf("COULD NOT PARSE ID: %v", err)
 		return &pb.AddProductResponse{Success: false}, err
 	}
 	u := datastore.IDKey("User", parsed, nil)
-	fmt.Println("ABOUT TO PUT....")
 	if _, err := s.ds.Put(ctx, u, user); err != nil {
-		fmt.Printf("PUT ERROR! %v\n\n", err)
 		return &pb.AddProductResponse{Success: false}, err
 	}
-	fmt.Println("SUCCESSFUL PUT \n\n")
 	return &pb.AddProductResponse{Success: true}, nil
 }
 

@@ -33,7 +33,7 @@ message Product {
 }
 
 message Cart { 
-    map<string, CartItem> Items = 1; 
+    repeated CartItem Items = 1; 
     float TotalCost = 2;  
 }
 
