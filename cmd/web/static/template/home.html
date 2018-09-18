@@ -30,7 +30,7 @@ window.onload = function() {
                         <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="q-{{ $p.ID }}">
                         <label class="mdl-textfield__label" for="q-{{ $p.ID }}">Quantity</label>
                         <span class="mdl-textfield__error">Not a #!</span>
-                        <button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" onclick="addToCart('{{$.me.ID}}', '{{ $p.ID')">
+                        <button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" onclick="addToCart('{{$.me.ID}}', '{{ $p.ID }}')">
                                 <i id="{{ $p.ID }}"  class="material-icons">
                                 add
                               </i> 
