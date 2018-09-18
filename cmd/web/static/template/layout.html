@@ -17,7 +17,7 @@ function addToCart(userID, productID) {
     if (quantity > 0) {
       console.log("addding to cart");
       httpGet('/addproduct/' + userID + "/" + productID + "/" + quantity);
-      markDone(productID);
+      markDone(productID); //TODO - only mark done if I get a 200 back 
     } else {
       console.log("quantity is zero, not adding to cart");
     }
@@ -34,7 +34,7 @@ function addToCart(userID, productID) {
   }
 
   // changes a button from "add" to "done" after adding to cart 
-  function markDone(iconID) {
+  function markDone(productID) {
     document.getElementById(iconID).innerHTML = 'check';
     document.getElementById("q-" + productID).innerHTML = "Quantity"
   }
