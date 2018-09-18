@@ -19,8 +19,8 @@
                       <tbody>
                           {{range $i, $t := .Transactions}}
                                 <tr>
-                                  <td class="mdl-data-table__cell--non-numeric"><p>{{ $t.CompletedTime }}</p></td>
-                                  <td><p><b>${{printf "%.2f" $t.TotalCost}}</b></p></td>
+                                  <td class="mdl-data-table__cell--non-numeric"><p class="mdl-card__supporting-text"> {{ $t.CompletedTime }}</p></td>
+                                  <td><p class="mdl-card__supporting-text"><b>${{printf "%.2f" $t.TotalCost}}</b></p></td>
                                 </tr>
                         {{end}}
                       </tbody>

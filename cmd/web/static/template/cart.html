@@ -15,14 +15,12 @@
 
     {{ $length := len .CartItems }} {{ if ge $length 1 }}
     <div>
-    <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"  onclick="httpGet('/clearcart/u/{{.me.ID}}')">
-      Clear Cart
-    </button>
+
     </div>
 
     <div class="transaction-card mdl-card mdl-shadow--2dp">
         <div class="mdl-card__title">
-          <h2 class="mdl-card__title-text">My Cart ({{ len .CartItems }})</h2>
+          <h2 class="mdl-card__title-text">My Cart</h2>
         </div>
         <div class="mdl-card__supporting-text">
 
@@ -32,9 +30,26 @@
       </div>
       
         <div class="mdl-card__actions mdl-card--border">
+
             <h5>Total: ${{printf "%.2f" .cart.TotalCost}}</h5>
+
+
+            <div class="mdl-grid">
+                <div class="mdl-cell mdl-cell--6-col mdl-textfield mdl-js-textfield">
+
+              <button class="mdl-button mdl-js-button mdl-button--fab"  onclick="httpGet('/clearcart/u/{{.me.ID}}')">
+                Clear Cart
+              </button>
+              </div>
+              <div class="mdl-cell mdl-cell--6-col mdl-textfield mdl-js-textfield">
+
+
           <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"onclick="httpGet('/checkout/u/{{$.me.ID}}'); checkoutSuccess()">
             Place Order
+          </div>
+
+          
+          </div>
         </div>
       </div>
     </div>
