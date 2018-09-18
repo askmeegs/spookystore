@@ -24,18 +24,20 @@ window.onload = function() {
                     <h6><b>${{printf "%.2f" $p.Cost}}</b></h6>
                     <span>{{ $p.Description }}</span>
                       {{ if $.me }}
-                      <div>
-
-                        <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="q-{{ $p.ID }}">
-                        <label class="mdl-textfield__label" for="q-{{ $p.ID }}">Quantity</label>
-                        <span class="mdl-textfield__error">Not a #!</span>
-                        <button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored float-left-child" onclick="addToCart('{{$.me.ID}}', '{{ $p.ID }}')">
-                                <i id="{{ $p.ID }}"  class="material-icons">
-                                add
-                              </i> 
-                            </button>
-          
+                      <div class="mdl-grid">
+                        <div class="mdl-cell mdl-cell--6-col mdl-textfield mdl-js-textfield">
+                            <input class="mdl-textfield__input quantity-input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="q-{{ $p.ID }}">
+                            <label class="mdl-textfield__label" for="q-{{ $p.ID }}">#</label>
+                            <span class="mdl-textfield__error">Not a #!</span>
                         </div>
+                        <div class="mdl-cell mdl-cell--6-col">
+                            <button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored float-left-child" onclick="addToCart('{{$.me.ID}}', '{{ $p.ID }}')">
+                                    <i id="{{ $p.ID }}"  class="material-icons">
+                                    add
+                                  </i> 
+                                </button>
+                        </div>
+                     </div>
                         {{ end }}
               </div>  
          </div>

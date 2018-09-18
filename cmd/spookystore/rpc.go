@@ -216,20 +216,16 @@ func (s *Server) AddProductToCart(ctx context.Context, req *pb.AddProductRequest
 			TotalCost: 0.0,
 		}
 	}
-
-	// update cart
-	items := user.Cart.GetItems()
-	if items == nil {
-		items = map[string]*pb.CartItem{}
-	}
+	items := user.Cart.Items
 
 	if _, ok := items[req.ProductID]; ok {
+		fmt.Println("\n\n\n MORE QUANTITY OF THE SAME PRODUCT IN CART")
 		temp := items[req.ProductID]
 		temp.Quantity = temp.Quantity + req.Quantity
 		items[req.ProductID] = temp
 		user.Cart.TotalCost += (temp.Cost * float32(req.Quantity))
 	} else {
-
+		fmt.Println("\n\n\n\n NEW PRODUCT IN CART")
 		prod, err := s.GetProduct(ctx, &pb.GetProductRequest{ID: req.ProductID})
 		if err != nil {
 			return &pb.AddProductResponse{Success: false}, err
@@ -244,6 +240,7 @@ func (s *Server) AddProductToCart(ctx context.Context, req *pb.AddProductRequest
 	}
 
 	user.Cart.Items = items
+	fmt.Printf("WRITING NEW CART, ITEMS: %#v, TOTAL COST=%d\n\n", user.Cart.Items, user.Cart.TotalCost)
 
 	// put user
 	parsed, err := strconv.ParseInt(user.ID, 10, 64)
