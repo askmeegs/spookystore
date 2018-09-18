@@ -246,8 +246,10 @@ func (s *Server) AddProductToCart(ctx context.Context, req *pb.AddProductRequest
 	parsed, err := strconv.ParseInt(user.ID, 10, 64)
 	u := datastore.IDKey("User", parsed, nil)
 	if _, err := s.ds.Put(ctx, u, user); err != nil {
+		fmt.Printf("PUT ERR: %v", err)
 		return &pb.AddProductResponse{Success: false}, err
 	}
+	fmt.Println("PUT WAS SUCCESSFUL\n\n")
 	return &pb.AddProductResponse{Success: true}, nil
 }
 
