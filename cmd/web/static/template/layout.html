@@ -36,7 +36,6 @@ function addToCart(userID, productID) {
   // changes a button from "add" to "done" after adding to cart 
   function markDone(productID) {
     document.getElementById(productID).innerHTML = 'check';
-    document.getElementById("q-" + productID).className = "mdl-textfield__label";
     document.getElementById("q-" + productID).value = "quantity";
   }
 
