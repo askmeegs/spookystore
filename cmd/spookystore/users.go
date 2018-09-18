@@ -59,6 +59,9 @@ func (s *Server) AuthorizeGoogle(ctx context.Context, goog *pb.User) (*pb.User, 
 	cs := span.NewChild("datastore/query/user/by_ID")
 	q := datastore.NewQuery("User").Filter("GoogleID =", goog.GoogleID).Limit(1)
 	var v []user
+
+	fmt.Printf("\n\n\n BUG -- GoogleID is %s, query is %#v", goog.GoogleID, q)
+
 	if _, err := s.ds.GetAll(ctx, q, &v); err != nil {
 		log.WithField("error", err).Error("failed to query the datastore")
 		return nil, errors.Wrap(err, "failed to query")
