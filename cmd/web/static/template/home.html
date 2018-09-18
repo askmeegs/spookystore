@@ -26,16 +26,25 @@ window.onload = function() {
                     <p>
                         <b>${{printf "%.2f" $p.Cost}} </b>
                         {{ if $.me}}
-                        <button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" onclick="httpGet('/addproduct/{{$.me.ID}}/{{ $p.ID }}'); markDone('{{ $p.ID }}')"><i id="{{ $p.ID }}"  class="material-icons">add</i> </button>
+                        <p>
+                        <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="q-{{ $p.ID }}">
+                        <label class="mdl-textfield__label" for="q-{{ $p.ID }}">Quantity</label>
+                        <span class="mdl-textfield__error">Not a #!</span>
+                        <button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" onclick="addToCart('{{$.me.ID}}', '{{ $p.ID')">
+                                <i id="{{ $p.ID }}"  class="material-icons">
+                                add
+                              </i> 
+                         </button>
+                         </p>
                         {{ end }}
                     </p>
             </div>
          </div>
     {{end}}
 </div>
-    <div class="transaction-div" class="mdl-card__supporting-text"> 
+    <div class="product-grid"> 
         {{ if .numTransactions }}
-     <p >Thank you for visiting the Spooky Store! Since our founding in 2018, we have processed over <b>{{ .numTransactions }}</b> orders. 
+     <p class="mdl-card__supporting-text">Thank you for visiting the Spooky Store! Since our founding in 2018, we have processed over <b>{{ .numTransactions }}</b> orders. 
        We are happy to serve all of your Autumn needs! Check back often for new products.</p>
      </p>
      {{ end }}

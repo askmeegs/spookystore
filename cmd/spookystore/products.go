@@ -84,8 +84,7 @@ func (s *Server) GetAllProducts(ctx context.Context, req *pb.GetAllProductsReque
 		log.WithField("error", err).Error("failed to query the datastore")
 		return nil, errors.Wrap(err, "failed to getAll")
 	}
-	pl := &pb.ProductList{Items: result}
-	return &pb.GetAllProductsResponse{ProductList: pl}, nil
+	return &pb.GetAllProductsResponse{ProductList: result}, nil
 }
 
 func (s *Server) GetProduct(ctx context.Context, req *pb.GetProductRequest) (*pb.Product, error) {
@@ -121,8 +120,18 @@ func (s *Server) AddProductToCart(ctx context.Context, req *pb.AddProductRequest
 	}
 	user := userResp.GetUser()
 
-	// update card / product list with product id
-	user.Cart = append(user.GetCart(), req.ProductID)
+	// update cart
+	items := user.Cart.GetItems()
+	if items == nil {
+		items = map[string]int32{}
+	}
+	if _, ok := items[req.ProductID]; ok {
+		items[req.ProductID] = items[req.ProductID] + 1
+	} else {
+		items[req.ProductID] = 1
+	}
+
+	user.Cart.Items = items
 
 	// put user
 	parsed, err := strconv.ParseInt(user.ID, 10, 64)

@@ -30,10 +30,9 @@ message User {
     string ID = 2; 
     string DisplayName = 3;
     string Picture = 4;
-    repeated string Cart = 5; 
+    ProductList Cart = 5;
     repeated Transaction Transactions = 6;  
     string Email = 7;
-
 }
 
 // ---------- products ----------------------------------------------------------------------
@@ -47,7 +46,7 @@ message Product {
 }
 
 message ProductList {
-    repeated Product Items = 1; 
+    map<string, int32> Items = 1; 
 }
 
 message GetProductRequest {
@@ -58,14 +57,13 @@ message GetAllProductsRequest {
 }
 
 message GetAllProductsResponse {
-    ProductList ProductList = 1; 
+    repeated Product ProductList = 1; 
 }
-
-
 
 message AddProductRequest {
     string UserID = 1;
     string ProductID = 2; 
+    int32 Quantity = 3; 
 }
 
 message AddProductResponse {

@@ -10,7 +10,20 @@
   <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
   <script>
 
-      function httpGet(url) {
+
+
+function addToCart(userID, productID) {
+  var quantity = document.getElementById("q-" + productID);
+    if (quantity > 0) {
+      console.log("addding to cart");
+      httpGet('/addproduct/' + userID + "/" + productID + "/" + quantity);
+      markDone(productID);
+    } else {
+      console.log("quantity is zero, not adding to cart");
+    }
+}
+
+   function httpGet(url) {
       var xmlHttp = new XMLHttpRequest();
       xmlHttp.onreadystatechange = function() { 
           if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
@@ -23,7 +36,8 @@
   // changes a button from "add" to "done" after adding to cart 
   function markDone(iconID) {
     document.getElementById(iconID).innerHTML = 'check';
-}
+    document.getElementById("q-" + productID).innerHTML = "Quantity"
+  }
 
   function checkoutSuccess(name) {       
     // Increment transaction counter

@@ -25,6 +25,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"time"
 
 	"cloud.google.com/go/trace"
@@ -136,7 +137,7 @@ func main() {
 	r.Handle("/cart/u/{id:[0-9]+}", s.traceHandler(logHandler(s.cart)))
 	r.Handle("/clearcart/u/{id:[0-9]+}", s.traceHandler(logHandler(s.clearCart)))
 	r.Handle("/checkout/u/{id:[0-9]+}", s.traceHandler(logHandler(s.checkout)))
-	r.Handle("/addproduct/{id:[0-9]+}/{pid:[0-9]+}", s.traceHandler(logHandler(s.addProduct)))
+	r.Handle("/addproduct/{id:[0-9]+}/{pid:[0-9]+}/{quantity:[0-9]+}", s.traceHandler(logHandler(s.addProduct)))
 	srv := http.Server{
 		Addr:    *addr, // TODO make configurable
 		Handler: r}
@@ -210,7 +211,7 @@ func (s *server) home(w http.ResponseWriter, r *http.Request) {
 	if err := tmpl.Execute(w, map[string]interface{}{
 		"me":              user,
 		"numTransactions": numTransactions,
-		"products":        resp.ProductList.GetItems()}); err != nil {
+		"products":        resp.ProductList}); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -416,6 +417,7 @@ func (s *server) addProduct(w http.ResponseWriter, r *http.Request) {
 
 	userID := mux.Vars(r)["id"]
 	productID := mux.Vars(r)["pid"]
+	quantity := mux.Vars(r)["quantity"]
 	span.SetLabel("user/id", userID)
 
 	_, ef, err := s.authUser(ctx, r)
@@ -424,7 +426,12 @@ func (s *server) addProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = s.spookySvc.AddProductToCart(ctx, &pb.AddProductRequest{UserID: userID, ProductID: productID})
+	parsedQuantity, err := strconv.ParseInt(quantity, 10, 32)
+	if err != nil {
+		serverError(w, errors.Wrap(err, "failed to parse quantity"))
+	}
+
+	_, err = s.spookySvc.AddProductToCart(ctx, &pb.AddProductRequest{UserID: userID, ProductID: productID, Quantity: int32(parsedQuantity)})
 	if err != nil {
 		serverError(w, errors.Wrap(err, "failed to add product to cart"))
 	}

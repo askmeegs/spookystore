@@ -30,7 +30,7 @@ func (s *Server) ClearCart(ctx context.Context, req *pb.UserRequest) (*pb.ClearC
 		return &pb.ClearCartResponse{Success: false}, err
 	}
 	user := userResp.GetUser()
-	user.Cart = []string{} //empty cart
+	user.Cart = &pb.ProductList{}
 
 	// put user
 	parsed, err := strconv.ParseInt(user.ID, 10, 64)
@@ -48,21 +48,17 @@ func (s *Server) GetCart(ctx context.Context, req *pb.UserRequest) (*pb.GetCartR
 		return &pb.GetCartResponse{}, err
 	}
 
-	cart := []*pb.Product{}
 	var total float32
 
-	for _, productID := range userResp.User.Cart {
+	for productID, quantity := range userResp.User.Cart.GetItems() {
 		prod, err := s.GetProduct(ctx, &pb.GetProductRequest{ID: productID})
 		if err != nil {
 			return &pb.GetCartResponse{}, err
 		}
-		total += prod.Cost
-		cart = append(cart, prod)
+		total += (prod.Cost) * float32(quantity)
 	}
 
-	pl := &pb.ProductList{Items: cart}
-	return &pb.GetCartResponse{Items: pl, TotalCost: total}, nil
-
+	return &pb.GetCartResponse{Items: userResp.User.Cart, TotalCost: total}, nil
 }
 
 // Transforms the Cart items into a Transaction
