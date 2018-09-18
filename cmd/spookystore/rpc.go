@@ -202,6 +202,7 @@ func (s *Server) GetProduct(ctx context.Context, req *pb.GetProductRequest) (*pb
 	}, nil
 }
 
+// TODO - clean this up
 func (s *Server) AddProductToCart(ctx context.Context, req *pb.AddProductRequest) (*pb.AddProductResponse, error) {
 	// get user
 	userResp, err := s.GetUser(ctx, &pb.UserRequest{ID: req.UserID})
@@ -209,6 +210,12 @@ func (s *Server) AddProductToCart(ctx context.Context, req *pb.AddProductRequest
 		return &pb.AddProductResponse{Success: false}, err
 	}
 	user := userResp.GetUser()
+	if user.Cart == nil {
+		user.Cart = &pb.Cart{
+			Items:     map[string]*pb.CartItem{},
+			TotalCost: 0.0,
+		}
+	}
 
 	// update cart
 	items := user.Cart.GetItems()
@@ -222,6 +229,7 @@ func (s *Server) AddProductToCart(ctx context.Context, req *pb.AddProductRequest
 		items[req.ProductID] = temp
 		user.Cart.TotalCost += (temp.Cost * float32(req.Quantity))
 	} else {
+
 		prod, err := s.GetProduct(ctx, &pb.GetProductRequest{ID: req.ProductID})
 		if err != nil {
 			return &pb.AddProductResponse{Success: false}, err
