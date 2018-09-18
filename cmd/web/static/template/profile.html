@@ -13,14 +13,14 @@
                       <thead>
                         <tr>
                           <th class="mdl-data-table__cell--non-numeric"><h6>Date</h6></th>
-                          <th><h6>Amount</h6></th>
+                          <th><h6>Total</h6></th>
                         </tr>
                       </thead>
                       <tbody>
                           {{range $i, $t := .Transactions}}
                                 <tr>
-                                  <td class="mdl-data-table__cell--non-numeric"><p>{{ $t.CompletedTime }}</p></td>
-                                  <td><p><b>${{printf "%.2f" $t.TotalCost}}</b></p></td>
+                                  <td class="mdl-data-table__cell--non-numeric"><h6> {{ $t.CompletedTime }}</h6></td>
+                                  <td><h6>${{printf "%.2f" $t.TotalCost}}</h6></td>
                                 </tr>
                         {{end}}
                       </tbody>

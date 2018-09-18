@@ -1,26 +1,26 @@
 {
 	"coffee beans": {
-		"Description": "delicious blend with hints of citrus and chocolate. medium roast.",
+		"Description": "medium roast with hints of chocolate.",
 		"Cost": 9.50,
 		"PictureURL": "https://c1.staticflickr.com/4/3944/15494552181_14dec15946_b.jpg"
 	},
 	"candle": {
-		"Description": "hand-poured soy candle. autumn leaves scent will fill your home.",
+		"Description": "hand-poured soy candle, Leaf Scent.",
 		"Cost": 12.00,
 		"PictureURL": "https://s-media-cache-ak0.pinimg.com/originals/cc/12/c2/cc12c2b8e24b077a18ccf469f55453e1.jpg"
 	},
 	"firewood": {
-		"Description": "high-quality beech wood. suitable for home burning.",
+		"Description": "high-quality beech wood.",
 		"Cost": 4.25,
 		"PictureURL": "http://www.lovethispic.com/uploaded_images/28539-Firewood.png"
 	},
 	"vegan caramels": {
-		"Description": "1 dozen pumpkin spice caramels. you won't believe they're vegan.",
+		"Description": "1 dozen pumpkin spice caramels.",
 		"Cost": 5.00,
 		"PictureURL": "https://www.fifteenspatulas.com/wp-content/uploads/2012/09/PumpkinCaramels.jpg"
 	},
 	"pumpkin spice blend": {
-		"Description": "pumpkin spice. 2oz (57 grams). try it in coffee, oatmeal, and pancakes!",
+		"Description": "pumpkin spice. 2oz (57 grams)",
 		"Cost": 5.50,
 		"PictureURL": "https://lh3.googleusercontent.com/-bkhqTiesvbU/UGOrdqc4h9I/AAAAAAAAIGY/UD_0fF6JBp0/s640/Pumpkin+Pie+Spice.jpg"
 	},
@@ -30,27 +30,27 @@
 		"PictureURL": "https://img.etsystatic.com/il/455a1d/1304462862/il_570xN.1304462862_r19h.jpg?version=1"
 	},
 	"blanket": {
-		"Description": "wool blanket. works outside or inside. pretty warm",
+		"Description": "wool blanket. works outside or inside",
 		"Cost": 49.99,
 		"PictureURL": "https://ak1.ostkcdn.com//images/products/11897970/Pendleton-Yakima-Camp-Blanket-Mineral-Umber-Queen-e25bebfd-69be-4ba9-ae16-12b51da00143.jpg"
 	},
 	"ceramic mug": {
-		"Description": "high-quality themed mug. 15oz. orange ceramic. dishwasher- and microwave-safe.",
+		"Description": "high-quality themed mug. microwave-safe.",
 		"Cost": 9.50,
 		"PictureURL": "https://i.etsystatic.com/13146896/c/3000/2382/0/0/il/ef5a22/1564497104/il_340x270.1564497104_ijsz.jpg"
 	},
 	"rain boots": {
-		"Description": "these rubber rain boots are ready for anything. men's sizes.",
+		"Description": "these rubber rain boots are ready for anything.",
 		"Cost": 71.00,
 		"PictureURL": "https://ak4.picdn.net/shutterstock/videos/4145284/thumb/7.jpg"
 	},
 	"pumpkin carving kit": {
-		"Description": "useful for carving pumpkins!",
+		"Description": "create the nightmare of your dreams!",
 		"Cost": 10.00,
 		"PictureURL": "https://images.knifecenter.com/thumb/1500x1500/knifecenter/messerm/images/MMMCS3Sb.jpg"
 	},
 	"mittens": {
-		"Description": "never have cold fingers with these handmade white mittens.",
+		"Description": "never have cold fingers. get mittens.",
 		"Cost": 23.00,
 		"PictureURL": "http://www.lovethispic.com/uploaded_images/217473-White-Wool-Mittens.jpg"
 	},
@@ -60,7 +60,7 @@
 		"PictureURL": "https://maxpull-tlu7l6lqiu.stackpathdns.com/wp-content/uploads/2017/04/leaf-rake-400x267.jpg"
 	},
 	"halloween cookie cutters": {
-		"Description": "metal cookie cutters with halloween shapes, set of 3.",
+		"Description": "set of 3. metal.",
 		"Cost": 0.99,
 		"PictureURL": "http://cdn.shopify.com/s/files/1/0472/7301/products/Cookie_Cutters_-_Halloween_Resin_with_Candy_Corn_600x.jpg?v=1489977667"
 	},
@@ -75,7 +75,7 @@
 		"PictureURL": "https://www.centercityrealestate.com/philadelphia-real-estate-blog/wp-content/uploads/2015/10/mummy-wrapped-jars.jpg"
 	},
 	"cookie toppers": {
-		"Description": "edible halloween cookie toppers. black and white. 24-pack",
+		"Description": "edible. 24-pack",
 		"Cost": 5.00,
 		"PictureURL": "https://www.designeatrepeat.com/wp-content/uploads/peanut-butter-cup-easy-halloween-cookies-1.jpg"
 	},
@@ -85,12 +85,12 @@
 		"PictureURL": "https://media1.s-nbcnews.com/j/newscms/2018_35/1363327/candy-corn-today-main-1-180827_6a36b1bbf867a96369cfb32da750e548.fit-760w.jpg"
 	},
 	"caramel apple kit": {
-		"Description": "finally, a way to get your children to eat fruit! suitable for coating 12 apples.",
+		"Description": "finally, a way to get your children to eat fruit!",
 		"Cost": 6.99,
 		"PictureURL": "https://www.manhattanfruitier.com/image/cache/data/Taste-of-MF-Oct%20Caramel%20Apples-610x530.jpg"
 	},
 	"cat ornaments": {
-		"Description": "felt ornaments in Cat shape. set of 3. colors may vary.",
+		"Description": "felt ornaments in Cat shape",
 		"Cost": 10.00,
 		"PictureURL": "https://cdn.shopify.com/s/files/1/1367/8913/products/Handmade-felt-cat-ornaments_1024x1024.jpg?v=1475519516"
 	}

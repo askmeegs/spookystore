@@ -25,6 +25,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"time"
 
 	"cloud.google.com/go/trace"
@@ -136,7 +137,7 @@ func main() {
 	r.Handle("/cart/u/{id:[0-9]+}", s.traceHandler(logHandler(s.cart)))
 	r.Handle("/clearcart/u/{id:[0-9]+}", s.traceHandler(logHandler(s.clearCart)))
 	r.Handle("/checkout/u/{id:[0-9]+}", s.traceHandler(logHandler(s.checkout)))
-	r.Handle("/addproduct/{id:[0-9]+}/{pid:[0-9]+}", s.traceHandler(logHandler(s.addProduct)))
+	r.Handle("/addproduct/{id:[0-9]+}/{pid:[0-9]+}/{quantity:[0-9]+}", s.traceHandler(logHandler(s.addProduct)))
 	srv := http.Server{
 		Addr:    *addr, // TODO make configurable
 		Handler: r}
@@ -196,21 +197,16 @@ func (s *server) home(w http.ResponseWriter, r *http.Request) {
 
 	tResp, _ := s.spookySvc.GetNumTransactions(ctx, &pb.GetNumTransactionsRequest{})
 	numTransactions := tResp.GetNumTransactions()
-	fmt.Printf("\n\nGOT NUM TRANSACTIONS? %#v", tResp)
 
 	log.WithField("logged_in", user != nil).Debug("serving home page")
 	tmpl := template.Must(template.ParseFiles(
 		filepath.Join("static", "template", "layout.html"),
 		filepath.Join("static", "template", "home.html")))
 
-	if user == nil {
-		log.Warning("USER IS NIL")
-	}
-
 	if err := tmpl.Execute(w, map[string]interface{}{
 		"me":              user,
 		"numTransactions": numTransactions,
-		"products":        resp.ProductList.GetItems()}); err != nil {
+		"products":        resp.ProductList}); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -331,7 +327,6 @@ func (s *server) checkout(w http.ResponseWriter, r *http.Request) {
 
 	_, err = s.spookySvc.Checkout(ctx, &pb.UserRequest{ID: id})
 	if err != nil {
-		fmt.Printf("\n\n\n FAILED TO CHECK OUT: %v", err)
 		serverError(w, errors.Wrap(err, "checkout failed"))
 		return
 	}
@@ -388,20 +383,14 @@ func (s *server) cart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cart, err := s.spookySvc.GetCart(ctx, &pb.UserRequest{ID: id})
-	if err != nil {
-		serverError(w, errors.Wrap(err, "failed to get cart"))
-		return
-	}
-
 	tmpl := template.Must(template.ParseFiles(
 		filepath.Join("static", "template", "layout.html"),
 		filepath.Join("static", "template", "cart.html")))
 	if err := tmpl.Execute(w, map[string]interface{}{
 		"me":        me,
-		"cart":      cart,
+		"cart":      userResp.GetUser().Cart,
 		"user":      userResp.GetUser(),
-		"CartItems": cart.Items.GetItems(),
+		"CartItems": userResp.GetUser().Cart.GetItems(),
 	}); err != nil {
 		log.Fatal(err)
 	}
@@ -416,6 +405,7 @@ func (s *server) addProduct(w http.ResponseWriter, r *http.Request) {
 
 	userID := mux.Vars(r)["id"]
 	productID := mux.Vars(r)["pid"]
+	quantity := mux.Vars(r)["quantity"]
 	span.SetLabel("user/id", userID)
 
 	_, ef, err := s.authUser(ctx, r)
@@ -424,7 +414,12 @@ func (s *server) addProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = s.spookySvc.AddProductToCart(ctx, &pb.AddProductRequest{UserID: userID, ProductID: productID})
+	parsedQuantity, err := strconv.ParseInt(quantity, 10, 32)
+	if err != nil {
+		serverError(w, errors.Wrap(err, "failed to parse quantity"))
+	}
+
+	_, err = s.spookySvc.AddProductToCart(ctx, &pb.AddProductRequest{UserID: userID, ProductID: productID, Quantity: int32(parsedQuantity)})
 	if err != nil {
 		serverError(w, errors.Wrap(err, "failed to add product to cart"))
 	}
@@ -446,10 +441,10 @@ func FormatTransactions(input []*pb.Transaction) ([]FormattedTransaction, error)
 		if err != nil {
 			return output, err
 		}
-		f := tt.Format("2006-01-02 15:04:05 PM")
+		f := tt.Format("2 January 2006")
 		temp := FormattedTransaction{
 			CompletedTime: f,
-			TotalCost:     t.GetTotalCost(),
+			TotalCost:     t.GetItems().GetTotalCost(),
 		}
 
 		output = append(output, temp)

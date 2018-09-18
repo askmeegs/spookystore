@@ -8,13 +8,52 @@ service SpookyStore {
     rpc GetAllProducts(GetAllProductsRequest) returns (GetAllProductsResponse) {}
     rpc GetProduct(GetProductRequest) returns (Product) {}
     rpc AddProductToCart(AddProductRequest) returns (AddProductResponse) {}
-    rpc GetCart(UserRequest) returns (GetCartResponse) {}
     rpc ClearCart(UserRequest) returns (ClearCartResponse) {}
     rpc Checkout(UserRequest) returns (CheckoutResponse) {}
     rpc GetNumTransactions(GetNumTransactionsRequest) returns (NumTransactionsResponse) {}
 }
 
-// ------------ users ------------------------------------------------------------------------
+
+message User {
+    string GoogleID = 1;
+    string ID = 2; 
+    string DisplayName = 3;
+    string Picture = 4;
+    Cart Cart = 5;
+    repeated Transaction Transactions = 6;  
+    string Email = 7;
+}
+
+message Product {
+    string ID = 1;
+    string DisplayName = 2; 
+    string PictureURL = 3;
+    float Cost = 4; 
+    string Description = 5;
+}
+
+message Cart { 
+    repeated CartItem Items = 1; 
+    float TotalCost = 2;  
+}
+
+message CartItem {
+    string ID = 1; 
+    string DisplayName = 2; 
+    float Cost = 4; 
+    int32 Quantity = 5;
+}
+
+message Transaction {
+    string ID = 1; 
+    google.protobuf.Timestamp CompletedTime = 2;
+    Cart Items = 3; 
+}
+
+message TransactionCounter {
+    int32 NumTransactions = 1; 
+}
+
 
 message UserRequest {
     string ID = 1;
@@ -25,31 +64,6 @@ message UserResponse {
     User User = 2;
 }
 
-message User {
-    string GoogleID = 1;
-    string ID = 2; 
-    string DisplayName = 3;
-    string Picture = 4;
-    repeated string Cart = 5; 
-    repeated Transaction Transactions = 6;  
-    string Email = 7;
-
-}
-
-// ---------- products ----------------------------------------------------------------------
-
-message Product {
-    string ID = 1;
-    string DisplayName = 2; 
-    string PictureURL = 3;
-    float Cost = 4; 
-    string Description = 5;
-}
-
-message ProductList {
-    repeated Product Items = 1; 
-}
-
 message GetProductRequest {
     string ID = 1;
 }
@@ -58,32 +72,17 @@ message GetAllProductsRequest {
 }
 
 message GetAllProductsResponse {
-    ProductList ProductList = 1; 
+    repeated Product ProductList = 1; 
 }
-
-
 
 message AddProductRequest {
     string UserID = 1;
     string ProductID = 2; 
+    int32 Quantity = 3; 
 }
 
 message AddProductResponse {
     bool Success = 1;
-}
-
-
-// ---------- transactions ----------------------------------------------------------------------
-
-message Transaction {
-    string ID = 1; 
-    google.protobuf.Timestamp CompletedTime = 2;
-    ProductList Items = 3; 
-    float TotalCost = 4; 
-}
-
-message TransactionCounter {
-    int32 NumTransactions = 1; 
 }
 
 
@@ -94,13 +93,6 @@ message NumTransactionsResponse {
     int32 NumTransactions = 1; 
 }
 
-
-// ---------- checkout ----------------------------------------------------------------------
-
-message GetCartResponse {
-    ProductList Items = 1; 
-    float TotalCost = 2; 
-}
 
 message ClearCartResponse {
     bool Success = 1; 

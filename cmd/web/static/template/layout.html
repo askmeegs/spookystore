@@ -10,7 +10,20 @@
   <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
   <script>
 
-      function httpGet(url) {
+
+
+function addToCart(userID, productID) {
+  var quantity = document.getElementById("q-" + productID).value;
+    if (quantity > 0) {
+      console.log("addding to cart");
+      httpGet('/addproduct/' + userID + "/" + productID + "/" + quantity);
+      markDone(productID); //TODO - only mark done if I get a 200 back 
+    } else {
+      console.log("quantity is zero, not adding to cart");
+    }
+}
+
+   function httpGet(url) {
       var xmlHttp = new XMLHttpRequest();
       xmlHttp.onreadystatechange = function() { 
           if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
@@ -21,9 +34,10 @@
   }
 
   // changes a button from "add" to "done" after adding to cart 
-  function markDone(iconID) {
-    document.getElementById(iconID).innerHTML = 'check';
-}
+  function markDone(productID) {
+    document.getElementById(productID).innerHTML = 'check';
+    document.getElementById("q-" + productID).value = "quantity";
+  }
 
   function checkoutSuccess(name) {       
     // Increment transaction counter
@@ -36,6 +50,20 @@
   </script>
   <style>
 
+    .product-add {
+      padding: 0px 0px 0px 0px;
+      margin: 0rem;
+    }
+
+    .quantity-input {
+      width: 100px; 
+    }
+
+    .add-button {
+      display: flex;
+      align-items: center;
+    }
+
     .product-grid {
       float: left; 
       margin-left: 60px;
@@ -43,12 +71,13 @@
     }
 
 .demo-card-square.mdl-card {
-  width: 340px;
-  height: 360px;
+  width: 350px;
+  height: 400px;
   float: left;
   margin: 1rem;
   position: relative;
 }
+
 
 .demo-card-square.mdl-card:hover {
   box-shadow: 0 8px 10px 1px rgba(0, 0, 0, .14), 0 3px 14px 2px rgba(0, 0, 0, .12), 0 5px 5px -3px rgba(0, 0, 0, .2);
@@ -94,11 +123,7 @@ body {
         <nav class="mdl-navigation">
             {{if .me}} 
 
-            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"  onclick="httpGet('/clearcart/u/{{.me.ID}}')">
-                Clear Cart
-              </button>
-
-            <button class="mdl-button mdl-js-button mdl-js-ripple-effect" onclick="location.href='/cart/u/{{.me.ID}}'">
+            <button class="mdl-button mdl-js-button mdl-button--icon" onclick="location.href='/cart/u/{{.me.ID}}'">
                 <i class="material-icons">shopping_cart</i>
               </button>
 
