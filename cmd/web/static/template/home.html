@@ -21,19 +21,15 @@ window.onload = function() {
             </div>
 
             <div class="mdl-card__supporting-text">
-                    <h6><b>{{ $p.DisplayName }}</b></h6>
+                    <h6><b>{{ $p.DisplayName }} - ${{printf "%.2f" $p.Cost}}</b></h6>
                     <span>{{ $p.Description }}</span>
-                    <span>
-                        <b>${{printf "%.2f" $p.Cost}} </b>
-                        {{ if $.me}}
-                    </span>
-                        <div class="product-grid">
-                    <div class="mdl-textfield mdl-js-textfield">
+                  <div>
+                    <div class="mdl-textfield mdl-js-textfield float-left-child">
                         <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="q-{{ $p.ID }}">
                         <label class="mdl-textfield__label" for="q-{{ $p.ID }}">Quantity</label>
                         <span class="mdl-textfield__error">Not a #!</span>
                     </div>
-                        <button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" onclick="addToCart('{{$.me.ID}}', '{{ $p.ID }}')">
+                        <button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored float-left-child" onclick="addToCart('{{$.me.ID}}', '{{ $p.ID }}')">
                                 <i id="{{ $p.ID }}"  class="material-icons">
                                 add
                               </i> 

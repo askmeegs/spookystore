@@ -121,10 +121,11 @@ func (s *Server) AddProductToCart(ctx context.Context, req *pb.AddProductRequest
 	user := userResp.GetUser()
 
 	// update cart
-	items := user.Cart.GetItems()
-	if items == nil {
-		items = map[string]int32{}
+	if user.Cart.GetItems() == nil {
+		user.Cart = &pb.ProductList{Items: map[string]int32{}}
 	}
+
+	items := user.Cart.GetItems()
 	if _, ok := items[req.ProductID]; ok {
 		items[req.ProductID] = items[req.ProductID] + 1
 	} else {

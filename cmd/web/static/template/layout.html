@@ -50,10 +50,8 @@ function addToCart(userID, productID) {
   </script>
   <style>
 
-
-.flex {
-   display: flex;
-   flex-direction: row;
+.float-left-child {
+  float: right;
 }
 
     .product-grid {
@@ -69,6 +67,7 @@ function addToCart(userID, productID) {
   margin: 1rem;
   position: relative;
 }
+
 
 .demo-card-square.mdl-card:hover {
   box-shadow: 0 8px 10px 1px rgba(0, 0, 0, .14), 0 3px 14px 2px rgba(0, 0, 0, .12), 0 5px 5px -3px rgba(0, 0, 0, .2);
@@ -118,7 +117,7 @@ body {
                 Clear Cart
               </button>
 
-            <button class="mdl-button mdl-js-button mdl-js-ripple-effect" onclick="location.href='/cart/u/{{.me.ID}}'">
+            <button class="mdl-button mdl-js-button mdl-button--icon" onclick="location.href='/cart/u/{{.me.ID}}'">
                 <i class="material-icons">shopping_cart</i>
               </button>
 
