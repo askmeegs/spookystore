@@ -109,10 +109,6 @@ body {
         <nav class="mdl-navigation">
             {{if .me}} 
 
-            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"  onclick="httpGet('/clearcart/u/{{.me.ID}}')">
-                Clear Cart
-              </button>
-
             <button class="mdl-button mdl-js-button mdl-button--icon" onclick="location.href='/cart/u/{{.me.ID}}'">
                 <i class="material-icons">shopping_cart</i>
               </button>

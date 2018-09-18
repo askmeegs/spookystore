@@ -327,7 +327,6 @@ func (s *server) checkout(w http.ResponseWriter, r *http.Request) {
 
 	_, err = s.spookySvc.Checkout(ctx, &pb.UserRequest{ID: id})
 	if err != nil {
-		fmt.Printf("\n\n\n FAILED TO CHECK OUT: %v", err)
 		serverError(w, errors.Wrap(err, "checkout failed"))
 		return
 	}
@@ -384,20 +383,14 @@ func (s *server) cart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cart, err := s.spookySvc.GetCart(ctx, &pb.UserRequest{ID: id})
-	if err != nil {
-		serverError(w, errors.Wrap(err, "failed to get cart"))
-		return
-	}
-
 	tmpl := template.Must(template.ParseFiles(
 		filepath.Join("static", "template", "layout.html"),
 		filepath.Join("static", "template", "cart.html")))
 	if err := tmpl.Execute(w, map[string]interface{}{
 		"me":        me,
-		"cart":      cart,
+		"cart":      userResp.GetUser().Cart,
 		"user":      userResp.GetUser(),
-		"CartItems": cart.Items.GetItems(),
+		"CartItems": userResp.GetUser().Cart.GetItems(),
 	}); err != nil {
 		log.Fatal(err)
 	}
@@ -451,7 +444,7 @@ func FormatTransactions(input []*pb.Transaction) ([]FormattedTransaction, error)
 		f := tt.Format("2006-01-02 15:04:05 PM")
 		temp := FormattedTransaction{
 			CompletedTime: f,
-			TotalCost:     t.GetTotalCost(),
+			TotalCost:     t.GetItems().GetTotalCost(),
 		}
 
 		output = append(output, temp)

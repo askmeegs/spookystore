@@ -8,34 +8,21 @@ service SpookyStore {
     rpc GetAllProducts(GetAllProductsRequest) returns (GetAllProductsResponse) {}
     rpc GetProduct(GetProductRequest) returns (Product) {}
     rpc AddProductToCart(AddProductRequest) returns (AddProductResponse) {}
-    rpc GetCart(UserRequest) returns (GetCartResponse) {}
     rpc ClearCart(UserRequest) returns (ClearCartResponse) {}
     rpc Checkout(UserRequest) returns (CheckoutResponse) {}
     rpc GetNumTransactions(GetNumTransactionsRequest) returns (NumTransactionsResponse) {}
 }
 
-// ------------ users ------------------------------------------------------------------------
-
-message UserRequest {
-    string ID = 1;
-}
-
-message UserResponse {
-    bool Found = 1;
-    User User = 2;
-}
 
 message User {
     string GoogleID = 1;
     string ID = 2; 
     string DisplayName = 3;
     string Picture = 4;
-    ProductList Cart = 5;
+    Cart Cart = 5;
     repeated Transaction Transactions = 6;  
     string Email = 7;
 }
-
-// ---------- products ----------------------------------------------------------------------
 
 message Product {
     string ID = 1;
@@ -45,8 +32,36 @@ message Product {
     string Description = 5;
 }
 
-message ProductList {
-    map<string, int32> Items = 1; 
+message Cart { 
+    map<string, CartItem> Items = 1; 
+    float TotalCost = 2;  
+}
+
+message CartItem {
+    string ID = 1; 
+    string DisplayName = 2; 
+    float Cost = 4; 
+    int32 Quantity = 5;
+}
+
+message Transaction {
+    string ID = 1; 
+    google.protobuf.Timestamp CompletedTime = 2;
+    Cart Items = 3; 
+}
+
+message TransactionCounter {
+    int32 NumTransactions = 1; 
+}
+
+
+message UserRequest {
+    string ID = 1;
+}
+
+message UserResponse {
+    bool Found = 1;
+    User User = 2;
 }
 
 message GetProductRequest {
@@ -71,20 +86,6 @@ message AddProductResponse {
 }
 
 
-// ---------- transactions ----------------------------------------------------------------------
-
-message Transaction {
-    string ID = 1; 
-    google.protobuf.Timestamp CompletedTime = 2;
-    ProductList Items = 3; 
-    float TotalCost = 4; 
-}
-
-message TransactionCounter {
-    int32 NumTransactions = 1; 
-}
-
-
 message GetNumTransactionsRequest {
 }
 
@@ -92,13 +93,6 @@ message NumTransactionsResponse {
     int32 NumTransactions = 1; 
 }
 
-
-// ---------- checkout ----------------------------------------------------------------------
-
-message GetCartResponse {
-    ProductList Items = 1; 
-    float TotalCost = 2; 
-}
 
 message ClearCartResponse {
     bool Success = 1; 

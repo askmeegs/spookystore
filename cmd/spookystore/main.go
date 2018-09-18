@@ -41,11 +41,6 @@ var (
 	log *logrus.Entry
 )
 
-type Server struct {
-	ds          *datastore.Client
-	productKeys []string // TODO - improve how I do this
-}
-
 func main() {
 	flag.Parse()
 	host, err := os.Hostname()
@@ -92,7 +87,7 @@ func main() {
 		log.Fatal(err)
 	}
 	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(tc.GRPCServerInterceptor()))
-	pb.RegisterSpookyStoreServer(grpcServer, &Server{ds, []string{}})
+	pb.RegisterSpookyStoreServer(grpcServer, &Server{ds})
 
 	// add products
 	addProducts(ctx, ds)
