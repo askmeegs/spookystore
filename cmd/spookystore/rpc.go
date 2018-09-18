@@ -238,18 +238,21 @@ func (s *Server) AddProductToCart(ctx context.Context, req *pb.AddProductRequest
 	}
 
 	user.Cart.Items = items
+	fmt.Println("\n\n GETTING READY TO WRITE USER: %#v", user)
 
 	// put user
 	parsed, err := strconv.ParseInt(req.UserID, 10, 64)
 	if err != nil {
+		fmt.Printf("COULD NOT PARSE ID: %v", err)
 		return &pb.AddProductResponse{Success: false}, err
 	}
-
 	u := datastore.IDKey("User", parsed, nil)
+	fmt.Println("ABOUT TO PUT....")
 	if _, err := s.ds.Put(ctx, u, user); err != nil {
-		fmt.Printf("PUT ERR: %v", err)
+		fmt.Printf("PUT ERROR! %v\n\n", err)
 		return &pb.AddProductResponse{Success: false}, err
 	}
+	fmt.Println("SUCCESSFUL PUT \n\n")
 	return &pb.AddProductResponse{Success: true}, nil
 }
 
