@@ -17,11 +17,11 @@ window.onload = function() {
     {{range $i, $p := .products}}
     <div class="mdl-card mdl-shadow--2dp demo-card-square">
             <div class="mdl-card__title mdl-card__accent mdl-card--expand" style=" background: url('{{$p.PictureURL}}') center / cover;">
-                
+                <h2 class="mdl-card__title-text">{{ $p.DisplayName }}</h2>
             </div>
 
             <div class="mdl-card__supporting-text">
-                    <h6><b>{{ $p.DisplayName }} - ${{printf "%.2f" $p.Cost}}</b></h6>
+                    <h6><b>${{printf "%.2f" $p.Cost}}</b></h6>
                     <span>{{ $p.Description }}</span>
                   <div>
                     <div class="mdl-textfield mdl-js-textfield float-left-child">
@@ -37,8 +37,6 @@ window.onload = function() {
           
                         </div>
                      </div>  
-                        {{ end }}
-            
          </div>
     {{end}}
 </div>
