@@ -35,7 +35,7 @@ function addToCart(userID, productID) {
 
   // changes a button from "add" to "done" after adding to cart 
   function markDone(productID) {
-    document.getElementById(iconID).innerHTML = 'check';
+    document.getElementById(productID).innerHTML = 'check';
     document.getElementById("q-" + productID).innerHTML = "Quantity"
   }
 
@@ -49,6 +49,12 @@ function addToCart(userID, productID) {
 
   </script>
   <style>
+
+
+.flex {
+   display: flex;
+   flex-direction: row;
+}
 
     .product-grid {
       float: left; 

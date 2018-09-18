@@ -22,35 +22,34 @@ window.onload = function() {
 
             <div class="mdl-card__supporting-text">
                     <h6><b>{{ $p.DisplayName }}</b></h6>
-                    <p>{{ $p.Description }}</p>
-                    <p>
+                    <span>{{ $p.Description }}</span>
+                    <span>
                         <b>${{printf "%.2f" $p.Cost}} </b>
                         {{ if $.me}}
-                        </p>
-                        <div class="flex">
+                    </span>
+                        <div class="product-grid">
                     <div class="mdl-textfield mdl-js-textfield">
                         <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="q-{{ $p.ID }}">
                         <label class="mdl-textfield__label" for="q-{{ $p.ID }}">Quantity</label>
                         <span class="mdl-textfield__error">Not a #!</span>
                     </div>
-                        <button class="mdl-button mdl-js-button mdl-button--icon" onclick="addToCart('{{$.me.ID}}', '{{ $p.ID }}')">
+                        <button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" onclick="addToCart('{{$.me.ID}}', '{{ $p.ID }}')">
                                 <i id="{{ $p.ID }}"  class="material-icons">
                                 add
                               </i> 
                             </button>
           
                         </div>
-                       
+                     </div>  
                         {{ end }}
-                    </p>
-            </div>
+            
          </div>
     {{end}}
 </div>
     <div class="product-grid"> 
         {{ if .numTransactions }}
      <p class="mdl-card__supporting-text">Thank you for visiting the Spooky Store! Since our founding in 2018, we have processed over <b>{{ .numTransactions }}</b> orders. 
-       We are happy to serve all of your Autumn needs! Check back often for new products.</p>
+       We are happy to serve all of your Autumn needs! Check back often for new products.
      </p>
      {{ end }}
     </div>
