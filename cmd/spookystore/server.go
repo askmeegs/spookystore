@@ -63,7 +63,6 @@ func (s *Server) AuthorizeGoogle(ctx context.Context, goog *pb.User) (*pb.User, 
 			DisplayName: goog.DisplayName,
 			GoogleID:    gid,
 			Picture:     goog.Picture,
-			Cart:        &pb.Cart{Items: map[string]*pb.CartItem{}},
 		}
 
 		// create new user
