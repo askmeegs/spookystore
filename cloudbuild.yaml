@@ -1,13 +1,13 @@
 steps:
 - name: 'gcr.io/cloud-builders/go'
   args: ['build', '-o', 'github.com/m-okeefe/bin/spookystore', 'github.com/m-okeefe/spookystore/cmd/spookystore']
-  env: ['GOPATH=/']
+  env: ['GOPATH=/usr/local/go']
 - name: 'gcr.io/cloud-builders/go'
   args: ['build', '-o', 'github.com/m-okeefe/bin/web', 'github.com/m-okeefe/spookystore/cmd/web']
-  env: ['GOPATH=/']
+  env: ['GOPATH=/usr/local/go']
 - name: 'gcr.io/cloud-builders/go'
   args: ['test', '-v', '--cover', 'github.com/m-okeefe/spookystore/cmd/spookystore']
-  env: ['GOPATH=/']
+  env: ['GOPATH=/usr/local/go']
 - name: 'gcr.io/cloud-builders/docker'
   args: ['build', '-t', 'gcr.io/spookystore-18/$REPO_NAME-web:latest', 'github.com/m-okeefe/spookystore', '-f', 'Dockerfile.web']
   timeout: 500s
