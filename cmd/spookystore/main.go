@@ -27,6 +27,7 @@ import (
 	"cloud.google.com/go/datastore"
 	"cloud.google.com/go/trace"
 	"github.com/m-okeefe/spookystore/cmd/version"
+	dw "github.com/m-okeefe/spookystore/internal/datastore_wrapper"
 	pb "github.com/m-okeefe/spookystore/internal/proto"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -41,7 +42,7 @@ var (
 	log *logrus.Entry
 )
 
-func main() {
+func init() {
 	flag.Parse()
 	host, err := os.Hostname()
 	if err != nil {
@@ -55,7 +56,9 @@ func main() {
 		"v":       version.Version(),
 	})
 	grpclog.SetLogger(log.WithField("facility", "grpc"))
+}
 
+func main() {
 	if env := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS"); env == "" {
 		log.Fatal("GOOGLE_APPLICATION_CREDENTIALS environment variable is not set")
 	}
@@ -66,11 +69,11 @@ func main() {
 
 	// Initialize server
 	ctx := context.Background()
-	ds, err := datastore.NewClient(ctx, *projectID)
+
+	ds, err := dw.NewCloudDatastore(ctx, *projectID)
 	if err != nil {
-		log.WithField("error", err).Fatal("failed to create datastore client")
+		log.Fatal(errors.Wrap(err, "failed to initialize cloud datastore wrapper"))
 	}
-	defer ds.Close()
 
 	tc, err := trace.NewClient(ctx, *projectID)
 	if err != nil {
@@ -90,14 +93,14 @@ func main() {
 	pb.RegisterSpookyStoreServer(grpcServer, &Server{ds})
 
 	// add products
-	addProducts(ctx, ds)
+	populateProducts(ctx, ds)
 
 	log.WithField("addr", *addr).Info("starting to listen on grpc")
 	log.Fatal(grpcServer.Serve(lis))
 }
 
 // add products from JSON file to Cloud Datastore. return list of productk eys
-func addProducts(ctx context.Context, ds *datastore.Client) ([]string, error) {
+func populateProducts(ctx context.Context, ds dw.DatastoreWrapper) ([]string, error) {
 	pKeys := []string{}
 
 	// add products only if not already present
@@ -113,7 +116,7 @@ func addProducts(ctx context.Context, ds *datastore.Client) ([]string, error) {
 		var result []*Product
 		k, err := ds.GetAll(ctx, q, &result)
 		if err != nil {
-			log.Errorf("Couldn't query: ", err)
+			log.Errorf("Couldn't query: %v", err)
 		}
 		if len(result) > 0 {
 			pKeys = append(pKeys, k[0].String())

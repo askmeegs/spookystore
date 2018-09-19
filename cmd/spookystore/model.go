@@ -19,10 +19,6 @@ import (
 	pb "github.com/m-okeefe/spookystore/internal/proto"
 )
 
-type Server struct {
-	ds *datastore.Client
-}
-
 type User struct {
 	K *datastore.Key `datastore:"__key__"`
 
