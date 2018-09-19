@@ -18,6 +18,8 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/jonboulle/clockwork"
+
 	"cloud.google.com/go/datastore"
 	"github.com/golang/mock/gomock"
 	dwmock "github.com/m-okeefe/spookystore/internal/datastore_wrapper/mock"
@@ -30,7 +32,7 @@ func TestAuthorizeGoogle(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	m := dwmock.NewMockDatastoreWrapper(ctrl)
-	ts := &Server{m}
+	ts := &Server{m, clockwork.NewFakeClock()}
 	ctx := context.Background()
 
 	tests := []struct {
@@ -83,7 +85,222 @@ func TestAuthorizeGoogle(t *testing.T) {
 			}
 		}
 	}
+}
 
+func TestGetUser(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	m := dwmock.NewMockDatastoreWrapper(ctrl)
+	ts := &Server{m, clockwork.NewFakeClock()}
+	ctx := context.Background()
+
+	tests := []struct {
+		u          *pb.User
+		shouldPass bool
+	}{
+		{
+			u: &pb.User{
+				ID:          "555",
+				GoogleID:    "12345",
+				Email:       "foo@gmail.com",
+				DisplayName: "Foo Bar",
+				Picture:     "bar.jpg",
+			},
+			shouldPass: true,
+		},
+		{
+			u: &pb.User{
+				ID: "NonNumericID123",
+			},
+			shouldPass: false,
+		},
+	}
+
+	for _, test := range tests {
+		if test.shouldPass {
+			expectGetUser(m, ctx, test.u.ID, "")
+		}
+		_, err := ts.GetUser(ctx, &pb.UserRequest{ID: test.u.ID})
+		if test.shouldPass {
+			if err != nil {
+				t.Error(err)
+			}
+		} else {
+			if err == nil {
+				t.Errorf("Test passed when expected to fail")
+			}
+		}
+	}
+}
+
+func TestGetNumTransactions(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	m := dwmock.NewMockDatastoreWrapper(ctrl)
+	ts := &Server{m, clockwork.NewFakeClock()}
+	ctx := context.Background()
+
+	var tc TransactionCounter
+	k := datastore.NameKey("TransactionCounter", "AllPurchases", nil)
+	m.EXPECT().Get(ctx, k, &tc).Return(nil)
+
+	_, err := ts.GetNumTransactions(ctx, &pb.GetNumTransactionsRequest{})
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func TestGetAllProducts(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	m := dwmock.NewMockDatastoreWrapper(ctrl)
+	ts := &Server{m, clockwork.NewFakeClock()}
+	ctx := context.Background()
+
+	var result []*pb.Product
+	m.EXPECT().GetAll(ctx, datastore.NewQuery("Product"), &result)
+
+	_, err := ts.GetAllProducts(ctx, &pb.GetAllProductsRequest{})
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func TestGetProduct(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	m := dwmock.NewMockDatastoreWrapper(ctrl)
+	ts := &Server{m, clockwork.NewFakeClock()}
+	ctx := context.Background()
+
+	tests := []struct {
+		p *pb.Product
+	}{
+		{
+			p: &pb.Product{
+				ID:          "601",
+				DisplayName: "My Product",
+				PictureURL:  "great.jpg",
+				Cost:        29.50,
+				Description: "An awesome product",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		parsed, _ := strconv.ParseInt(test.p.ID, 10, 64)
+		var v Product
+		m.EXPECT().Get(ctx, datastore.IDKey("Product", parsed, nil), &v)
+		_, err := ts.GetProduct(ctx, &pb.GetProductRequest{ID: test.p.ID})
+		if err != nil {
+			t.Error(err)
+		}
+	}
+}
+
+func TestAddProductToCart(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	m := dwmock.NewMockDatastoreWrapper(ctrl)
+	ts := &Server{m, clockwork.NewFakeClock()}
+	ctx := context.Background()
+
+	user := pb.User{
+		ID:          "555",
+		GoogleID:    "12345",
+		Email:       "foo@gmail.com",
+		DisplayName: "Foo Bar",
+		Picture:     "bar.jpg",
+	}
+
+	expectGetUser(m, ctx, user.ID, "")
+	var v Product
+	m.EXPECT().Get(ctx, datastore.IDKey("Product", 123, nil), &v)
+
+	parsed, _ := strconv.ParseInt(user.ID, 10, 64)
+	u := datastore.IDKey("User", parsed, nil)
+
+	finalUser := &pb.User{
+		ID:   "555",
+		Cart: &pb.Cart{Items: []*pb.CartItem{&pb.CartItem{ID: "123"}}},
+	}
+	m.EXPECT().Put(ctx, u, finalUser)
+
+	_, err := ts.AddProductToCart(ctx, &pb.AddProductRequest{UserID: user.ID, ProductID: "123"})
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func TestClearCart(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	m := dwmock.NewMockDatastoreWrapper(ctrl)
+	ts := &Server{m, clockwork.NewFakeClock()}
+	ctx := context.Background()
+
+	user := pb.User{
+		ID:          "555",
+		GoogleID:    "12345",
+		Email:       "foo@gmail.com",
+		DisplayName: "Foo Bar",
+		Picture:     "bar.jpg",
+	}
+
+	expectGetUser(m, ctx, user.ID, "")
+
+	parsed, _ := strconv.ParseInt(user.ID, 10, 64)
+	u := datastore.IDKey("User", parsed, nil)
+
+	finalUser := &pb.User{
+		ID:   "555",
+		Cart: &pb.Cart{},
+	}
+	m.EXPECT().Put(ctx, u, finalUser)
+
+	_, err := ts.ClearCart(ctx, &pb.UserRequest{ID: user.ID})
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func TestCheckout(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	m := dwmock.NewMockDatastoreWrapper(ctrl)
+	ts := &Server{m, clockwork.NewFakeClock()}
+	ctx := context.Background()
+
+	user := pb.User{
+		ID:          "555",
+		GoogleID:    "12345",
+		Email:       "foo@gmail.com",
+		DisplayName: "Foo Bar",
+		Picture:     "bar.jpg",
+	}
+
+	expectGetUser(m, ctx, user.ID, "")
+
+	parsed, _ := strconv.ParseInt(user.ID, 10, 64)
+	u := datastore.IDKey("User", parsed, nil)
+
+	putUser := &pb.User{
+		ID:           "555",
+		Transactions: []*pb.Transaction{&pb.Transaction{CompletedTime: ClockworkNow(ts)}},
+	}
+	m.EXPECT().Put(ctx, u, putUser)
+	expectGetUser(m, ctx, user.ID, "")
+
+	finalUser := &pb.User{
+		ID:   "555",
+		Cart: &pb.Cart{},
+	}
+	m.EXPECT().Put(ctx, u, finalUser)
+
+	_, err := ts.Checkout(ctx, &pb.UserRequest{ID: user.ID})
+	if err != nil {
+		t.Error(err)
+	}
 }
 
 func expectGetUser(m *dwmock.MockDatastoreWrapper, ctx context.Context, id string, errMsg string) {

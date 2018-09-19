@@ -28,6 +28,14 @@
   version = "v0.6.0"
 
 [[projects]]
+  digest = "1:bc38c7c481812e178d85160472e231c5e1c9a7f5845d67e23ee4e706933c10d8"
+  name = "github.com/golang/mock"
+  packages = ["gomock"]
+  pruneopts = "UT"
+  revision = "c34cdb4725f4c3844d095133c6e40e448b86589b"
+  version = "v1.1.1"
+
+[[projects]]
   digest = "1:c6892ebe33775a89a6da197bafd468682bb8350b4ae235aed42fa531d3a9f3ca"
   name = "github.com/golang/protobuf"
   packages = [
@@ -75,6 +83,14 @@
   pruneopts = "UT"
   revision = "e59506cc896acb7f7bf732d4fdf5e25f7ccd8983"
   version = "v1.1.1"
+
+[[projects]]
+  digest = "1:75ab90ae3f5d876167e60f493beadfe66f0ed861a710f283fb06c86437a09538"
+  name = "github.com/jonboulle/clockwork"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "2eee05ed794112d45db504eb05aa693efd2b8b09"
+  version = "v0.1.0"
 
 [[projects]]
   digest = "1:40e195917a951a8bf867cd05de2a46aaf1806c50cf92eebf4c16f78cd196f747"
@@ -302,9 +318,13 @@
   input-imports = [
     "cloud.google.com/go/datastore",
     "cloud.google.com/go/trace",
+    "github.com/golang/mock/gomock",
     "github.com/golang/protobuf/proto",
+    "github.com/golang/protobuf/ptypes",
+    "github.com/golang/protobuf/ptypes/timestamp",
     "github.com/gorilla/mux",
     "github.com/gorilla/securecookie",
+    "github.com/jonboulle/clockwork",
     "github.com/pkg/errors",
     "github.com/sirupsen/logrus",
     "golang.org/x/net/context",

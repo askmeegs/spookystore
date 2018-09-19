@@ -24,6 +24,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/jonboulle/clockwork"
+
 	"cloud.google.com/go/datastore"
 	"cloud.google.com/go/trace"
 	"github.com/m-okeefe/spookystore/cmd/version"
@@ -90,7 +92,13 @@ func main() {
 		log.Fatal(err)
 	}
 	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(tc.GRPCServerInterceptor()))
-	pb.RegisterSpookyStoreServer(grpcServer, &Server{ds})
+
+	// Initialize new backend server
+	s := &Server{
+		ds:    ds,
+		clock: clockwork.NewRealClock(),
+	}
+	pb.RegisterSpookyStoreServer(grpcServer, s)
 
 	// add products
 	populateProducts(ctx, ds)

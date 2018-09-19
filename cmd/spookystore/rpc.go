@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/ptypes"
+	tspb "github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/pkg/errors"
 
 	dw "github.com/m-okeefe/spookystore/internal/datastore_wrapper"
@@ -28,12 +29,15 @@ import (
 	"cloud.google.com/go/datastore"
 	"cloud.google.com/go/trace"
 
+	"github.com/jonboulle/clockwork"
+
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 )
 
 type Server struct {
-	ds dw.DatastoreWrapper
+	ds    dw.DatastoreWrapper
+	clock clockwork.Clock
 }
 
 // AuthorizeGoogle generates an OAuth2 client token for this Google user
@@ -80,8 +84,6 @@ func (s *Server) AuthorizeGoogle(ctx context.Context, goog *pb.User) (*pb.User, 
 		id = fmt.Sprintf("%d", k.ID)
 
 		u.ID = id
-		fmt.Println("SECOND PUT")
-		fmt.Printf("REAL USER: %#v", u)
 		_, err = s.ds.Put(ctx, datastore.IDKey("User", k.ID, nil), u)
 		if err != nil {
 			log.WithField("error", err).Error("failed to save with ID to datastore")
@@ -97,8 +99,6 @@ func (s *Server) AuthorizeGoogle(ctx context.Context, goog *pb.User) (*pb.User, 
 	}
 
 	// retrieve user again from backend
-	fmt.Printf("\n\nGET USER, ACTUAL ID: %s", id)
-
 	user, err := s.GetUser(ctx, &pb.UserRequest{ID: id})
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to retrieve user")
@@ -207,9 +207,13 @@ func (s *Server) GetProduct(ctx context.Context, req *pb.GetProductRequest) (*pb
 		log.WithField("error", err).Error("failed to query the datastore")
 		return nil, errors.Wrap(err, "failed to query")
 	}
-	log.Debug("found product")
+
+	finalID := ""
+	if v.K != nil {
+		finalID = fmt.Sprintf("%d", v.K.ID)
+	}
 	return &pb.Product{
-		ID:          fmt.Sprintf("%d", v.K.ID),
+		ID:          finalID,
 		DisplayName: v.DisplayName,
 		PictureURL:  v.PictureURL,
 		Cost:        v.Cost,
@@ -307,8 +311,9 @@ func (s *Server) Checkout(ctx context.Context, req *pb.UserRequest) (*pb.Checkou
 		return &pb.CheckoutResponse{Success: false}, err
 	}
 	user := userResp.User
+
 	t := &pb.Transaction{
-		CompletedTime: ptypes.TimestampNow(),
+		CompletedTime: ClockworkNow(s),
 		Items:         user.Cart,
 	}
 	if user.Transactions == nil {
@@ -330,4 +335,12 @@ func (s *Server) Checkout(ctx context.Context, req *pb.UserRequest) (*pb.Checkou
 	}
 	return &pb.CheckoutResponse{Success: true}, nil
 
+}
+
+// ClockworkNow stubs time.Now to avoid unit testing field equality problems
+// (ie. EXPECT's time.now is never equal to the actual execution's time.Now)
+func ClockworkNow(s *Server) *tspb.Timestamp {
+	n := s.clock.Now()
+	output, _ := ptypes.TimestampProto(n)
+	return output
 }
