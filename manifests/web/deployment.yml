@@ -24,7 +24,7 @@ spec:
             path: app-credentials.json
       containers:
       - name: frontend
-        image: gcr.io/spookystore-18/github-m-okeefe-spookystore-web:latest
+        image: gcr.io/spookystore-18/github-m-okeefe-spookystore-web
         imagePullPolicy: Always
         args:
         - "-addr=:8000"
