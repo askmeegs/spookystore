@@ -1,12 +1,12 @@
 steps:
 - name: 'gcr.io/cloud-builders/go'
-  args: ['make']
+  args: ['build', '-o', './bin/spookystore', 'github.com/m-okeefe/spookystore/cmd/spookystore']
   env: ['PROJECT_ROOT=spookystore']
 - name: 'gcr.io/cloud-builders/go'
-  args: ['make', web']
+  args: ['build', '-o', './bin/web', 'github.com/m-okeefe/spookystore/cmd/web']
   env: ['PROJECT_ROOT=spookystore']
 - name: 'gcr.io/cloud-builders/go'
-  args: ['make', 'test']
+  args: ['test', '-v', '--cover', 'github.com/m-okeefe/spookystore/cmd/spookystore']
   env: ['PROJECT_ROOT=spookystore']
 - name: 'gcr.io/cloud-builders/docker'
   args: ['build', '-t', 'gcr.io/spookystore-18/$REPO_NAME-web:latest', '.', '-f', 'Dockerfile.web']
