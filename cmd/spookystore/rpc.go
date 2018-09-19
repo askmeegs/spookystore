@@ -20,17 +20,27 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/ptypes"
+	tspb "github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/pkg/errors"
 
+	dw "github.com/m-okeefe/spookystore/internal/datastore_wrapper"
 	pb "github.com/m-okeefe/spookystore/internal/proto"
 
 	"cloud.google.com/go/datastore"
 	"cloud.google.com/go/trace"
 
+	"github.com/jonboulle/clockwork"
+
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 )
 
+type Server struct {
+	ds    dw.DatastoreWrapper
+	clock clockwork.Clock
+}
+
+// AuthorizeGoogle generates an OAuth2 client token for this Google user
 func (s *Server) AuthorizeGoogle(ctx context.Context, goog *pb.User) (*pb.User, error) {
 	span := trace.FromContext(ctx).NewChild("usersvc/AuthorizeGoogle")
 	defer span.Finish()
@@ -39,14 +49,13 @@ func (s *Server) AuthorizeGoogle(ctx context.Context, goog *pb.User) (*pb.User, 
 
 	log := log.WithFields(logrus.Fields{
 		"op":        "AuthorizeGoogle",
-		"google.id": goog.GetGoogleID()})
+		"google.id": gid})
 	log.Debug("received request")
 
 	cs := span.NewChild("datastore/query/user/by_ID")
+
 	q := datastore.NewQuery("User").Filter("GoogleID =", goog.GoogleID).Limit(1)
 	var v []User
-
-	fmt.Printf("\n\n\n BUG -- GoogleID is %s, query is %#v", goog.GoogleID, q)
 
 	if _, err := s.ds.GetAll(ctx, q, &v); err != nil {
 		log.WithField("error", err).Error("failed to query the datastore")
@@ -65,13 +74,15 @@ func (s *Server) AuthorizeGoogle(ctx context.Context, goog *pb.User) (*pb.User, 
 			Picture:     goog.Picture,
 		}
 
-		// create new user
-		k, err := s.ds.Put(ctx, datastore.IncompleteKey("User", nil), u)
+		ik := datastore.IncompleteKey("User", nil)
+
+		k, err := s.ds.Put(ctx, ik, u)
 		if err != nil {
 			log.WithField("error", err).Error("failed to save to datastore")
 			return nil, errors.New("failed to save")
 		}
 		id = fmt.Sprintf("%d", k.ID)
+
 		u.ID = id
 		_, err = s.ds.Put(ctx, datastore.IDKey("User", k.ID, nil), u)
 		if err != nil {
@@ -97,6 +108,7 @@ func (s *Server) AuthorizeGoogle(ctx context.Context, goog *pb.User) (*pb.User, 
 	return user.GetUser(), nil
 }
 
+// GetUser fetches this User from Cloud Datastore
 func (s *Server) GetUser(ctx context.Context, req *pb.UserRequest) (*pb.UserResponse, error) {
 	span := trace.FromContext(ctx).NewChild("usersvc/GetUser")
 	defer span.Finish()
@@ -140,6 +152,7 @@ func (s *Server) GetUser(ctx context.Context, req *pb.UserRequest) (*pb.UserResp
 		}}, nil
 }
 
+// GetNumTransactions fetches the Number of total SpookyStore transactions from Cloud datastore
 func (s *Server) GetNumTransactions(ctx context.Context, req *pb.GetNumTransactionsRequest) (*pb.NumTransactionsResponse, error) {
 	var t TransactionCounter
 	k := datastore.NameKey("TransactionCounter", "AllPurchases", nil)
@@ -153,6 +166,7 @@ func (s *Server) GetNumTransactions(ctx context.Context, req *pb.GetNumTransacti
 	}, nil
 }
 
+// GetAllProducts returns a list of all Products in the datastore
 func (s *Server) GetAllProducts(ctx context.Context, req *pb.GetAllProductsRequest) (*pb.GetAllProductsResponse, error) {
 	span := trace.FromContext(ctx).NewChild("spookystoresvc/GetAllProducts")
 	defer span.Finish()
@@ -177,6 +191,7 @@ func (s *Server) GetAllProducts(ctx context.Context, req *pb.GetAllProductsReque
 	return &pb.GetAllProductsResponse{ProductList: result}, nil
 }
 
+// GetProduct fetches a specific product from Datastore
 func (s *Server) GetProduct(ctx context.Context, req *pb.GetProductRequest) (*pb.Product, error) {
 	var v Product
 	parsed, err := strconv.ParseInt(req.ID, 10, 64)
@@ -192,9 +207,13 @@ func (s *Server) GetProduct(ctx context.Context, req *pb.GetProductRequest) (*pb
 		log.WithField("error", err).Error("failed to query the datastore")
 		return nil, errors.Wrap(err, "failed to query")
 	}
-	log.Debug("found product")
+
+	finalID := ""
+	if v.K != nil {
+		finalID = fmt.Sprintf("%d", v.K.ID)
+	}
 	return &pb.Product{
-		ID:          fmt.Sprintf("%d", v.K.ID),
+		ID:          finalID,
 		DisplayName: v.DisplayName,
 		PictureURL:  v.PictureURL,
 		Cost:        v.Cost,
@@ -211,7 +230,8 @@ func findProductInCart(items []*pb.CartItem, id string) int {
 	return -1
 }
 
-// Cart is a set
+// AddProductToCart adds one or more Quantity of this Product to a User's Cart
+// Note - Cart works like a set, and only stores one CartItem per Product (but supports 1+ quantity of that product)
 func (s *Server) AddProductToCart(ctx context.Context, req *pb.AddProductRequest) (*pb.AddProductResponse, error) {
 	// get user
 	userResp, err := s.GetUser(ctx, &pb.UserRequest{ID: req.UserID})
@@ -266,6 +286,7 @@ func (s *Server) AddProductToCart(ctx context.Context, req *pb.AddProductRequest
 	return &pb.AddProductResponse{Success: true}, nil
 }
 
+// ClearCart zeroes out a User's Cart, and writes the empty Cart back to Datastore
 func (s *Server) ClearCart(ctx context.Context, req *pb.UserRequest) (*pb.ClearCartResponse, error) {
 	userResp, err := s.GetUser(ctx, &pb.UserRequest{ID: req.ID})
 	if err != nil {
@@ -283,15 +304,16 @@ func (s *Server) ClearCart(ctx context.Context, req *pb.UserRequest) (*pb.ClearC
 	return &pb.ClearCartResponse{Success: true}, nil
 }
 
-// Transforms the Cart items into a Transaction
+// CHeckout gets a user's Cart, clears it, then adds a new Transaction for that user with a Timestamp
 func (s *Server) Checkout(ctx context.Context, req *pb.UserRequest) (*pb.CheckoutResponse, error) {
 	userResp, err := s.GetUser(ctx, req)
 	if err != nil {
 		return &pb.CheckoutResponse{Success: false}, err
 	}
 	user := userResp.User
+
 	t := &pb.Transaction{
-		CompletedTime: ptypes.TimestampNow(),
+		CompletedTime: ClockworkNow(s),
 		Items:         user.Cart,
 	}
 	if user.Transactions == nil {
@@ -313,4 +335,12 @@ func (s *Server) Checkout(ctx context.Context, req *pb.UserRequest) (*pb.Checkou
 	}
 	return &pb.CheckoutResponse{Success: true}, nil
 
+}
+
+// ClockworkNow stubs time.Now to avoid unit testing field equality problems
+// (ie. EXPECT's time.now is never equal to the actual execution's time.Now)
+func ClockworkNow(s *Server) *tspb.Timestamp {
+	n := s.clock.Now()
+	output, _ := ptypes.TimestampProto(n)
+	return output
 }
