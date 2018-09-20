@@ -40,6 +40,7 @@ import (
 var (
 	projectID = flag.String("google-project-id", "", "google cloud project id")
 	addr      = flag.String("addr", ":8001", "[host]:port to listen")
+	logLevel  = flag.String("log-level", "info", "info, debug, warn, error")
 
 	log *logrus.Entry
 )
@@ -50,7 +51,17 @@ func init() {
 	if err != nil {
 		log.Fatal(errors.Wrap(err, "cannot get hostname"))
 	}
-	logrus.SetLevel(logrus.DebugLevel)
+	switch *logLevel {
+	case "error":
+		logrus.SetLevel(logrus.ErrorLevel)
+	case "warn":
+		logrus.SetLevel(logrus.WarnLevel)
+	case "debug":
+		logrus.SetLevel(logrus.DebugLevel)
+	default:
+		logrus.SetLevel(logrus.InfoLevel)
+	}
+
 	logrus.SetFormatter(&logrus.JSONFormatter{FieldMap: logrus.FieldMap{logrus.FieldKeyLevel: "severity"}})
 	log = logrus.WithFields(logrus.Fields{
 		"service": "spookystore",

@@ -54,6 +54,7 @@ var (
 	addr               = flag.String("addr", ":8000", "[host]:port to listen")
 	oauthConfig        = flag.String("google-oauth2-config", "", "path to oauth2 config json")
 	spookyStoreBackend = flag.String("spooky-store-addr", "", "address of spookystore backend")
+	logLevel           = flag.String("log-level", "info", "info, debug, warn, error")
 
 	hashKey  = []byte("very-secret")      // TODO extract to env
 	blockKey = []byte("a-lot-secret-key") // TODO extract to env
@@ -68,7 +69,17 @@ func main() {
 	if err != nil {
 		log.Error(errors.Wrap(err, "cannot get hostname"))
 	}
-	logrus.SetLevel(logrus.DebugLevel)
+	switch *logLevel {
+	case "error":
+		logrus.SetLevel(logrus.ErrorLevel)
+	case "warn":
+		logrus.SetLevel(logrus.WarnLevel)
+	case "debug":
+		logrus.SetLevel(logrus.DebugLevel)
+	default:
+		logrus.SetLevel(logrus.InfoLevel)
+	}
+
 	logrus.SetFormatter(&logrus.JSONFormatter{FieldMap: logrus.FieldMap{logrus.FieldKeyLevel: "severity"}})
 	log = logrus.WithFields(logrus.Fields{
 		"service": "web",
