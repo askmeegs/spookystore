@@ -27,16 +27,15 @@ type CloudDatastore struct {
 	D *datastore.Client
 }
 
-func NewCloudDatastore(ctx context.Context, projectID string) (*CloudDatastore, error) {
+func NewCloudDatastore(projectID string) (*CloudDatastore, context.Context, error) {
+	ctx := context.Background()
 	ds, err := datastore.NewClient(ctx, projectID)
 	if err != nil {
-		return &CloudDatastore{}, err
+		return &CloudDatastore{}, ctx, err
 	}
-	defer ds.Close()
-
 	return &CloudDatastore{
 		D: ds,
-	}, nil
+	}, ctx, nil
 }
 
 func (c *CloudDatastore) Get(ctx context.Context, k *datastore.Key, i interface{}) error {

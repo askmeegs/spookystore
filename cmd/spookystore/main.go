@@ -70,21 +70,11 @@ func main() {
 	}
 
 	// Initialize server
-	ctx := context.Background()
-
-	ds, err := dw.NewCloudDatastore(ctx, *projectID)
+	ds, ctx, err := dw.NewCloudDatastore(*projectID)
 	if err != nil {
 		log.Fatal(errors.Wrap(err, "failed to initialize cloud datastore wrapper"))
 	}
-
-	fmt.Println("\n\n ABOUT TO TRY TO GET ME...")
-	var me User
-	err = ds.D.Get(ctx, datastore.IDKey("User", 5706163895140352, nil), &me)
-	if err != nil {
-		fmt.Printf("GET ME ERROR: %v", err)
-	} else {
-		fmt.Println("GOT ME WITHOUT ERR ")
-	}
+	defer ds.D.Close()
 
 	tc, err := trace.NewClient(ctx, *projectID)
 	if err != nil {
