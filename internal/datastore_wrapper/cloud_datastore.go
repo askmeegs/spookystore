@@ -24,11 +24,10 @@ import (
 )
 
 type CloudDatastore struct {
-	d *datastore.Client
+	D *datastore.Client
 }
 
 func NewCloudDatastore(ctx context.Context, projectID string) (*CloudDatastore, error) {
-
 	ds, err := datastore.NewClient(ctx, projectID)
 	if err != nil {
 		return &CloudDatastore{}, err
@@ -36,18 +35,18 @@ func NewCloudDatastore(ctx context.Context, projectID string) (*CloudDatastore, 
 	defer ds.Close()
 
 	return &CloudDatastore{
-		d: ds,
+		D: ds,
 	}, nil
 }
 
 func (c *CloudDatastore) Get(ctx context.Context, k *datastore.Key, i interface{}) error {
-	return c.d.Get(ctx, k, &i)
+	return c.D.Get(ctx, k, i)
 }
 
 func (c *CloudDatastore) Put(ctx context.Context, k *datastore.Key, i interface{}) (*datastore.Key, error) {
-	return c.d.Put(ctx, k, &i)
+	return c.D.Put(ctx, k, i)
 }
 
 func (c *CloudDatastore) GetAll(ctx context.Context, q *datastore.Query, i interface{}) ([]*datastore.Key, error) {
-	return c.d.GetAll(ctx, q, &i)
+	return c.D.GetAll(ctx, q, i)
 }
