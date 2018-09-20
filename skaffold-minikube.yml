@@ -1,0 +1,19 @@
+apiVersion: skaffold/v1alpha2
+kind: Config
+build:
+  tagPolicy:
+    gitCommit: {}
+  artifacts:
+  - imageName: gcr.io/spookystore-18/github-m-okeefe-spookystore
+    workspace: .
+    docker:
+      dockerfilePath: Dockerfile
+  - imageName: gcr.io/spookystore-18/github-m-okeefe-spookystore-web
+    workspace: .
+    docker:
+      dockerfilePath: Dockerfile.web
+deploy:
+  kubectl:
+    manifests:
+    - manifests/spookystore/**
+    - manifests/web/**
