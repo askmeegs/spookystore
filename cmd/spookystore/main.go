@@ -119,7 +119,6 @@ func main() {
 
 // add products from JSON file to Cloud Datastore. return list of productk eys
 func populateProducts(ctx context.Context, ds dw.DatastoreWrapper) ([]string, error) {
-	log.Info("POPULATING PRODUCTS...")
 	pKeys := []string{}
 
 	// add products only if not already present
@@ -131,13 +130,10 @@ func populateProducts(ctx context.Context, ds dw.DatastoreWrapper) ([]string, er
 	var i map[string]Product
 	json.Unmarshal(file, &i)
 	for DispName, v := range i {
-		log.Infof("ABOUT TO QUERY where displayName is %s", DispName)
 		q := datastore.NewQuery("Product").Filter("DisplayName =", DispName)
 		var result []*Product
-		log.Info("GET ALL....")
 		k, err := ds.GetAll(ctx, q, &result)
 		if err != nil {
-			log.Errorf("FAILED TO GET ALL: %v", err)
 			return nil, err
 		}
 		if len(result) > 0 {
@@ -151,7 +147,6 @@ func populateProducts(ctx context.Context, ds dw.DatastoreWrapper) ([]string, er
 			PictureURL:  v.PictureURL,
 			Description: v.Description,
 		}
-		log.Info("POPULATE PUT...")
 		newK, err := ds.Put(ctx, key, p)
 		if err != nil {
 			return nil, err
