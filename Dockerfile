@@ -5,7 +5,6 @@ RUN apk add --update ca-certificates && \
 
 FROM golang:1.11-alpine3.7 as build
 COPY . $GOPATH/src/github.com/m-okeefe/spookystore
-ARG REVISION_ID
 WORKDIR $GOPATH/src/github.com/m-okeefe/spookystore
 RUN go build -o ./bin/spookystore ./cmd/spookystore
 COPY ./cmd/spookystore/inventory/products.json ./inventory/products.json

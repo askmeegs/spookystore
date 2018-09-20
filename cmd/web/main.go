@@ -54,6 +54,7 @@ var (
 	addr               = flag.String("addr", ":8000", "[host]:port to listen")
 	oauthConfig        = flag.String("google-oauth2-config", "", "path to oauth2 config json")
 	spookyStoreBackend = flag.String("spooky-store-addr", "", "address of spookystore backend")
+	logLevel           = flag.String("log-level", "info", "info, debug, warn, error")
 
 	hashKey  = []byte("very-secret")      // TODO extract to env
 	blockKey = []byte("a-lot-secret-key") // TODO extract to env
@@ -66,9 +67,19 @@ func main() {
 	flag.Parse()
 	host, err := os.Hostname()
 	if err != nil {
-		log.Fatal(errors.Wrap(err, "cannot get hostname"))
+		log.Error(errors.Wrap(err, "cannot get hostname"))
 	}
-	logrus.SetLevel(logrus.DebugLevel)
+	switch *logLevel {
+	case "error":
+		logrus.SetLevel(logrus.ErrorLevel)
+	case "warn":
+		logrus.SetLevel(logrus.WarnLevel)
+	case "debug":
+		logrus.SetLevel(logrus.DebugLevel)
+	default:
+		logrus.SetLevel(logrus.InfoLevel)
+	}
+
 	logrus.SetFormatter(&logrus.JSONFormatter{FieldMap: logrus.FieldMap{logrus.FieldKeyLevel: "severity"}})
 	log = logrus.WithFields(logrus.Fields{
 		"service": "web",
@@ -79,36 +90,36 @@ func main() {
 	sc.SetSerializer(securecookie.JSONEncoder{})
 
 	if env := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS"); env == "" {
-		log.Fatal("GOOGLE_APPLICATION_CREDENTIALS environment variable is not set")
+		log.Error("GOOGLE_APPLICATION_CREDENTIALS environment variable is not set")
 	}
 	if *projectID == "" {
-		log.Fatal("google cloud project id flag not specified")
+		log.Error("google cloud project id flag not specified")
 	}
 	if *spookyStoreBackend == "" {
-		log.Fatal("spookystorebackend address flag not specified")
+		log.Error("spookystorebackend address flag not specified")
 	}
 	if *oauthConfig == "" {
-		log.Fatal("google oauth2 config flag not specified")
+		log.Error("google oauth2 config flag not specified")
 	}
 
 	b, err := ioutil.ReadFile(*oauthConfig)
 	if err != nil {
-		log.Fatal(errors.Wrap(err, "failed to parse config file"))
+		log.Error(errors.Wrap(err, "failed to parse config file"))
 	}
 	authConf, err := google.ConfigFromJSON(b)
 	if err != nil {
-		log.Fatal(errors.Wrap(err, "failed to parse config file"))
+		log.Error(errors.Wrap(err, "failed to parse config file"))
 	}
 
 	tc, err := trace.NewClient(context.Background(), *projectID)
 	if err != nil {
-		log.Fatal(errors.Wrap(err, "failed to initialize trace client"))
+		log.Error(errors.Wrap(err, "failed to initialize trace client"))
 	}
 	spookySvcConn, err := grpc.Dial(*spookyStoreBackend,
 		grpc.WithInsecure(),
 		grpc.WithUnaryInterceptor(tc.GRPCClientInterceptor()))
 	if err != nil {
-		log.Fatal(errors.Wrap(err, "cannot connect to backend spookystore service"))
+		log.Error(errors.Wrap(err, "cannot connect to backend spookystore service"))
 	}
 	defer func() {
 		log.Info("closing connection to spookystore backend")
@@ -116,7 +127,7 @@ func main() {
 	}()
 	sp, err := trace.NewLimitedSampler(1.0, 5)
 	if err != nil {
-		log.Fatal(errors.Wrap(err, "failed to create sampling policy"))
+		log.Error(errors.Wrap(err, "failed to create sampling policy"))
 	}
 	tc.SetSamplingPolicy(sp)
 
@@ -143,7 +154,7 @@ func main() {
 		Handler: r}
 	log.WithFields(logrus.Fields{"addr": *addr,
 		"spookyStore": *spookyStoreBackend}).Info("starting to listen on http")
-	log.Fatal(errors.Wrap(srv.ListenAndServe(), "failed to listen/serve"))
+	log.Error(errors.Wrap(srv.ListenAndServe(), "failed to listen/serve"))
 }
 
 type httpErrorWriter func(http.ResponseWriter, error)
@@ -191,8 +202,8 @@ func (s *server) home(w http.ResponseWriter, r *http.Request) {
 	}
 	resp, err := s.spookySvc.GetAllProducts(ctx, &pb.GetAllProductsRequest{})
 	if err != nil {
-		fmt.Println(err)
-		serverError(w, errors.Wrap(err, "failed to get all products"))
+		log.Error(err)
+		return
 	}
 
 	tResp, _ := s.spookySvc.GetNumTransactions(ctx, &pb.GetNumTransactionsRequest{})
@@ -207,7 +218,7 @@ func (s *server) home(w http.ResponseWriter, r *http.Request) {
 		"me":              user,
 		"numTransactions": numTransactions,
 		"products":        resp.ProductList}); err != nil {
-		log.Fatal(err)
+		log.Error(err)
 	}
 }
 
@@ -392,7 +403,7 @@ func (s *server) cart(w http.ResponseWriter, r *http.Request) {
 		"user":      userResp.GetUser(),
 		"CartItems": userResp.GetUser().Cart.GetItems(),
 	}); err != nil {
-		log.Fatal(err)
+		log.Error(err)
 	}
 	w.Header().Set("Location", "/") //take me home
 	w.WriteHeader(http.StatusOK)
@@ -490,7 +501,7 @@ func (s *server) userProfile(w http.ResponseWriter, r *http.Request) {
 		"user":         u,
 		"Transactions": fTransactions,
 	}); err != nil {
-		log.Fatal(err)
+		log.Error(err)
 	}
 	w.Header().Set("Location", "/") //take me home
 	w.WriteHeader(http.StatusOK)
