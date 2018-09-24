@@ -206,7 +206,7 @@ func (s *server) home(w http.ResponseWriter, r *http.Request) {
 	}
 	pl := []*pb.Product{}
 	if resp != nil {
-		pl = resp.GetProductList()
+		pl = resp.ProductList
 	}
 
 	tResp, err := s.spookySvc.GetNumTransactions(ctx, &pb.GetNumTransactionsRequest{})
