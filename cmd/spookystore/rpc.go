@@ -182,13 +182,26 @@ func (s *Server) GetAllProducts(ctx context.Context, req *pb.GetAllProductsReque
 	cs := span.NewChild("datastore/query/products")
 	defer cs.Finish()
 
-	var result []*pb.Product
+	var result []Product
 	_, err := s.ds.GetAll(ctx, datastore.NewQuery("Product"), &result)
 	if err != nil {
 		log.WithField("error", err).Error("failed to query the datastore")
 		return nil, errors.Wrap(err, "failed to getAll")
 	}
-	return &pb.GetAllProductsResponse{ProductList: result}, nil
+
+	output := []*pb.Product{}
+	for _, r := range result {
+		temp := &pb.Product{
+			ID:          r.ID,
+			DisplayName: r.DisplayName,
+			Description: r.Description,
+			Cost:        r.Cost,
+			PictureURL:  r.PictureURL,
+		}
+		output = append(output, temp)
+	}
+
+	return &pb.GetAllProductsResponse{ProductList: output}, nil
 }
 
 // GetProduct fetches a specific product from Datastore

@@ -203,7 +203,10 @@ func (s *server) home(w http.ResponseWriter, r *http.Request) {
 	resp, err := s.spookySvc.GetAllProducts(ctx, &pb.GetAllProductsRequest{})
 	if err != nil {
 		log.Error(err)
-		return
+	}
+	pl := []*pb.Product{}
+	if resp != nil {
+		pl = resp.GetProductList()
 	}
 
 	tResp, err := s.spookySvc.GetNumTransactions(ctx, &pb.GetNumTransactionsRequest{})
@@ -223,7 +226,7 @@ func (s *server) home(w http.ResponseWriter, r *http.Request) {
 	if err := tmpl.Execute(w, map[string]interface{}{
 		"me":              user,
 		"numTransactions": numTransactions,
-		"products":        resp.ProductList}); err != nil {
+		"products":        pl}); err != nil {
 		log.Error(err)
 	}
 }
