@@ -12,7 +12,13 @@ steps:
   args: ['build', '-t', 'gcr.io/spookystore-18/$REPO_NAME-web:latest', 'github.com/m-okeefe/spookystore', '-f', 'Dockerfile.web']
   timeout: 500s
 - name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'gcr.io/spookystore-18/$REPO_NAME-web:latest']
+  timeout: 500s
+- name: 'gcr.io/cloud-builders/docker'
   args: ['build', '-t', 'gcr.io/spookystore-18/$REPO_NAME:latest', 'github.com/m-okeefe/spookystore', '-f', 'Dockerfile']
+  timeout: 500s
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'gcr.io/spookystore-18/$REPO_NAME:latest']
   timeout: 500s
 
 

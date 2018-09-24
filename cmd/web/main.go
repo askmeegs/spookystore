@@ -203,11 +203,20 @@ func (s *server) home(w http.ResponseWriter, r *http.Request) {
 	resp, err := s.spookySvc.GetAllProducts(ctx, &pb.GetAllProductsRequest{})
 	if err != nil {
 		log.Error(err)
-		return
+	}
+	pl := []*pb.Product{}
+	if resp != nil {
+		pl = resp.ProductList
 	}
 
-	tResp, _ := s.spookySvc.GetNumTransactions(ctx, &pb.GetNumTransactionsRequest{})
-	numTransactions := tResp.GetNumTransactions()
+	tResp, err := s.spookySvc.GetNumTransactions(ctx, &pb.GetNumTransactionsRequest{})
+	if err != nil {
+		log.Warn(err)
+	}
+	var numTransactions int32
+	if tResp == nil {
+		numTransactions = tResp.GetNumTransactions()
+	}
 
 	log.WithField("logged_in", user != nil).Debug("serving home page")
 	tmpl := template.Must(template.ParseFiles(
@@ -217,7 +226,7 @@ func (s *server) home(w http.ResponseWriter, r *http.Request) {
 	if err := tmpl.Execute(w, map[string]interface{}{
 		"me":              user,
 		"numTransactions": numTransactions,
-		"products":        resp.ProductList}); err != nil {
+		"products":        pl}); err != nil {
 		log.Error(err)
 	}
 }
