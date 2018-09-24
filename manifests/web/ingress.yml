@@ -20,3 +20,8 @@ spec:
   backend:
     serviceName: frontend-local
     servicePort: 8000
+
+
+
+
+    

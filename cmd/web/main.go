@@ -206,8 +206,14 @@ func (s *server) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tResp, _ := s.spookySvc.GetNumTransactions(ctx, &pb.GetNumTransactionsRequest{})
-	numTransactions := tResp.GetNumTransactions()
+	tResp, err := s.spookySvc.GetNumTransactions(ctx, &pb.GetNumTransactionsRequest{})
+	if err != nil {
+		log.Warn(err)
+	}
+	var numTransactions int32
+	if tResp == nil {
+		numTransactions = tResp.GetNumTransactions()
+	}
 
 	log.WithField("logged_in", user != nil).Debug("serving home page")
 	tmpl := template.Must(template.ParseFiles(
