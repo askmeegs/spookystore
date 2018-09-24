@@ -157,7 +157,7 @@ func TestGetAllProducts(t *testing.T) {
 	ts := &Server{m, clockwork.NewFakeClock()}
 	ctx := context.Background()
 
-	var result []*pb.Product
+	var result []Product
 	m.EXPECT().GetAll(ctx, datastore.NewQuery("Product"), &result)
 
 	_, err := ts.GetAllProducts(ctx, &pb.GetAllProductsRequest{})
